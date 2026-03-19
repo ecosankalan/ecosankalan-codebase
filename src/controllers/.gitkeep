@@ -1,0 +1,14 @@
+# controllers/
+# Business logic controllers — implemented Month 2 onwards.
+#
+# Each controller corresponds to a route file:
+#   authController.js     → routes/auth.js      (Month 2)
+#   userController.js     → routes/users.js     (Month 2)
+#   wasteController.js    → routes/waste.js     (Month 3)
+#   binController.js      → routes/bins.js      (Month 4)
+#   eventController.js    → routes/events.js    (Month 4)
+#   productController.js  → routes/products.js  (Month 5)
+#   orderController.js    → routes/orders.js    (Month 5)
+#
+# Pattern: controllers contain the business logic,
+# routes just wire HTTP methods to controller functions.

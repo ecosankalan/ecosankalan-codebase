@@ -1,0 +1,13 @@
+# models/
+# Mongoose schemas — implemented by Atishay (2024UCS1510).
+#
+# 6 collections:
+#   User.js       — auth, eco-points, badges
+#   WasteLog.js   — waste entries, AI results
+#   Bin.js        — recycling bin locations (2dsphere geospatial)
+#   Event.js      — community drive events
+#   Product.js    — Eco-Shop products
+#   Order.js      — cart + checkout + Razorpay
+#
+# Schema design document: docs/schema-design.md
+# Reference: CPVS proposal, MongoDB Schema Design (Month 1 deliverable)

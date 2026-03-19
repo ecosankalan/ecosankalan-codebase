@@ -1,0 +1,61 @@
+# ==========================================
+# EcoSankalan — .gitignore
+# ==========================================
+
+# ── Environment & Secrets ──────────────────
+# NEVER commit .env — it contains API keys, DB passwords, JWT secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ── Node.js ───────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# ── Build outputs ─────────────────────────
+dist/
+build/
+.next/
+out/
+
+# ── Testing ───────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Logs ──────────────────────────────────
+logs/
+*.log
+
+# ── OS files ──────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── IDE & Editor ──────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Vercel ────────────────────────────────
+.vercel
+
+# ── Uploads (local dev only) ──────────────
+uploads/
+temp/
+
+# ── MongoDB dump (never commit raw DB data) ──
+*.dump
+dump/
