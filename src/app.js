@@ -34,7 +34,7 @@ const binRoutes = require('./routes/bins');
 const eventRoutes = require('./routes/events');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
-
+const quizRoutes = require('./routes/quizRoutes'); // <--- ADD THIS
 // Middleware imports
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
@@ -55,9 +55,18 @@ app.use(helmet());
 // Browsers block requests from a different origin by default.
 // This tells the browser "yes, our API allows requests from these origins."
 // ─────────────────────────────────────────────────
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000')
-  .split(',')
-  .map((o) => o.trim());
+// Supports:
+// - CLIENT_URL (single origin, per task acceptance criteria)
+// - ALLOWED_ORIGINS (comma-separated, existing setup)
+const allowedOrigins = [
+  ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
+  ...(process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3000']
+  ),
+]
+  .map((o) => (o || '').trim())
+  .filter(Boolean);
 
 app.use(
   cors({
@@ -117,15 +126,20 @@ app.use('/api', globalLimiter);
 // All API routes are prefixed with /api/v1
 // Versioning (/v1) means we can release /v2 without breaking existing clients
 // ─────────────────────────────────────────────────
+
 app.use('/health', healthRoutes);               // GET /health — no version prefix
 app.use('/api/v1/auth', authRoutes);            // Month 2
 app.use('/api/v1/users', userRoutes);           // Month 2
+app.use('/api/v1/user', userRoutes);            // Alias (singular)
+app.use('/auth', authRoutes);                   // Alias (unversioned)
+app.use('/user', userRoutes);                   // Alias (unversioned)
 app.use('/api/v1/waste', wasteRoutes);          // Month 3
 app.use('/api/v1/bins', binRoutes);             // Month 4
 app.use('/api/v1/events', eventRoutes);         // Month 4
 app.use('/api/v1/products', productRoutes);     // Month 5
 app.use('/api/v1/orders', orderRoutes);         // Month 5
-
+app.use('/api/v1/quiz', quizRoutes); // Versioned route
+app.use('/quiz', quizRoutes);        // Alias for easier testing
 // Root route
 app.get('/', (req, res) => {
   res.json({

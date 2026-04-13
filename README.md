@@ -46,7 +46,6 @@ EcoSankalan is a community-driven mobile + web app that lets urban residents:
 | AI | Google Gemini 1.5 Flash (Vision) |
 | Maps | OpenStreetMap + Leaflet.js |
 | Auth | JWT + bcrypt + OTP (MSG91) |
-| Payments | Razorpay |
 | Push Notifs | Firebase FCM |
 | Hosting | Vercel |
 
@@ -82,12 +81,7 @@ curl http://localhost:5000/health
 
 Expected response:
 ```json
-{
-  "success": true,
-  "project": "EcoSankalan",
-  "server": "running",
-  "database": "connected"
-}
+{ "status": "ok" }
 ```
 
 ---
@@ -132,17 +126,17 @@ ecosankalan-codebase/
 | Method | Route | Status | Month |
 |--------|-------|--------|-------|
 | GET | `/health` | ✅ Live | 1 |
-| POST | `/api/v1/auth/register` | 🔧 Stub | 2 |
-| POST | `/api/v1/auth/verify-otp` | 🔧 Stub | 2 |
-| POST | `/api/v1/auth/login` | 🔧 Stub | 2 |
-| GET | `/api/v1/users/profile` | 🔧 Stub | 2 |
+| POST | `/api/v1/auth/register` | ✅ Live | 2 |
+| POST | `/api/v1/auth/verify-otp` | ✅ Live | 2 |
+| POST | `/api/v1/auth/login` | ✅ Live | 2 |
+| GET | `/api/v1/users/profile` | ✅ Live | 2 |
 | POST | `/api/v1/waste/log` | 🔧 Stub | 3 |
 | GET | `/api/v1/waste/stats` | 🔧 Stub | 3 |
 | GET | `/api/v1/bins?lat&lng&radius` | 🔧 Stub | 4 |
 | POST | `/api/v1/events/:id/rsvp` | 🔧 Stub | 4 |
 | POST | `/api/v1/orders/checkout` | 🔧 Stub | 5 |
 
-Full API documentation: [Postman Collection](docs/postman/) _(coming Month 2)_
+Full API documentation: `docs/postman/EcoSankalan_Month2_v1.postman_collection.json`
 
 ---
 

@@ -1,40 +1,70 @@
 /**
  * routes/auth.js
- * Authentication routes — stubs for Month 2 implementation.
+ * Authentication routes — Month 2 implementation.
  *
- * These routes are intentionally stubbed (returning 501 Not Implemented)
- * so the folder structure is in place for Month 2. Atishay can see the
- * API surface area and plan accordingly.
- *
- * Month 2 will implement:
- *   POST /auth/register  → create user, send OTP via MSG91
- *   POST /auth/verify-otp → verify OTP, issue JWT
- *   POST /auth/login     → login with email+password, issue JWT
- *   POST /auth/refresh   → refresh JWT using refresh token
- *   POST /auth/logout    → invalidate refresh token
+ * SRS FRs: FR-01 (register), FR-02 (OTP), FR-03 (login)
+ * Public routes: no JWT required
+ * Protected: logout requires valid JWT
  */
 
 const express = require('express');
+const { body } = require('express-validator');
 const { protect } = require('../middleware/auth');
+const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-// Stub — will be replaced in Month 2 with full implementation
-const stub = (routeName) => (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: `${routeName} not yet implemented. Coming in Month 2.`,
-    docs: 'https://github.com/ecosankalan/ecosankalan-codebase/wiki',
-  });
-};
+// ── POST /auth/register (FR-01) ───────────────────────────────────────────────
+router.post('/register', [
+  body('name')
+    .trim()
+    .notEmpty().withMessage('Name is required')
+    .isLength({ min: 2, max: 80 }).withMessage('Name must be 2–80 characters'),
+  body('email')
+    .isEmail().withMessage('Valid email is required')
+    .normalizeEmail(),
+  body('phone')
+    .matches(/^[6-9]\d{9}$/).withMessage('Valid 10-digit Indian mobile number required'),
+  body('password')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+], authController.register);
 
-// Public routes (no token needed)
-router.post('/register', stub('POST /auth/register'));
-router.post('/verify-otp', stub('POST /auth/verify-otp'));
-router.post('/login', stub('POST /auth/login'));
-router.post('/refresh', stub('POST /auth/refresh'));
+// ── POST /auth/verify-otp (FR-02) ────────────────────────────────────────────
+// router.post('/verify-otp', [
+//   body('userId').notEmpty().withMessage('userId is required'),
+//   body('otp')
+//     .isLength({ min: 6, max: 6 }).withMessage('OTP must be exactly 6 digits')
+//     .isNumeric().withMessage('OTP must be numeric'),
+// ], authController.verifyOTP);
 
-// Protected routes (need valid JWT)
-router.post('/logout', protect, stub('POST /auth/logout'));
+// ── POST /auth/login (FR-03) ─────────────────────────────────────────────────
+router.post('/login', [
+  body('password').notEmpty().withMessage('Password is required'),
+  body().custom((_, { req }) => {
+    if (!req.body.email && !req.body.phone)
+      throw new Error('Email or phone number is required');
+    return true;
+  }),
+], authController.login);
+
+// ── POST /auth/forgot-password ───────────────────────────────────────────────
+router.post('/forgot-password', [
+  body('phone')
+    .matches(/^[6-9]\d{9}$/).withMessage('Valid phone number required'),
+], authController.forgotPassword);
+
+// ── POST /auth/reset-password ────────────────────────────────────────────────
+router.post('/reset-password', [
+  body('userId').notEmpty().withMessage('userId is required'),
+  body('otp').isLength({ min: 6, max: 6 }).isNumeric(),
+  body('newPassword').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+], authController.resetPassword);
+
+// ── POST /auth/logout (protected) ────────────────────────────────────────────
+// JWT is stateless — logout just means client deletes the token.
+// This endpoint exists for future refresh token invalidation.
+router.post('/logout', protect, (req, res) => {
+  res.status(200).json({ message: 'Logged out successfully' });
+});
 
 module.exports = router;

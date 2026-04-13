@@ -9,7 +9,9 @@
  */
 
 // Load environment variables FIRST — before any other import reads process.env
-require('dotenv').config();
+// BULLETPROOF PATH: Forces dotenv to look in the parent folder of 'src'
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const app = require('./app');
 const connectDB = require('./config/database');

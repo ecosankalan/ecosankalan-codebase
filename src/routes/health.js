@@ -11,30 +11,12 @@
  */
 
 const express = require('express');
-const mongoose = require('mongoose');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  // mongoose.connection.readyState values:
-  //   0 = disconnected | 1 = connected | 2 = connecting | 3 = disconnecting
-  const dbStates = ['disconnected', 'connected', 'connecting', 'disconnecting'];
-  const dbState = dbStates[mongoose.connection.readyState] || 'unknown';
-
-  const status = {
-    success: true,
-    project: 'EcoSankalan',
-    version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development',
-    server: 'running',
-    database: dbState,
-    timestamp: new Date().toISOString(),
-    uptime: `${Math.floor(process.uptime())}s`,
-  };
-
-  // Return 200 if DB is connected, 503 (Service Unavailable) if not
-  const httpStatus = dbState === 'connected' ? 200 : 503;
-  res.status(httpStatus).json(status);
+  // Acceptance criteria (Month 2): GET /health must return HTTP 200 {status:'ok'}
+  res.status(200).json({ status: 'ok' });
 });
 
 module.exports = router;

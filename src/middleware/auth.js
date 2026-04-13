@@ -12,8 +12,8 @@
  * Calling next() passes control to the next middleware/route.
  * NOT calling next() stops the request right there.
  *
- * DPDP Act 2023: We store only userId in the token — no name, email,
- * or sensitive data embedded in the JWT payload.
+ * Note: Month 2 auth spec uses JWT payload { userId, email, role }.
+ * Keep payload minimal (no password/OTP or other sensitive fields).
  */
 
 const jwt = require('jsonwebtoken');
@@ -42,9 +42,10 @@ const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // 3. Attach the decoded payload to req so downstream handlers can use it
-    //    We only stored { userId, role } in the token (see auth controller in Month 2)
+    //    Token payload includes { userId, email, role } (Month 2 auth spec)
     req.user = {
       userId: decoded.userId,
+      email: decoded.email,
       role: decoded.role,
     };
 

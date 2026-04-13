@@ -1,23 +1,21 @@
 /**
- * routes/users.js — User profile routes (Month 2)
+ * routes/users.js
+ * User profile routes — Month 2 implementation.
+ * SRS FR-04: profile view and update.
  */
+
 const express = require('express');
-const { protect, authorize } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
+const userController = require('../controllers/userController');
+
 const router = express.Router();
 
-const stub = (routeName) => (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: `${routeName} not yet implemented.`,
-  });
-};
-
-// All user routes require authentication
+// All routes here require a valid JWT
 router.use(protect);
 
-router.get('/profile', stub('GET /users/profile'));          // Month 2
-router.put('/profile', stub('PUT /users/profile'));          // Month 2
-router.get('/points', stub('GET /users/points'));            // Month 3
-router.get('/badges', stub('GET /users/badges'));            // Month 4
+router.get('/profile', userController.getProfile);   // FR-04
+router.put('/profile', userController.updateProfile); // FR-04
+router.get('/points', userController.getPoints);      // Month 3
+router.get('/badges', userController.getBadges);      // Month 4
 
 module.exports = router;
