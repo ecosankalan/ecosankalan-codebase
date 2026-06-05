@@ -26,15 +26,20 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 
 // Route imports
-const healthRoutes = require('./routes/health');
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const wasteRoutes = require('./routes/waste');
-const binRoutes = require('./routes/bins');
-const eventRoutes = require('./routes/events');
-const productRoutes = require('./routes/products');
-const orderRoutes = require('./routes/orders');
-const quizRoutes = require('./routes/quizRoutes'); // <--- ADD THIS
+const healthRoutes = require('./routes/health.js');
+const authRoutes = require('./routes/auth.js');
+const userRoutes = require('./routes/users.js');
+const wasteRoutes = require('./routes/waste.js');
+const binRoutes = require('./routes/bins.js');
+const eventRoutes = require('./routes/events.js');
+const productRoutes = require('./routes/products.js');
+const orderRoutes = require('./routes/orders.js');
+const quizRoutes = require('./routes/quizRoutes.js'); // <--- ADD THIS
+
+//Ai routes
+
+const analyzeRoutes = require('./routes/analyze');
+
 // Middleware imports
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
@@ -131,6 +136,8 @@ app.use('/health', healthRoutes);               // GET /health — no version pr
 app.use('/api/v1/auth', authRoutes);            // Month 2
 app.use('/api/v1/users', userRoutes);           // Month 2
 app.use('/api/v1/user', userRoutes);            // Alias (singular)
+
+app.use("/api/v1/ai", analyzeRoutes);                 // AI-powered waste analysis route
 app.use('/auth', authRoutes);                   // Alias (unversioned)
 app.use('/user', userRoutes);                   // Alias (unversioned)
 app.use('/api/v1/waste', wasteRoutes);          // Month 3
