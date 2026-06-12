@@ -314,7 +314,23 @@ export default function DashboardPage() {
             <button className="view-all-btn" onClick={() => navigate('/weekly-challenges')}>View All</button>
           </div>
           <div className="weekly-challenges-preview">
-            <div className="wc-preview-card" onClick={() => navigate('/weekly-challenges')}>
+            <div className="wc-preview-card" onClick={() => navigate('/challenge-progress', { state: { challenge: {
+              tag: 'Weekly Mission',
+              title: 'Zero-Plastic Week',
+              subtitle: 'Zero-Plastic Week',
+              desc: 'Eliminate all single-use plastics from your routine this week. Bring your own bags and bottles.',
+              progress: 60,
+              tasksCompleted: 3,
+              tasksTotal: 5,
+              reward: { points: 80, voucher: '10% Off EcoStore Voucher', note: "Unlock upon completing all tasks in the 'Zero-Plastic Week' challenge." },
+              tasks: [
+                { id: 1, label: 'Log Organic Waste',       done: true,  pending: false },
+                { id: 2, label: 'Watch Disposal Video',    done: true,  pending: false },
+                { id: 3, label: 'Attend Community Event',  done: false, pending: true, sub: 'Join the local cleanup this Saturday.' },
+                { id: 4, label: 'Complete Quiz',           done: true,  pending: false },
+                { id: 5, label: 'Earn 50 Eco Points',      done: false, pending: false },
+              ],
+            }}})}>
               <div className="wc-preview-icon-wrap">
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>recycling</span>
               </div>
@@ -327,7 +343,21 @@ export default function DashboardPage() {
               </div>
               <span className="wc-preview-status in-progress">In Progress</span>
             </div>
-            <div className="wc-preview-card" onClick={() => navigate('/weekly-challenges')}>
+            <div className="wc-preview-card" onClick={() => navigate('/challenge-progress', { state: { challenge: {
+              tag: 'Weekly Mission',
+              title: 'Compost Master',
+              subtitle: 'Compost Master',
+              desc: 'Start your own home composting bin to reduce organic waste footprint.',
+              progress: 0,
+              tasksCompleted: 0,
+              tasksTotal: 3,
+              reward: { points: 100, voucher: '15% Off EcoStore Voucher', note: "Unlock upon completing all tasks in the 'Compost Master' challenge." },
+              tasks: [
+                { id: 1, label: 'Buy a compost bin',        done: false, pending: false },
+                { id: 2, label: 'Add first kitchen scraps', done: false, pending: true, sub: 'Document with a photo.' },
+                { id: 3, label: 'Log your first compost',   done: false, pending: false },
+              ],
+            }}})}>
               <div className="wc-preview-icon-wrap secondary">
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>compost</span>
               </div>
