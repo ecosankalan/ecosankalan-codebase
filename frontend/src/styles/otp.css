@@ -1,0 +1,108 @@
+/* ── OTP Page ─────────────────────────────────────────────────────── */
+.otp-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface-container-lowest);
+  border-radius: 1.5rem;
+  box-shadow: 0 12px 32px rgba(25,28,27,0.08);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.otp-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.otp-logo-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.otp-logo-icon .material-symbols-outlined { font-size: 1.1rem; }
+.otp-brand-name {
+  font-family: var(--font-headline);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.otp-icon-wrap {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: var(--surface-container-low);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.otp-main-icon {
+  font-size: 2.5rem !important;
+  color: var(--primary);
+}
+
+/* OTP 6-box input grid */
+.otp-inputs {
+  display: flex;
+  gap: 0.625rem;
+  justify-content: center;
+  width: 100%;
+}
+.otp-box {
+  width: 3rem;
+  height: 3.5rem;
+  border: 1px solid rgba(191,201,189,0.35);
+  border-radius: 0.75rem;
+  background: var(--surface-container-lowest);
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--on-surface);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  caret-color: var(--primary);
+}
+.otp-box:focus {
+  border-color: rgba(0,81,39,0.4);
+  box-shadow: 0 0 0 3px rgba(0,81,39,0.08);
+}
+
+.otp-hint {
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+  width: 100%;
+}
+.otp-hint strong { color: var(--on-surface); }
+
+.resend-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+  padding: 0;
+  margin-top: 0.25rem;
+  text-align: center;
+  width: 100%;
+}
+.resend-btn:hover { text-decoration: underline; }
+
+/* Make auth-form full width inside otp-card */
+.otp-card .auth-form-wrapper,
+.otp-card .auth-form { width: 100%; }
