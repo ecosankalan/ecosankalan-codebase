@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--background);
+  color: var(--on-surface);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+:root {
+  --primary:                   #005127;
+  --primary-container:         #1b6b3a;
+  --primary-fixed:             #a5f4b6;
+  --primary-fixed-dim:         #8ad89c;
+  --on-primary:                #ffffff;
+  --on-primary-container:      #9ae9ab;
+  --on-primary-fixed:          #00210c;
+  --on-primary-fixed-variant:  #005227;
+
+  --secondary:                 #1b6d24;
+  --secondary-container:       #a0f399;
+  --secondary-fixed:           #a3f69c;
+  --secondary-fixed-dim:       #88d982;
+  --on-secondary:              #ffffff;
+  --on-secondary-container:    #217128;
+  --on-secondary-fixed:        #002204;
+  --on-secondary-fixed-variant:#005312;
+
+  --tertiary:                  #782c39;
+  --tertiary-container:        #964350;
+  --tertiary-fixed:            #ffd9dc;
+  --tertiary-fixed-dim:        #ffb2ba;
+  --on-tertiary:               #ffffff;
+  --on-tertiary-container:     #ffcacf;
+  --on-tertiary-fixed:         #3f0111;
+  --on-tertiary-fixed-variant: #792d3a;
+
+  --surface:                   #f8faf8;
+  --surface-dim:               #d8dad9;
+  --surface-bright:            #f8faf8;
+  --surface-variant:           #e1e3e1;
+  --surface-container-lowest:  #ffffff;
+  --surface-container-low:     #f2f4f2;
+  --surface-container:         #eceeec;
+  --surface-container-high:    #e6e9e7;
+  --surface-container-highest: #e1e3e1;
+  --surface-tint:              #1c6c3b;
+
+  --on-surface:                #191c1b;
+  --on-surface-variant:        #404940;
+  --inverse-surface:           #2e3130;
+  --inverse-on-surface:        #eff1ef;
+  --inverse-primary:           #8ad89c;
+
+  --outline:                   #707a6f;
+  --outline-variant:           #bfc9bd;
+
+  --background:                #f8faf8;
+  --on-background:             #191c1b;
+
+  --error:                     #ba1a1a;
+  --error-container:           #ffdad6;
+  --on-error:                  #ffffff;
+  --on-error-container:        #93000a;
+
+  --font-headline: 'Plus Jakarta Sans', sans-serif;
+  --font-body:     'Inter', sans-serif;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+.app-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  margin-top: 1rem;
+}
+.app-footer-text {
+  font-size: 0.8rem;
+  color: var(--on-surface-variant);
+}
+.app-footer-sub {
+  font-size: 0.75rem;
+  color: var(--outline);
+  margin-top: 0.25rem;
+}
+
+/* ── StatCard ─────────────────────────────────────────────────────── */
+.stat-card {
+  border-radius: var(--border-radius-lg, 0.75rem);
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.stat-card--default {
+  background: var(--surface-container-low);
+  border: 1px solid rgba(191,201,189,0.15);
+}
+.stat-card--green {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+.stat-card-icon { font-size: 1.5rem !important; }
+.stat-card-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--outline);
+  margin: 0 0 0.25rem;
+}
+.stat-card--green .stat-card-label { color: inherit; opacity: 0.7; }
+.stat-card-row { display: flex; align-items: baseline; gap: 0.5rem; }
+.stat-card-value {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+.stat-card--green .stat-card-value { color: inherit; }
+.stat-card-sub { font-size: 0.8rem; color: var(--outline); }

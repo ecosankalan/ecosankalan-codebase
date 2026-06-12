@@ -1,0 +1,643 @@
+/* ── Dashboard Page ───────────────────────────────────────────────── */
+.dashboard-root {
+  min-height: 100dvh;
+  background: var(--surface);
+  color: var(--on-surface);
+}
+
+.dashboard-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Hero Grid ────────────────────────────────────────────────────── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .hero-grid { grid-template-columns: 7fr 5fr; }
+}
+
+/* ── Eco Score Card — COMPACT ─────────────────────────────────────── */
+.eco-score-card {
+  background: var(--surface-container-lowest);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 1px 4px rgba(25,28,27,0.06);
+  border: 1px solid rgba(191,201,189,0.1);
+}
+
+/* Top row: small circle + score text + level badge */
+.eco-score-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.eco-score-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* Compact 70px circular ring */
+.circular-progress-medium {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, white 82%, transparent 83% 100%),
+    conic-gradient(var(--primary-container) 82%, var(--surface-container) 0);
+  flex-shrink: 0;
+}
+
+.eco-score-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--outline);
+}
+.eco-score-number {
+  display: block;
+  font-family: var(--font-headline);
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--on-surface);
+  line-height: 1.1;
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+/* Bottom section */
+.eco-score-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.eco-score-title {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin: 0;
+}
+.eco-score-desc {
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0;
+}
+.insights-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  color: var(--on-primary);
+  border: none;
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,81,39,0.2);
+  transition: opacity 0.15s, transform 0.1s;
+  width: fit-content;
+}
+.insights-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.insights-btn .material-symbols-outlined { font-size: 0.875rem; }
+
+/* ── Impact Bento ─────────────────────────────────────────────────── */
+.impact-bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Eco Points — spans full width */
+.bento-points {
+  grid-column: 1 / -1;
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 8rem;
+  box-shadow: 0 1px 4px rgba(25,28,27,0.06);
+}
+.bento-icon { font-size: 1.875rem; }
+.bento-points-content { margin-top: 1rem; }
+.bento-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+}
+.bento-points-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.bento-big-num {
+  font-family: var(--font-headline);
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+.bento-today { font-size: 0.8rem; font-weight: 500; opacity: 0.8; }
+
+/* ── Waste Management Fact Card — NEW ─────────────────────────────── */
+.bento-fact {
+  grid-column: 1 / -1;
+  background: rgba(160,243,153,0.3);
+  border: 1px solid var(--secondary-container);
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 1px 4px rgba(25,28,27,0.04);
+}
+.bento-fact-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bento-fact-icon {
+  font-size: 1.25rem !important;
+  color: var(--secondary);
+}
+.bento-fact-title {
+  font-family: var(--font-headline);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--on-secondary-container);
+  margin: 0;
+}
+.bento-fact-text {
+  font-size: 0.8rem;
+  color: var(--on-surface-variant);
+  line-height: 1.6;
+  margin: 0;
+}
+.bento-fact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary);
+  padding: 0;
+  transition: opacity 0.15s;
+}
+.bento-fact-btn:hover { opacity: 0.75; text-decoration: underline; }
+.bento-fact-btn .material-symbols-outlined { font-size: 0.875rem !important; }
+
+/* Small bento cards (Waste Logged + CO2) */
+.bento-small {
+  background: var(--surface-container-low);
+  padding: 1.25rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(191,201,189,0.15);
+}
+.bento-small-content { margin-top: 0.5rem; }
+.bento-small-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--outline);
+}
+.bento-small-num {
+  display: block;
+  font-family: var(--font-headline);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-top: 0.25rem;
+}
+
+/* ── Feed + Challenge Grid ────────────────────────────────────────── */
+.feed-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  .feed-grid { grid-template-columns: 2fr 1fr; }
+}
+
+.section-title {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin: 0;
+}
+
+.feed-col { display: flex; flex-direction: column; gap: 1.5rem; }
+.feed-header { display: flex; align-items: center; justify-content: space-between; }
+
+.view-all-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  padding: 0;
+}
+.view-all-btn:hover { text-decoration: underline; }
+
+.activity-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.activity-item {
+  background: var(--surface-container-lowest);
+  padding: 1.25rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(191,201,189,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.15s;
+}
+.activity-item:hover { background: var(--surface-container-low); }
+
+.activity-left { display: flex; align-items: center; gap: 1rem; }
+.activity-icon-wrap {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  background: var(--surface-container-high);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.activity-info {}
+.activity-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin: 0;
+}
+.activity-meta {
+  font-size: 0.8rem;
+  color: var(--on-surface-variant);
+  margin: 0.15rem 0 0;
+}
+
+.activity-right { text-align: right; flex-shrink: 0; }
+.activity-points {
+  display: block;
+  font-family: var(--font-headline);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+.activity-points.negative { color: var(--error); }
+.activity-status {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--outline);
+  margin-top: 0.15rem;
+}
+
+/* ── Challenge Card + Carousel ────────────────────────────────────── */
+.challenge-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0; /* prevent grid blowout on small screens */
+}
+
+.challenge-card {
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-shadow: 0 4px 16px rgba(25,28,27,0.1);
+  /* Responsive height: shorter on mobile, taller on desktop */
+  height: clamp(18rem, 55vw, 24rem);
+}
+@media (min-width: 768px) {
+  .challenge-card { height: 22rem; }
+}
+
+.challenge-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s;
+}
+.challenge-card:hover .challenge-bg { transform: scale(1.05); }
+
+.challenge-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.25) 55%, transparent 100%);
+  /* pointer-events: none so overlay never blocks button clicks */
+  pointer-events: none;
+}
+
+.challenge-content {
+  position: relative;
+  z-index: 10;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+@media (min-width: 480px) {
+  .challenge-content { padding: 1.5rem; gap: 1rem; }
+}
+
+.challenge-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--primary-fixed);
+}
+.challenge-title {
+  font-family: var(--font-headline);
+  font-size: clamp(1.15rem, 4vw, 1.5rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+.challenge-desc {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.8);
+  margin: 0;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.challenge-progress-bar {
+  width: 100%;
+  height: 0.4rem;
+  background: rgba(255,255,255,0.2);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.challenge-progress-fill {
+  height: 100%;
+  background: var(--secondary-fixed);
+  border-radius: 9999px;
+}
+.challenge-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: #ffffff;
+  color: var(--on-primary-fixed);
+  border: none;
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  /* Ensure button is always clickable above everything */
+  position: relative;
+  z-index: 20;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.15s, transform 0.1s;
+}
+.challenge-btn:hover  { background: var(--secondary-container); }
+.challenge-btn:active { transform: scale(0.97); }
+
+.challenge-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.challenge-counter {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  background: var(--surface-container-low);
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+}
+
+/* The scroll container */
+.challenge-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  gap: 0;
+  border-radius: 1.5rem;
+}
+.challenge-carousel::-webkit-scrollbar { display: none; }
+
+/* Each slide takes full width of the container */
+.challenge-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Dot indicators */
+.challenge-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding-top: 0.25rem;
+}
+
+.challenge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--surface-container-high);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.challenge-dot.active {
+  width: 20px;
+  border-radius: 9999px;
+  background: var(--primary);
+}
+
+/* People row inside challenge card */
+.challenge-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: -0.25rem;
+}
+.challenge-people-icon {
+  font-size: 0.95rem !important;
+  color: rgba(255,255,255,0.7);
+}
+.challenge-people {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+
+/* ── Weekly Challenges Section (Dashboard preview) ────────────────── */
+.weekly-challenges-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.weekly-challenges-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.wc-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface-container-lowest);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(25,28,27,0.04);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 1px solid rgba(191,201,189,0.1);
+}
+.wc-preview-card:hover  { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(25,28,27,0.08); }
+.wc-preview-card:active { transform: scale(0.98); }
+
+.wc-preview-icon-wrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.wc-preview-icon-wrap.secondary {
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+}
+.wc-preview-icon-wrap .material-symbols-outlined { font-size: 1.3rem; }
+
+.wc-preview-info { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+
+.wc-preview-title {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.wc-preview-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.wc-preview-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--surface-container);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.wc-preview-fill {
+  height: 100%;
+  background: var(--secondary);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+.wc-preview-pct {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  min-width: 2rem;
+  text-align: right;
+}
+
+.wc-preview-status {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+.wc-preview-status.in-progress  { background: var(--secondary-container); color: var(--on-secondary-container); }
+.wc-preview-status.not-started  { background: var(--surface-container); color: var(--outline); }
+.wc-preview-status.completed    { background: var(--secondary); color: white; }
+
+.wc-see-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  background: var(--surface-container-low);
+  border: none;
+  border-radius: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  margin-top: 0.25rem;
+}
+.wc-see-all-btn:hover  { background: var(--surface-container); }
+.wc-see-all-btn:active { transform: scale(0.98); }
+.wc-see-all-btn .material-symbols-outlined { font-size: 1.1rem; }
