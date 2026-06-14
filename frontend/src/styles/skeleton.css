@@ -1,0 +1,69 @@
+/* ── Skeleton Shimmer ─────────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skel {
+  background: linear-gradient(
+    90deg,
+    var(--surface-container) 25%,
+    var(--surface-container-low) 50%,
+    var(--surface-container) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.skel-line  { border-radius: 9999px; }
+.skel-pill  { border-radius: 9999px; }
+.skel-circle { border-radius: 50%; }
+
+/* Page wrapper pointer-events off during loading */
+.skeleton-page { pointer-events: none; }
+
+/* ── AI Scan loading overlay hint ─────────────────────────────────── */
+.skeleton-scan-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--on-surface-variant);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.skeleton-scan-pulse {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  position: relative;
+  animation: scan-pulse 1.8s ease-in-out infinite;
+}
+
+.skeleton-scan-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: rgba(0, 81, 39, 0.15);
+  animation: scan-ring 1.8s ease-in-out infinite;
+}
+
+@keyframes scan-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.05); opacity: 0.85; }
+}
+@keyframes scan-ring {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.7); opacity: 0; }
+}

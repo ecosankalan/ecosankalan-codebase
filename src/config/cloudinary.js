@@ -1,3 +1,8 @@
+/**
+ * config/cloudinary.js
+ * Lazy Cloudinary initialization for avatar uploads.
+ */
+
 const { v2: cloudinary } = require('cloudinary');
 
 let initialized = false;

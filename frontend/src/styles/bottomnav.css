@@ -1,0 +1,104 @@
+/* ── Bottom Navigation ────────────────────────────────────────────── */
+
+/* Outer bar — always fixed at bottom, full viewport width, always visible */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;           /* explicit width so it's never clipped */
+  z-index: 50;
+  background: rgba(248, 250, 248, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(191, 201, 189, 0.25);
+  /* No transform, no transition, no animation — always visible */
+}
+
+/* Inner row — full width on mobile, constrained on desktop */
+.bottom-nav-inner {
+  width: 100%;
+  padding: 0.5rem 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+/* On large screens constrain to match page content width */
+@media (min-width: 1024px) {
+  .bottom-nav-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem 1.25rem;
+  }
+}
+
+/* Each nav item */
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  min-width: 0;
+}
+
+/* Icon container — no background pill, just color change on active */
+.bottom-nav-icon-wrap {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-surface-variant);
+  transition: color 0.15s;
+}
+.bottom-nav-icon-wrap .material-symbols-outlined {
+  font-size: 1.5rem;
+}
+.bottom-nav-icon-wrap.active {
+  color: var(--primary);
+}
+
+/* Label */
+.bottom-nav-label {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+.bottom-nav-item.active .bottom-nav-label {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ── FAB ──────────────────────────────────────────────────────────── */
+.fab {
+  position: fixed;
+  bottom: 5rem;
+  right: 1.25rem;
+  z-index: 60;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  color: var(--on-primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 81, 39, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px rgba(0, 81, 39, 0.45);
+}
+.fab .material-symbols-outlined { font-size: 1.75rem; }

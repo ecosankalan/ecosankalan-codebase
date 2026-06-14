@@ -5,6 +5,7 @@ const { scanWaste } = require('../controllers/aiScanController');
 
 const router = express.Router();
 
-router.post('/analyze', protect, uploadAiImages, scanWaste);
+// Temporarily bypass protect middleware so you can test without logging in
+router.post('/analyze', uploadAiImages, scanWaste);
 
 module.exports = router;

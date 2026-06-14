@@ -100,7 +100,6 @@ const userSchema = new mongoose.Schema(
       min: [0, 'Eco-points cannot be negative'],
     },
 
-<<<<<<< Updated upstream
     totalPointsEarned: {
       // Lifetime total — for leaderboard and analytics
       // Separate from ecoPoints because redemptions reduce ecoPoints but not this
@@ -141,9 +140,6 @@ const userSchema = new mongoose.Schema(
       type: String,   // URL to profile picture (future feature)
       default: null,
     },
-
-=======
->>>>>>> Stashed changes
     fcmToken: {
       // Firebase Cloud Messaging token for push notifications (Month 4)
       // Updated each time user logs in from a device
@@ -168,14 +164,11 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-<<<<<<< Updated upstream
 // ── Indexes ───────────────────────────────────────────────────────────────────
 // email and phone already have unique: true which creates indexes automatically.
 // Add a 2dsphere index on location for geospatial queries in Month 4.
 userSchema.index({ location: '2dsphere' });
 // Index for leaderboard queries (sort by totalPointsEarned descending)
-=======
->>>>>>> Stashed changes
 userSchema.index({ totalPointsEarned: -1 });
 
 // ── Pre-save Hook: Hash password before storing ───────────────────────────────

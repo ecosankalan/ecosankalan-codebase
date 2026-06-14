@@ -9,8 +9,8 @@
 .env.development.local
 .env.test.local
 .env.production.local
-
-# ── Node.js ───────────────────────────────
+.env.example
+ Node.js ───────────────────────────────
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -59,3 +59,5 @@ temp/
 # ── MongoDB dump (never commit raw DB data) ──
 *.dump
 dump/
+
+.docs
