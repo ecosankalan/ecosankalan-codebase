@@ -38,6 +38,13 @@ const badgeSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema(
   {
     // ── Identity ──────────────────────────────────────────────────────────────
+    clerkId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows multiple null values until linked
+      index: true,
+    },
+
     name: {
       type: String,
       required: [true, 'Name is required'],

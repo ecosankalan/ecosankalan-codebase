@@ -167,6 +167,15 @@
   background: var(--surface-container-lowest);
 }
 
+/* Clerk wrapper */
+.clerk-wrapper {
+  width: 100%;
+}
+
+.clerk-wrapper > div {
+  width: 100% !important;
+}
+
 @media (min-width: 640px)  { .form-panel { padding: 3rem; } }
 @media (min-width: 1024px) { .form-panel { padding: 4rem; } }
 

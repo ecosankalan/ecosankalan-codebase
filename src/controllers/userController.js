@@ -1,15 +1,17 @@
 /**
  * controllers/userController.js
  * FR-04: Profile view + update.
+ *
+ * Uses Clerk userId from req.user.userId to find users by clerkId field.
  */
 
 const User = require('../models/User');
 const getCloudinary = require('../config/cloudinary');
 
-// GET /user/profile (and /api/v1/users/profile)
+// GET /api/v1/users/profile
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findOne({ clerkId: req.user.userId });
     if (!user) return res.status(404).json({ message: 'User not found' });
     return res.status(200).json(user);
   } catch (err) {
@@ -17,9 +19,8 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// PUT /user/profile (and /api/v1/users/profile)
+// PUT /api/v1/users/profile
 exports.updateProfile = async (req, res) => {
-  // Block email/phone changes completely post-registration
   if (req.body.email !== undefined || req.body.phone !== undefined) {
     return res.status(400).json({ message: 'Field not updatable post-registration' });
   }
@@ -36,8 +37,8 @@ exports.updateProfile = async (req, res) => {
       return res.status(400).json({ message: 'No valid fields provided to update' });
     }
 
-    const user = await User.findByIdAndUpdate(
-      req.user.userId,
+    const user = await User.findOneAndUpdate(
+      { clerkId: req.user.userId },
       { $set: updates },
       { new: true, runValidators: true }
     );
@@ -49,10 +50,10 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// GET /user/points (Month 3 placeholder)
+// GET /api/v1/users/points
 exports.getPoints = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('ecoPoints totalCo2Saved');
+    const user = await User.findOne({ clerkId: req.user.userId }).select('ecoPoints totalCo2Saved');
     if (!user) return res.status(404).json({ message: 'User not found' });
     return res.status(200).json({
       ecoPoints: user.ecoPoints,
@@ -63,10 +64,10 @@ exports.getPoints = async (req, res) => {
   }
 };
 
-// GET /user/badges (Month 4 placeholder)
+// GET /api/v1/users/badges
 exports.getBadges = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('badgesEarned');
+    const user = await User.findOne({ clerkId: req.user.userId }).select('badgesEarned');
     if (!user) return res.status(404).json({ message: 'User not found' });
     return res.status(200).json({ badges: user.badgesEarned });
   } catch (err) {
@@ -74,7 +75,7 @@ exports.getBadges = async (req, res) => {
   }
 };
 
-// PUT /user/profile/avatar (and /api/v1/users/profile/avatar)
+// PUT /api/v1/users/profile/avatar
 exports.uploadAvatar = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'Avatar file is required. Use form-data key "avatar".' });
@@ -103,8 +104,8 @@ exports.uploadAvatar = async (req, res) => {
       ],
     });
 
-    const user = await User.findByIdAndUpdate(
-      req.user.userId,
+    const user = await User.findOneAndUpdate(
+      { clerkId: req.user.userId },
       { $set: { avatarUrl: uploadResult.secure_url } },
       { new: true, runValidators: true }
     );

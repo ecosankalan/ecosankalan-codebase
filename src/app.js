@@ -24,6 +24,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const { clerkMiddleware } = require('@clerk/express');
 
 // Route imports
 const healthRoutes = require('./routes/health');
@@ -115,6 +116,13 @@ const globalLimiter = rateLimit({
 });
 
 app.use('/api', globalLimiter);
+
+// ─────────────────────────────────────────────────
+// 6.5 CLERK AUTHENTICATION
+// Verifies session JWT from Clerk frontend.
+// Attaches req.auth() with userId, sessionId, etc.
+// ─────────────────────────────────────────────────
+app.use(clerkMiddleware());
 
 // ─────────────────────────────────────────────────
 // 7. ROUTES
