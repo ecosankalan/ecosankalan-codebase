@@ -641,3 +641,175 @@
 .wc-see-all-btn:hover  { background: var(--surface-container); }
 .wc-see-all-btn:active { transform: scale(0.98); }
 .wc-see-all-btn .material-symbols-outlined { font-size: 1.1rem; }
+
+/* ── Daily Check-in Badge (inline, between Navbar and hero-grid) ── */
+
+.daily-badge-wrap {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  width: min(92vw, 520px);
+  padding: 0.75rem 1rem 0;
+  cursor: pointer;
+  animation: badge-slide-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes badge-slide-in {
+  from { opacity: 0; transform: translate(-50%, -18px) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, 0)     scale(1); }
+}
+
+.eco-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.75rem 2.75rem 0.75rem 1rem;
+  background:
+    radial-gradient(circle at 22% 50%, rgba(30, 129, 75, 0.22), transparent 32%),
+    linear-gradient(90deg, #f7fff9 0%, #ffffff 58%, #fbfffc 100%);
+  border: 2.5px solid #2b8a4f;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  cursor: default;
+}
+
+.eco-icon-wrap {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(45, 139, 83, 0.08);
+  box-shadow: 14px 0 28px rgba(45, 139, 83, 0.18);
+  flex: 0 0 auto;
+}
+
+.eco-icon-ring {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fbfffb;
+  border: 1.5px dotted #d9efdf;
+  box-shadow:
+    0 6px 16px rgba(38, 115, 72, 0.18),
+    0 0 0 5px rgba(225, 246, 230, 0.7);
+}
+
+.eco-badge-logo {
+  font-size: 30px;
+  color: #08713a;
+}
+
+.eco-content {
+  flex: 1;
+  min-width: 0;
+  color: #1e1e1e;
+}
+
+.eco-content h2 {
+  margin: 0 0 3px;
+  font-family: var(--font-headline);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  line-height: 1;
+}
+
+.eco-content h4 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: #2b5e38;
+}
+
+.eco-content p {
+  margin: 0 0 7px;
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #3f3f3f;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.eco-points {
+  width: fit-content;
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  background: #d9f7e5;
+  color: #2c8d55;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.points-dot {
+  width: 14px;
+  height: 14px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #b8efce;
+  color: #2c8d55;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.eco-badge-close {
+  position: absolute;
+  top: 50%;
+  right: 0.6rem;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.06);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3f3f3f;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.eco-badge-close .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.daily-badge-dismiss-hint {
+  text-align: center;
+  font-size: 10px;
+  color: var(--on-surface-variant);
+  margin: 0.35rem 0 0;
+  opacity: 0.7;
+}
+
+@media (max-width: 480px) {
+  .daily-badge-wrap {
+    padding: 0.6rem 0.75rem 0;
+  }
+  .eco-badge {
+    gap: 0.875rem;
+    padding: 0.625rem 2.5rem 0.625rem 0.75rem;
+  }
+  .eco-icon-wrap { width: 58px; height: 58px; }
+  .eco-icon-ring { width: 46px; height: 46px; }
+  .eco-badge-logo { font-size: 24px; }
+  .eco-content h2 { font-size: 13px; }
+  .eco-content h4 { font-size: 10px; }
+  .eco-content p  { font-size: 8px; }
+}

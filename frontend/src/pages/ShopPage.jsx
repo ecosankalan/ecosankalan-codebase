@@ -1,236 +1,158 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import '../styles/shop.css';
 
-const PRODUCTS = [
-  {
-    id: 1,
-    name: 'Bamboo Toothbrush Set',
-    desc: 'Pack of 4 biodegradable charcoal-infused brushes.',
-    price: '$12.00',
-    points: 450,
-    rating: 4.9,
-    tag: 'Top Seller',
-    category: 'Personal Care',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCgi_O_uax92ZJBMiINdViTkmapc8Db4B_EAM7KQ5kmBxKTdQAkBcX8HcEVbagzSpaI-ONorX7LoP0bshMGpgWtH8Zv_iqgLvjJ_mVwy49gQud-iPi81zCu3vir5gP7pAiiIIVik0YMljVBE66DB_2x4WBczM1ETDzDWfEOGXnS7ama85pp1C59Xw6pEqJLHnOdVsWpicW4ypUGjAorqPFn8fWFsNmhobGJh4rnU_ueii9hbDJWmOCTLaTJYOo-LG56XIV63faSlYEs',
-  },
-  {
-    id: 2,
-    name: 'Insulated Steel Bottle',
-    desc: 'Keep drinks cold for 24h. Grade 304 steel.',
-    price: '$28.00',
-    points: 950,
-    rating: 4.8,
-    tag: null,
-    category: 'Reusables',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAqARTqSk3bRPPvsFANeYOqqg5AxfhDi_FAK3eeVlMhrn_Vlv8X6vVq_jq9X3CjDm7TJItw3rAZzJSXtphX201o-WcZXBsJX1-NJjcGsIELVWxLReOhHVIBQMfKOaHp2Ww7HtkJwbohtbIMRmiU1bgkqrTD4tlz5pXjJUFy1HTI1z6ud6naDMz-Ry_2idvQ0ZJAkZ1I9BtcXoJQpOqq5blTTkEY9PxplPnXIE3WjfY3S_P_83geB9UZ2pu6UcSuIDabnwE8VhQcYXai',
-  },
-  {
-    id: 3,
-    name: 'Organic Mesh Tote',
-    desc: 'Expandable GOTS certified organic cotton.',
-    price: '$15.00',
-    points: 300,
-    rating: 5.0,
-    tag: null,
-    category: 'Reusables',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCFIffwc6xlGfq9HkdRrWkZUiTc5RYlqL1Kuph5nX2P9PQHe7339-aXo-nrIY0OnQwyFGVy9xVVgtpNgJmgwFgL2QaX9FJwpTn6AvU_-njPPOjaL_GgmQfJbYVKgKQVjZOcWaVWYZRj0hf_LhPZYAZKlXh00kxXqfiV6Eb_uwPN6Zg4dWKjhU6kk4EUU4JeCcw0PKdSXIQOz2R0ookppKq0wLaWJkYkowz4LcPSvJN2_gyRQqR763CV1GE_JyZ-khUeiJoGmA5cRSm5',
-  },
-  {
-    id: 4,
-    name: 'Artisan Hemp Soap',
-    desc: 'Handmade, palm oil free, plastic-free wrap.',
-    price: '$8.50',
-    points: 250,
-    rating: 4.7,
-    tag: null,
-    category: 'Personal Care',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQd91On3sAYR04l6w69Fcehv8ec_SeojY4nCb2avz3hp21-e0jikudNP6pygHwfPAwulHxwqjdo7i_hFqM2-PHW4Od0QSHeLxuCp0-eBSkBebQquUDp1afYBT6KQqAH4QieasS-9rZbJOetyaB6R7_4V_sEGSUKySZXkKwJSPokHu140aS5yVyQF94GPoTFcb__Ze328huGaHsKLkSeZqcT1ynfUC84xDnpDuzP0ZzHTQwGqzP2YiPaGGVkaQ4xF_Dt8N5ItzLqaFA',
-  },
-  {
-    id: 5,
-    name: 'Natural Cork Mat',
-    desc: 'Sustainably harvested cork. Non-slip grip.',
-    price: '$65.00',
-    points: 2100,
-    rating: 4.9,
-    tag: null,
-    category: 'Household',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCz6seDs10PgQacKroz6RXCFxVo6k7S4kc9DCTNizRj3UDxg9yo7sOrVeKeQX5E52CXQ-EZljEtYayJ3YnXwKCX0D0O91vCFTGSlQyWndJJyoiN29H-tkxMsXqk3nOWHXxaO5u0-aLHA5RKJ0O_DGNHUWWDz5HfuQr51bSDlE62rtif5eizEBRt4473qJPGOD9MPM_xtKE-m4hJrwAvwe7SCVZhjZoQWggHzg5pzAMIPTAcGflONgIKKMJgWGrrP18jAdAbUFgUzH9e',
-  },
-  {
-    id: 6,
-    name: 'Bamboo Fiber Plates',
-    desc: 'Compostable alternative to plastic dinnerware.',
-    price: '$22.00',
-    points: 750,
-    rating: 4.6,
-    tag: null,
-    category: 'Household',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAWphPGLNsK8pZazKkyRcgkljTAStge96ndwC4kn-ECXj7vMzNHSAoJ1kgaMEgUpmuSQoO54ZUA0QFBv3krNA-vZjL2Tp7ukEBSN--VFXULN-fGj9U97TIGGDupjTIUdtAhHlgwZuTnnTf7N4-gEvjHowdIUHMzUmxqEFIV8GG9zB-Kdn0jrPMp6WCHFWa78uTsUK0JLKKirOv9eOo3YStNmpcHwWdn8tErnCdWkdZt58f1Bjj2h0VLPyvp0NPZ2QmkhwykKLXQAibV',
-  },
-];
-
-const CATEGORIES = ['All Products', 'Household', 'Personal Care', 'Reusables'];
 const USER_POINTS = 2450;
 
+const VOUCHERS = [
+  { id: 1, brand: 'IKEA',      discount: '500 OFF',  valid: 'Valid until 24 Oct', code: 'ECOSANK29',
+    logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBNBBOAgvmskc870s7b-lfvLlv_6N07Tz09sNG5NwoLwKxk-30N9d589Vf_MSYCqWkov-IWUnfFkpegELqNwCKAMSrIqM6tnNDilVYBR2UCqrZsXFqd7LeroTQhJ5QNTgcdkE0Hp0spt0ooBt2NUvlPTRILmGH8ELJbxoE9pZclVsviNe6WMMwWyDxATb3I1ikt4rXeMS-x51_XcJH99qsc8j5sFhrTu9NzypxEr9ABgfNWdml5U_aJZOT0nML36rmDFwuuH1fL94W8' },
+  { id: 2, brand: 'Decathlon', discount: '15% OFF', valid: 'Valid until 12 Nov', code: 'ECOSANK29',
+    logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBlM6mJNealfUT2z-rLv-XC9DpKoU40lAcglquS0c8NPMrt3U3R_g33OvijaSGYm0hlDFEsOXh6ctt_N5U64QxcSHcR6SCQceLxUYfLUCMU-Cy21R9p8z_jljET0hd95qDHG52v_ulhgV6hadS-EWbat9RXdgTd_XmJnEzrF3VDfZiJKfbsXrOMyfzRuCL1cT_4I0c6JMXxilKNmrqnKNHKshdfo-3RW0MxAk4fjrxGfF-2S92TZicTvBUfFmQ9uuCZtvpcuHPWQTvR' },
+];
+
+const PARTNERS = [
+  { name: 'IKEA',      logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDcojhNb1tYMY1-v6eRbvJILqIwb2Cn-CP3YvtquBvkdKMYgMZJxLMbhX7lbVXLTAdvXYEwulNdmlXohGbWRhKqLHIADNw1hYAHDeAajQV3G_N14RdEzCz-WootC7J1nj6Qn_r19ySTzcaT0zoL5R2vxZKOGqV7N8yiBKorfb29FzygeKCgg8k4jl6JevgXNgnIYlpLOCk9yOl_TNsMKvTOUJojbqRc6g3W__ROI8vZ3K7o3Ui1HtSYwVQ43QZiaVjMW9DUNuMsrbnY' },
+  { name: 'Amazon',    logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDuNwp13D2GVapRliA0KsLo4B-Os1eyfKpeWvvHYzVH557YZ-v2TjydkdfZ2JjBatHbXU_KZChdz3E4eeW9AMey4ctP0MkWZkIyjol8SKKJVTqO0FvbL75qP5UeTBDvE0SnPdLjPEV710IlanlS1f2E5m2V6xThYaSXdpyZQ9HjFMVYWtzPMnmwxkZ_M0IaOSx7VX5UCF7sxSrAyqOEiu5ZRaEAvff5ukn8rnX1pD4eLyOZCuovbDBFy9IS8Ulyrjmd-GDkbJniRuA5' },
+  { name: 'Decathlon', logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCHlbudSqV7DRX5ag4LK5dxcG3oNWtDupwbLbkkPr3vPkSEzHCWeAw1eA3pvTyO_UWwTAug_LQF2RBrih4Qpgd-kxZ5rt7zw3uS8WOaxCQaxaAxv0lVeNdiHxVrjObDaC7u4ZbngKwIJYn75BO1KaLxOmK8WeNTvy9Zc9Hkjm2vI4L4LiRwAd_AwtfTn9k3-CuCj1riMCFA2elGDXu_IZlLjYScaKocck7hNrmt-Igr1x5lJCi1qnjcNJpIcUXhGxY6sVouPvk8v6mJ' },
+];
+
+const PRODUCTS = [
+  { id: 1, name: 'Bamboo Travel Set',       partner: 'IKEA',      points: 450,  category: 'Home',
+    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCfiSL1MuBMWm7RNu9yqMvHLSUrHOT66R0_SSVlnkLLLd2JSKF8UW1otoFZc25BjVmQCL-_J9O76BBsDxWb4Uvd3DlmuOvtQCgHewaqEkVDIUsygPNr5ECXRLlKaimaP_thAlLBMx16kVc8Fu7nLEdH7kGKiek8yjirR05KpOEyDqMcxxkNwb9Po0UCUDfIrVyL564RZzABv3KLG8ABmDKNl1tysyrsRgtG8et97Cb2uyv47Pj67IVykleoAjdLFy4pUYJjTG5ef8mo' },
+  { id: 2, name: 'Stainless Steel Bottle',  partner: 'Amazon',    points: 850,  category: 'Reusable',
+    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCWfvdvXmQaNQISlOp_Ir-U1vz_esYatMo7Az1oaXv1bDO1CCxeDyQVsS_EPP_EjOEF66mit_Jqb9J4BD-kdTkcGtPXHE2m_tPqcnqCRZr46lg-4lYJRteNM5WPa0nJi9oOr7NplC_iOvUAdR0YG4YJ-vkkMiEBTOItbHVXNNcnNohODBjFhWs1LC5dGib-6ZWuqHt-6aT8kbCgsdi13razrBy6io8o0gDOq5A91wEqPPYJJ8MaI2J38N8WwpHiDism6hsZzggyOM0' },
+  { id: 3, name: 'Cork Yoga Mat',           partner: 'Decathlon', points: 1200, category: 'Zero Waste',
+    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYq_ChRfJ4BcXv-CO0xQaYMolp_gjwK9sO19FXVxW4YAii6t-7ibylveUc6lXgsP9ghtMID_dWkQP2P6gYs4RjERwPqscel7UGYxHKFLKTOj8VI4Ob0G_FxNbcdSo6POaEq65I4qniwsqCpPzpdbts53UeYk74mLIS-FrnBJOjOfN1LEe-tuNlK9Nv7jU1FDvKoAk6sz2SZDEf6Osys0ZyKVX-01DCbqy7XT247AC0TE710dSGMplPkspJ3zdUfLLDouNuT3OSNRRQ' },
+  { id: 4, name: 'Cotton Mesh Bags',        partner: 'IKEA',      points: 300,  category: 'Kitchen',
+    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAcgpONdiUxAfpwVewwyps-I3xtcTtFKc0ZNTZHkHoJfxoHs1AX1NWB9tEgXG6qMETHWFlA4S9tuZenjTsWMZ4whGT9CYoWfTZ0gByuSdm_4CYIHy01vrbY3imEuVlCKEpcaeYD3onAvIQgL3M7OlQDTdwn9yC7N6CgPrVmbn-pFgUHDCD33ednNReSvcNsM0CPMNr6EQvi26KpbRBD--RBNo7EROUZArKE2EOQAmjnes6_FYXDhlbn-uQQ9bLDsyI9uCKsmyi6vuCt' },
+];
+
+const FILTER_CHIPS = ['All', 'Home', 'Kitchen', 'Reusable', 'Zero Waste'];
+
 export default function ShopPage() {
-  const [activeCategory, setActiveCategory] = useState('All Products');
-  const [sortBy, setSortBy]                 = useState('Newest');
-  const [cart, setCart]                     = useState([]);
-  const [toast, setToast]                   = useState('');
-
-  const filtered = activeCategory === 'All Products'
-    ? PRODUCTS
-    : PRODUCTS.filter(p => p.category === activeCategory);
-
-  const addToCart = (product) => {
-    if (cart.includes(product.id)) return;
-    setCart(c => [...c, product.id]);
-    setToast(`${product.name} added to cart!`);
-    setTimeout(() => setToast(''), 2500);
-  };
+  const navigate = useNavigate();
+  const [activeChip, setActiveChip] = useState('All');
+  const [revealedCodes, setRevealedCodes] = useState({});
+  const toggleCode = (id) => setRevealedCodes(p => ({ ...p, [id]: !p[id] }));
+  const filtered = activeChip === 'All' ? PRODUCTS : PRODUCTS.filter(p => p.category === activeChip);
 
   return (
     <div className="shop-root">
       <Navbar />
-
       <main className="shop-main">
 
-        {/* ── Hero ──────────────────────────────────────────────── */}
+        {/* Search */}
+        <div className="shop-search-wrap">
+          <span className="material-symbols-outlined shop-search-icon">shopping_bag</span>
+          <input className="shop-search-input" placeholder="Search eco products..." type="text" />
+        </div>
+
+        {/* Hero */}
         <section className="shop-hero">
           <div className="shop-hero-left">
-            <h1 className="shop-hero-title">
-              Curated for the{' '}
-              <span className="shop-hero-accent">Conscious</span>
-            </h1>
-            <p className="shop-hero-desc">
-              Redeem your hard-earned eco-points for premium sustainable
-              essentials. High impact, zero waste, delivered to your doorstep.
-            </p>
+            <h1 className="shop-hero-title">Curated for the <span className="shop-hero-accent">Conscious</span></h1>
+            <p className="shop-hero-desc">Redeem your hard-earned eco-points for premium sustainable essentials. High impact, zero waste, delivered to your doorstep.</p>
           </div>
-          <div className="shop-hero-right">
-            <div className="shop-balance-card">
-              <div className="shop-balance-icon-wrap">
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  eco
-                </span>
-              </div>
-              <div>
-                <span className="shop-balance-label">Your Balance</span>
-                <span className="shop-balance-amount">
-                  {USER_POINTS.toLocaleString()} EP
-                </span>
-              </div>
+          <div className="shop-balance-card">
+            <div className="shop-balance-icon-wrap">
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
+            </div>
+            <div>
+              <span className="shop-balance-label">Your Balance</span>
+              <span className="shop-balance-amount">{USER_POINTS.toLocaleString()} EP</span>
             </div>
           </div>
         </section>
 
-        {/* ── Filters + Sort ────────────────────────────────────── */}
-        <section className="shop-filters">
-          <div className="shop-pills-scroll">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                className={`shop-pill ${activeCategory === cat ? 'active' : ''}`}
-                onClick={() => setActiveCategory(cat)}
-              >
-                {cat}
-              </button>
-            ))}
+        {/* My Vouchers */}
+        <section className="shop-section">
+          <div className="shop-section-header">
+            <h2 className="shop-section-title">My Vouchers</h2>
+            <button className="shop-view-all" onClick={() => navigate('/vouchers')}>View All</button>
           </div>
-          <div className="shop-sort-wrap">
-            <select
-              className="shop-sort-select"
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-            >
-              <option>Sort by: Newest</option>
-              <option>Price: Low to High</option>
-              <option>Eco-Points: Low to High</option>
-              <option>Highest Rating</option>
-            </select>
-            <span className="material-symbols-outlined shop-sort-chevron">
-              expand_more
-            </span>
-          </div>
-        </section>
-
-        {/* ── Toast notification ────────────────────────────────── */}
-        {toast && (
-          <div className="shop-toast">
-            <span className="material-symbols-outlined">check_circle</span>
-            {toast}
-          </div>
-        )}
-
-        {/* ── Product Grid ──────────────────────────────────────── */}
-        <div className="shop-grid">
-          {filtered.map(product => {
-            const inCart = cart.includes(product.id);
-            return (
-              <div className="shop-card" key={product.id}>
-                {/* Product image */}
-                <div className="shop-card-img-wrap">
-                  <img
-                    className="shop-card-img"
-                    src={product.img}
-                    alt={product.name}
-                  />
-                  {product.tag && (
-                    <span className="shop-card-tag">{product.tag}</span>
-                  )}
+          <div className="shop-vouchers-list">
+            {VOUCHERS.map(v => (
+              <div className="shop-voucher-card" key={v.id}>
+                <div className="shop-voucher-left">
+                  <div className="shop-voucher-logo-wrap"><img src={v.logo} alt={v.brand} className="shop-voucher-logo" /></div>
+                  <span className="shop-voucher-brand">{v.brand}</span>
                 </div>
-
-                {/* Card body */}
-                <div className="shop-card-body">
-                  <div className="shop-card-header">
-                    <h3 className="shop-card-name">{product.name}</h3>
-                    <div className="shop-card-rating">
-                      <span
-                        className="material-symbols-outlined shop-star"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        star
-                      </span>
-                      <span className="shop-rating-val">
-                        {product.rating.toFixed(1)}
-                      </span>
-                    </div>
+                <div className="shop-voucher-dash" />
+                <div className="shop-voucher-right">
+                  <div>
+                    <h3 className="shop-voucher-discount">{v.discount}</h3>
+                    <p className="shop-voucher-valid">{v.valid}</p>
                   </div>
-
-                  <p className="shop-card-desc">{product.desc}</p>
-
-                  <div className="shop-card-footer">
-                    <div>
-                      <span className="shop-card-price">{product.price}</span>
-                      <span className="shop-card-pts">
-                        {product.points.toLocaleString()} Eco-Points
-                      </span>
-                    </div>
-                    <button
-                      className={`shop-bag-btn ${inCart ? 'in-cart' : ''}`}
-                      onClick={() => addToCart(product)}
-                      disabled={inCart}
-                      aria-label={`Add ${product.name} to cart`}
-                    >
-                      <span className="material-symbols-outlined">
-                        {inCart ? 'check' : 'shopping_bag'}
-                      </span>
+                  <div className="shop-voucher-code-row">
+                    <code className="shop-voucher-code" onClick={() => toggleCode(v.id)}>
+                      {revealedCodes[v.id] ? v.code : 'ECO••••29'}
+                    </code>
+                    <button className="shop-copy-btn" onClick={() => toggleCode(v.id)}>
+                      <span className="material-symbols-outlined">content_copy</span>
                     </button>
                   </div>
                 </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
+        </section>
+
+        {/* Filter Chips */}
+        <div className="shop-chips-wrap">
+          <div className="shop-chips-scroll">
+            {FILTER_CHIPS.map(chip => (
+              <button key={chip} className={`shop-chip${activeChip === chip ? ' active' : ''}`} onClick={() => setActiveChip(chip)}>{chip}</button>
+            ))}
+          </div>
         </div>
 
-      </main>
+        {/* Featured Partners */}
+        <section className="shop-section">
+          <h3 className="shop-section-title" style={{ marginBottom: '1rem' }}>Featured Partners</h3>
+          <div className="shop-partners-scroll">
+            {PARTNERS.map(p => (
+              <div className="shop-partner-tile" key={p.name}>
+                <img src={p.logo} alt={p.name} className="shop-partner-logo" />
+              </div>
+            ))}
+          </div>
+        </section>
 
+        {/* Product Grid */}
+        <section className="shop-section">
+          <div className="shop-section-header">
+            <h3 className="shop-section-title">Sustainable Picks</h3>
+            <span className="shop-view-all-plain">See All</span>
+          </div>
+          <div className="shop-grid">
+            {filtered.map(product => (
+              <div className="shop-card" key={product.id} onClick={() => navigate('/product-detail', { state: { product } })}>
+                <div className="shop-card-img-wrap">
+                  <img className="shop-card-img" src={product.img} alt={product.name} />
+                  <div className="shop-card-partner-badge">
+                    <span className="material-symbols-outlined shop-verified-icon">verified</span>
+                    <span className="shop-partner-name">{product.partner}</span>
+                  </div>
+                </div>
+                <div className="shop-card-body">
+                  <h4 className="shop-card-name">{product.name}</h4>
+                  <div className="shop-card-pts-row">
+                    <span className="material-symbols-outlined shop-star-icon" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
+                    <span className="shop-card-pts">{product.points} pts</span>
+                  </div>
+                  <button className="shop-buy-btn" onClick={e => { e.stopPropagation(); navigate('/product-detail', { state: { product } }); }}>
+                    Buy on Partner
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+      </main>
       <BottomNav />
     </div>
   );

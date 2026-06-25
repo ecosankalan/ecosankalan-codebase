@@ -343,3 +343,28 @@
   .scan-result-main { padding: 5rem 1rem 10rem; }
   .scan-identity-title { font-size: 1.9rem; }
 }
+
+/* ── FR-06 Disposal Tip Banner ── */
+.scan-disposal-tip-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  background: var(--secondary-container);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.scan-tip-icon {
+  font-size: 1.25rem;
+  color: var(--secondary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.scan-disposal-tip-text {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--on-surface);
+  margin: 0;
+}

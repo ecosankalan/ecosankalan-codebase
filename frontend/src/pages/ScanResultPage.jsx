@@ -2,13 +2,23 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import '../styles/scan-result.css';
 
-// Default mock data — will be replaced with real AI result via location.state
+// FR-06 Category Disposal Tips from research team
+const DISPOSAL_TIPS = {
+  plastic: 'Rinse plastic containers before disposal. Separate mixed materials (e.g. plastic with metal parts) where possible for better recycling.',
+  paper:   'Keep paper clean and dry before recycling. Oily or wet paper should go to mixed waste or compost if biodegradable.',
+  metal:   'Empty and rinse metal cans or containers before disposal. Wrap sharp metal items safely to prevent injury during handling.',
+  ewaste:  'Never dispose of electronics, chargers, batteries, or cables in regular bins. Drop them at authorized e-waste collection or recycling centers.',
+  organic: 'Place food scraps and biodegradable waste in compost or organic waste bins. Avoid mixing plastic packaging with organic waste.',
+  other:   'Dispose of contaminated or mixed-material waste in general waste bins if it cannot be separated. Follow local disposal rules when unsure.',
+};
+
 const DEFAULT_RESULT = {
   label: 'Plastic Bottle',
+  category: 'plastic',
   material: 'PET Plastic (Type 1)',
   confidence: 92,
   icon: 'nest_eco_leaf',
-  co2: 0.05,
+  co2: 1.25,
   points: 12,
   steps: [
     'Rinse the bottle thoroughly to remove any liquid residue.',
@@ -16,26 +26,33 @@ const DEFAULT_RESULT = {
   ],
 };
 
+// Normalise category key from label if not provided
+function inferCategory(result) {
+  if (result.category) return result.category.toLowerCase().replace('-', '');
+  const label = (result.label || '').toLowerCase();
+  if (label.includes('plastic'))  return 'plastic';
+  if (label.includes('paper') || label.includes('cardboard')) return 'paper';
+  if (label.includes('metal') || label.includes('can')) return 'metal';
+  if (label.includes('e-waste') || label.includes('electronic') || label.includes('battery')) return 'ewaste';
+  if (label.includes('organic') || label.includes('food')) return 'organic';
+  return 'other';
+}
+
 export default function ScanResultPage() {
   const navigate  = useNavigate();
   const location  = useLocation();
   const result    = location.state?.result ?? DEFAULT_RESULT;
 
-  const { label, material, confidence, co2, points, steps, reuseIdeas } = result;
+  const { label, material, confidence, co2, points, steps } = result;
+  const category = inferCategory(result);
+  const disposalTip = DISPOSAL_TIPS[category] || DISPOSAL_TIPS.other;
 
-  // Progress ring math
   const R          = 20;
   const CIRCUM     = 2 * Math.PI * R;
   const dashOffset = CIRCUM - (confidence / 100) * CIRCUM;
 
-  const handleConfirm = () => {
-    // TODO: POST to /api/waste-log with result data
-    navigate('/dashboard');
-  };
-
-  const handleEdit = () => {
-    navigate('/waste');
-  };
+  const handleConfirm = () => navigate('/dashboard');
+  const handleEdit    = () => navigate('/waste');
 
   return (
     <div className="scan-result-root">
@@ -43,36 +60,18 @@ export default function ScanResultPage() {
 
       <main className="scan-result-main scanning-glow">
 
-        {/* ── Result Image + Confidence Overlay ──────────────── */}
+        {/* ── Result Image + Confidence ── */}
         <section className="scan-image-wrap">
           <div className="scan-image-placeholder">
-            <span
-              className="material-symbols-outlined scan-placeholder-icon"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              nest_eco_leaf
-            </span>
+            <span className="material-symbols-outlined scan-placeholder-icon" style={{ fontVariationSettings: "'FILL' 1" }}>nest_eco_leaf</span>
             <span className="scan-placeholder-label">Scanned Item</span>
           </div>
-
-          {/* Confidence badge */}
           <div className="scan-confidence-badge">
             <div className="scan-confidence-ring">
               <svg viewBox="0 0 48 48" className="scan-ring-svg">
-                <circle
-                  cx="24" cy="24" r={R} fill="transparent"
-                  stroke="var(--secondary-container)"
-                  strokeWidth="4"
-                />
-                <circle
-                  cx="24" cy="24" r={R} fill="transparent"
-                  stroke="var(--primary)"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeDasharray={CIRCUM}
-                  strokeDashoffset={dashOffset}
-                  style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
-                />
+                <circle cx="24" cy="24" r={R} fill="transparent" stroke="var(--secondary-container)" strokeWidth="4" />
+                <circle cx="24" cy="24" r={R} fill="transparent" stroke="var(--primary)" strokeWidth="4" strokeLinecap="round"
+                  strokeDasharray={CIRCUM} strokeDashoffset={dashOffset} style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }} />
               </svg>
               <span className="scan-ring-pct">{confidence}%</span>
             </div>
@@ -85,15 +84,10 @@ export default function ScanResultPage() {
           </div>
         </section>
 
-        {/* ── Category Identity ───────────────────────────────── */}
+        {/* ── Category Identity ── */}
         <section className="scan-identity">
           <div className="scan-identity-icon-wrap">
-            <span
-              className="material-symbols-outlined scan-identity-icon"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              nest_eco_leaf
-            </span>
+            <span className="material-symbols-outlined scan-identity-icon" style={{ fontVariationSettings: "'FILL' 1" }}>nest_eco_leaf</span>
           </div>
           <h1 className="scan-identity-title">{label}</h1>
           <p className="scan-identity-material">Material: {material}</p>
@@ -103,7 +97,7 @@ export default function ScanResultPage() {
           </button>
         </section>
 
-        {/* ── Disposal Instructions ───────────────────────────── */}
+        {/* ── Disposal Tip (FR-06) ── */}
         <section className="scan-disposal-card">
           <div className="scan-disposal-header">
             <div className="scan-disposal-icon-wrap">
@@ -111,48 +105,30 @@ export default function ScanResultPage() {
             </div>
             <h3 className="scan-disposal-title">Disposal Tip</h3>
           </div>
-          <div className="scan-disposal-steps">
-            {steps.map((step, i) => (
-              <div className="scan-step" key={i}>
-                <div className="scan-step-num">{i + 1}</div>
-                <p
-                  className="scan-step-text"
-                  dangerouslySetInnerHTML={{
-                    __html: step.replace(
-                      /(plastic recycling bin|recycling bin|compost bin|e-waste facility)/gi,
-                      '<strong>$1</strong>'
-                    )
-                  }}
-                />
-              </div>
-            ))}
+          {/* Category-specific tip from research team */}
+          <div className="scan-disposal-tip-banner">
+            <span className="material-symbols-outlined scan-tip-icon" style={{ fontVariationSettings: "'FILL' 1" }}>emoji_objects</span>
+            <p className="scan-disposal-tip-text">{disposalTip}</p>
           </div>
-        </section>
-
-        {/* ── Upcycling & Reuse Ideas (If available) ───────────── */}
-        {reuseIdeas && reuseIdeas.length > 0 && (
-          <section className="scan-disposal-card" style={{ marginTop: '1rem', background: 'var(--tertiary-container)' }}>
-            <div className="scan-disposal-header">
-              <div className="scan-disposal-icon-wrap" style={{ color: 'var(--on-tertiary-container)', background: 'var(--tertiary)' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--on-tertiary)' }}>recycling</span>
-              </div>
-              <h3 className="scan-disposal-title" style={{ color: 'var(--on-tertiary-container)' }}>Upcycling Ideas</h3>
-            </div>
+          {/* Disposal steps */}
+          {steps && steps.length > 0 && (
             <div className="scan-disposal-steps">
-              {reuseIdeas.map((idea, i) => (
-                <div className="scan-step" key={`idea-${i}`}>
-                  <div className="scan-step-num" style={{ background: 'var(--tertiary)', color: 'var(--on-tertiary)' }}>{i + 1}</div>
-                  <p className="scan-step-text" style={{ color: 'var(--on-tertiary-container)' }}>{idea}</p>
+              {steps.map((step, i) => (
+                <div className="scan-step" key={i}>
+                  <div className="scan-step-num">{i + 1}</div>
+                  <p className="scan-step-text" dangerouslySetInnerHTML={{
+                    __html: step.replace(/(plastic recycling bin|recycling bin|compost bin|e-waste facility)/gi, '<strong>$1</strong>')
+                  }} />
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
-        {/* ── Impact Preview ──────────────────────────────────── */}
+        {/* ── Impact Preview ── */}
         <section className="scan-impact-grid">
           <div className="scan-impact-card">
-            <span className="scan-impact-num primary">{co2}</span>
+            <span className="scan-impact-num primary">{typeof co2 === 'number' ? co2.toFixed(2) : co2}</span>
             <span className="scan-impact-label">kg CO₂ Saved</span>
           </div>
           <div className="scan-impact-card">
@@ -163,15 +139,12 @@ export default function ScanResultPage() {
 
       </main>
 
-      {/* ── Sticky Bottom Actions ───────────────────────────────── */}
       <footer className="scan-result-footer">
         <button className="scan-confirm-btn" onClick={handleConfirm}>
           Confirm &amp; Log
           <span className="material-symbols-outlined">check_circle</span>
         </button>
-        <button className="scan-edit-btn" onClick={handleEdit}>
-          Edit Category
-        </button>
+        <button className="scan-edit-btn" onClick={handleEdit}>Edit Category</button>
       </footer>
     </div>
   );

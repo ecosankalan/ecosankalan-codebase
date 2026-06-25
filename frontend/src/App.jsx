@@ -23,6 +23,8 @@ import AnalyticsDashboardPage from './pages/AnalyticsDashboardPage';
 import ChallengeProgressPage  from './pages/ChallengeProgressPage';
 import EventDetailPage        from './pages/EventDetailPage';
 import WeeklyChallengesPage   from './pages/WeeklyChallengesPage';
+import ProductDetailPage      from './pages/ProductDetailPage';
+import VouchersPage           from './pages/VouchersPage';
 
 import './styles/global.css';
 
@@ -59,6 +61,8 @@ function AppRoutes() {
       <Route path="/challenge-progress"  element={<ProtectedRoute><ChallengeProgressPage    /></ProtectedRoute>} />
       <Route path="/event-detail"        element={<ProtectedRoute><EventDetailPage          /></ProtectedRoute>} />
       <Route path="/weekly-challenges"   element={<ProtectedRoute><WeeklyChallengesPage     /></ProtectedRoute>} />
+      <Route path="/product-detail"      element={<ProtectedRoute><ProductDetailPage   /></ProtectedRoute>} />
+      <Route path="/vouchers"            element={<ProtectedRoute><VouchersPage         /></ProtectedRoute>} />
       <Route path="/analytics"           element={<Navigate to="/impact" replace />} />
 
       {/* Fallback */}
