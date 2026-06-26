@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useClerk } from '@clerk/react';
 import BottomNav from '../components/common/BottomNav';
 import '../styles/profile.css';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { signOut } = useClerk();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/sign-in', { replace: true });
   };
 
   const ACHIEVEMENTS = [

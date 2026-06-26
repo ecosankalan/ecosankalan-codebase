@@ -1,83 +1,45 @@
 /**
  * middleware/auth.js
- * JWT Authentication Middleware
+ * Clerk Authentication Middleware
  *
- * How Express middleware works:
- *   Request → [auth middleware] → [route handler] → Response
- *                     ↓
- *            If token invalid → send 401, stop here
- *            If token valid   → attach user to req, call next()
+ * Uses @clerk/express to verify session JWTs.
+ * clerkMiddleware() in app.js attaches req.auth().
+ * requireAuth() here blocks unauthenticated requests.
  *
- * A middleware is just a function with (req, res, next) signature.
- * Calling next() passes control to the next middleware/route.
- * NOT calling next() stops the request right there.
+ * After requireAuth, getAuth(req) gives you:
+ *   { userId, sessionId, session, orgId, orgRole, ... }
  *
- * DPDP Act 2023: We store only userId in the token — no name, email,
- * or sensitive data embedded in the JWT payload.
+ * We also set req.user = { userId } for backward compatibility
+ * with controllers that use req.user.userId.
+ *
+ * Usage:
+ *   router.get('/profile', protect, userController.getProfile)
  */
 
-const jwt = require('jsonwebtoken');
+const { requireAuth, getAuth } = require('@clerk/express');
 
 /**
  * Protects routes that require authentication.
- * Usage: router.get('/profile', protect, userController.getProfile)
+ * Sends 401 if no valid Clerk session exists.
+ * Also sets req.user.userId for controller compatibility.
  */
-const protect = async (req, res, next) => {
-  try {
-    // 1. Extract token from Authorization header
-    //    Expected format: "Bearer eyJhbGciOiJI..."
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. No token provided.',
-      });
-    }
-
-    const token = authHeader.split(' ')[1];
-
-    // 2. Verify the token signature and expiry
-    //    jwt.verify throws if token is invalid or expired — caught below
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // 3. Attach the decoded payload to req so downstream handlers can use it
-    //    We only stored { userId, role } in the token (see auth controller in Month 2)
-    req.user = {
-      userId: decoded.userId,
-      role: decoded.role,
-    };
-
-    next(); // token is valid — let the request through
-
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Session expired. Please log in again.',
-      });
-    }
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token.',
-    });
-  }
-};
+const protect = [
+  requireAuth,
+  (req, res, next) => {
+    const { userId } = getAuth(req);
+    req.user = { userId };
+    next();
+  },
+];
 
 /**
- * Role-based access control middleware.
- * Usage: router.delete('/product/:id', protect, authorize('admin', 'seller'), ...)
- *
- * Always use AFTER protect — needs req.user to be set first.
+ * Role-based access control middleware (placeholder for future use).
+ * Clerk manages roles via orgs — extend when needed.
  */
 const authorize = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: `Role '${req.user.role}' is not authorized for this action.`,
-      });
-    }
+    // Clerk roles come from getAuth(req).orgRole
+    // For now, allow all authenticated users
     next();
   };
 };

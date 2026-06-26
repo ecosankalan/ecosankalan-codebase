@@ -1,19 +1,107 @@
-import { useNavigate } from 'react-router-dom';
-import LoginForm from '../components/auth/LoginForm';
+import { SignIn, SignUp } from '@clerk/react';
 import '../styles/login.css';
 
-export default function LoginPage() {
-  const navigate = useNavigate();
+const clerkAppearance = {
+  variables: {
+    colorPrimary: '#005127',
+    colorText: '#191c1b',
+    colorTextSecondary: '#404940',
+    colorBackground: '#ffffff',
+    colorInputBackground: '#ffffff',
+    colorInputText: '#191c1b',
+    fontFamily: "'Inter', sans-serif",
+    borderRadius: '0.5rem',
+    spacingUnit: '1rem',
+  },
+  elements: {
+    card: {
+      boxShadow: 'none',
+      border: '1px solid rgba(191,201,189,0.35)',
+      borderRadius: '0.75rem',
+    },
+    formButtonPrimary: {
+      backgroundColor: '#005127',
+      borderRadius: '0.5rem',
+      fontFamily: "'Inter', sans-serif",
+      fontWeight: 600,
+      fontSize: '0.95rem',
+      padding: '0.875rem 1.5rem',
+      textTransform: 'none',
+      boxShadow: '0 4px 16px rgba(0,81,39,0.15)',
+      '&:hover': {
+        backgroundColor: '#1b6b3a',
+        boxShadow: '0 6px 20px rgba(0,81,39,0.25)',
+      },
+    },
+    socialButtonsBlockButton: {
+      borderRadius: '0.5rem',
+      border: '1px solid rgba(191,201,189,0.35)',
+      fontFamily: "'Inter', sans-serif",
+      fontWeight: 500,
+      backgroundColor: '#f2f4f2',
+      '&:hover': {
+        backgroundColor: '#e6e9e7',
+      },
+    },
+    formFieldInput: {
+      borderRadius: '0.5rem',
+      border: '1px solid rgba(191,201,189,0.35)',
+      fontFamily: "'Inter', sans-serif",
+      fontSize: '0.95rem',
+      padding: '0.875rem 1rem',
+      '&:focus': {
+        borderColor: 'rgba(0,81,39,0.4)',
+        boxShadow: '0 0 0 3px rgba(0,81,39,0.08)',
+      },
+    },
+    formFieldLabel: {
+      fontFamily: "'Inter', sans-serif",
+      fontWeight: 600,
+      fontSize: '0.875rem',
+      color: '#404940',
+    },
+    footerActionLink: {
+      color: '#005127',
+      fontWeight: 600,
+      '&:hover': {
+        color: '#1b6b3a',
+      },
+    },
+    headerTitle: {
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+      fontWeight: 700,
+      color: '#191c1b',
+    },
+    headerSubtitle: {
+      fontFamily: "'Inter', sans-serif",
+      color: '#404940',
+    },
+    dividerLine: {
+      backgroundColor: 'rgba(191,201,189,0.35)',
+    },
+    dividerText: {
+      fontSize: '0.7rem',
+      textTransform: 'uppercase',
+      letterSpacing: '0.1em',
+      color: '#707a6f',
+    },
+  },
+};
+
+export default function LoginPage({ mode = 'signIn' }) {
+  const isSignUp = mode === 'signUp';
+
+  const heading = isSignUp
+    ? { title: 'Join EcoSankalan', subtitle: 'Create an account and start your sustainability journey.' }
+    : { title: 'Welcome Back', subtitle: 'Please enter your details to continue your impact journey.' };
 
   return (
     <div className="login-root">
-      {/* Decorative background blobs */}
       <div className="blob blob-tl" />
       <div className="blob blob-br" />
 
       <main className="login-card">
 
-        {/* ── LEFT: Brand panel ─────────────────────────────── */}
         <section className="brand-panel">
           <div className="brand-logo">
             <span
@@ -55,10 +143,7 @@ export default function LoginPage() {
           />
         </section>
 
-        {/* ── RIGHT: Auth form ──────────────────────────────── */}
         <section className="form-panel">
-
-          {/* Mobile logo (hidden on desktop) */}
           <div className="mobile-logo">
             <span
               className="material-symbols-outlined mobile-eco-icon"
@@ -70,22 +155,31 @@ export default function LoginPage() {
           </div>
 
           <div className="form-heading">
-            <h3>Welcome Back</h3>
-            <p>Please enter your details to continue your impact journey.</p>
+            <h3>{heading.title}</h3>
+            <p>{heading.subtitle}</p>
           </div>
 
-          {/* LoginForm handles all form logic + API call */}
-          <LoginForm />
-
-          {/* Footer — "Create an account" is static (Month 1) */}
-          <footer className="form-footer">
-            <p>
-              Don't have an account?{' '}
-              <span className="create-account-link">
-                Create an account
-              </span>
-            </p>
-          </footer>
+          <div className="clerk-wrapper">
+            {isSignUp ? (
+              <SignUp
+                appearance={clerkAppearance}
+                routing="path"
+                path="/sign-up"
+                signInUrl="/sign-in"
+                afterSignUpUrl="/dashboard"
+                forceRedirectUrl="/dashboard"
+              />
+            ) : (
+              <SignIn
+                appearance={clerkAppearance}
+                routing="path"
+                path="/sign-in"
+                signUpUrl="/sign-up"
+                afterSignInUrl="/dashboard"
+                forceRedirectUrl="/dashboard"
+              />
+            )}
+          </div>
 
         </section>
       </main>

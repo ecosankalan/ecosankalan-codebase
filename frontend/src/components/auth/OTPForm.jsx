@@ -1,17 +1,15 @@
 /**
  * OTPForm — 6-digit OTP verification
  * Used by: OTPPage.jsx
- * API: verifyOTP() from services/api.js (Month 2)
+ * NOTE: Backend OTP endpoints are stubs (501). This is mock flow for Month 1.
  */
 import { useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { verifyOTP } from '../../services/api';
 
 export default function OTPForm() {
   const navigate  = useNavigate();
   const location  = useLocation();
-  const { login } = useAuth();
 
   const email     = location.state?.email || 'your email';
   const [otp, setOtp]         = useState(['', '', '', '', '', '']);
@@ -25,7 +23,6 @@ export default function OTPForm() {
     newOtp[index] = value;
     setOtp(newOtp);
     setError('');
-    // Auto-advance to next input
     if (value && index < 5) inputs.current[index + 1]?.focus();
   };
 
@@ -45,16 +42,13 @@ export default function OTPForm() {
     setLoading(true);
     try {
       // ── Uncomment when backend is live (Month 2) ────────────
-      // const res = await verifyOTP({ email, otp: code });
-      // login(res.data.user, res.data.token);
+      // await verifyOTP({ email, otp: code });
+      // OTP verified — redirect to sign-in
+      // navigate('/sign-in', { replace: true });
 
       // ── MOCK for Month 1 ─────────────────────────────────────
       await new Promise(r => setTimeout(r, 900));
-      login(
-        { name: 'Vipin Gupta', email, ecoPoints: 0 },
-        'mock-jwt-token-ecosankalan'
-      );
-      navigate('/dashboard');
+      navigate('/sign-in', { replace: true });
     } catch (err) {
       setError(err?.response?.data?.message || 'Invalid OTP. Please try again.');
     } finally {
