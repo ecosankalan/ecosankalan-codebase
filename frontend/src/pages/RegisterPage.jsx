@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import RegisterForm from '../components/auth/RegisterForm';
 import '../styles/login.css';
 
@@ -14,13 +14,8 @@ export default function RegisterPage() {
 
         {/* ── LEFT: Brand panel ─────────────────────────────── */}
         <section className="brand-panel">
-          <div className="brand-logo">
-            <span
-              className="material-symbols-outlined brand-eco-icon"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              eco
-            </span>
+          <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src="/logo.png" alt="EcoSankalan Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
             <span className="brand-name">EcoSankalan</span>
           </div>
           <div className="brand-headline">
@@ -53,14 +48,9 @@ export default function RegisterPage() {
 
         {/* ── RIGHT: Register form ───────────────────────────── */}
         <section className="form-panel">
-          <div className="mobile-logo">
-            <span
-              className="material-symbols-outlined mobile-eco-icon"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              eco
-            </span>
-            <span className="mobile-brand-name">EcoSankalan</span>
+          <div className="mobile-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '1rem' }}>
+            <img src="/logo.png" alt="EcoSankalan Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
+            <span className="brand-name" style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary)' }}>EcoSankalan</span>
           </div>
 
           <div className="form-heading">
@@ -73,13 +63,9 @@ export default function RegisterPage() {
           <footer className="form-footer">
             <p>
               Already have an account?{' '}
-              <span
-                className="create-account-link"
-                style={{ cursor: 'pointer' }}
-                onClick={() => navigate('/login')}
-              >
+              <Link to="/login" className="create-account-link">
                 Sign in
-              </span>
+              </Link>
             </p>
           </footer>
         </section>

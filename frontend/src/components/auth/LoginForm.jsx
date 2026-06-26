@@ -5,8 +5,9 @@
  */
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../context/AuthContext';
-import { loginUser } from '../../services/api';
+import { loginUser, authGoogle } from '../../services/api';
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -17,6 +18,21 @@ export default function LoginForm() {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setLoading(true);
+    try {
+      const res = await authGoogle({ token: tokenResponse.credential });
+      if (res.data && res.data.token) {
+        login(res.data.user, res.data.token);
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.message || 'Google login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setError('');
@@ -31,19 +47,16 @@ export default function LoginForm() {
     }
     setLoading(true);
     try {
-      // ── Uncomment when backend is live (Month 2) ────────────
-      // const res = await loginUser(formData);
-      // login(res.data.user, res.data.token);
-
-      // ── MOCK login for Month 1 ───────────────────────────────
-      await new Promise(r => setTimeout(r, 900));
-      login(
-        { name: 'Vipin Gupta', email: formData.email, ecoPoints: 480 },
-        'mock-jwt-token-ecosankalan'
-      );
-      navigate('/dashboard');
+      // ── Call real backend API ────────────────────────────────
+      const res = await loginUser(formData);
+      
+      // Using Context login method (which sets localStorage and state)
+      if (res.data && res.data.token) {
+        login(res.data.user, res.data.token);
+        navigate('/dashboard');
+      }
     } catch (err) {
-      setError(err?.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -51,14 +64,13 @@ export default function LoginForm() {
 
   return (
     <div className="auth-form-wrapper">
-      {/* Google button (static — Month 1) */}
-      <button className="google-btn" type="button">
-        <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk-nUL4i1EqWirCrPMTXH9VUN763RHLOjJ9N6xbtVHGW5P5PfrBs1NgJXD2Pvma-OrOHUvfMgRjIxRS0UINM_R-UgVjXqRlXoRyrwK2VD_LvJsMyElp8iEqL27f2CupD46hV8yWXwF6m0AHJS-9yTtsGsV1DHO1i7Kifdw7uKZ7McpHdPoQeFjt0Cg05vW3kdh70cz5PEOuyXk7MLqqNiGwxWkwlHYF3IoPgoiOuXPpW1YQvmBEE3_s7KZ1QcepSG2ueL6xs082IK6"
-          alt="Google" width={20} height={20}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => setError('Google login failed')}
+          useOneTap
         />
-        Continue with Google
-      </button>
+      </div>
 
       <div className="divider">
         <div className="divider-line" />

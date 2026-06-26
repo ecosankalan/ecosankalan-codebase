@@ -9,7 +9,12 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },
-  "keywords": ["waste-management", "recycling", "NSUT", "CPVS"],
+  "keywords": [
+    "waste-management",
+    "recycling",
+    "NSUT",
+    "CPVS"
+  ],
   "author": "EcoSankalan Team — NSUT Delhi",
   "license": "MIT",
   "dependencies": {
@@ -21,6 +26,7 @@
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.1",
     "express-validator": "^7.1.0",
+    "google-auth-library": "^10.9.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.1",
@@ -37,7 +43,9 @@
   "jest": {
     "testEnvironment": "node",
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "engines": {
     "node": ">=18.0.0"

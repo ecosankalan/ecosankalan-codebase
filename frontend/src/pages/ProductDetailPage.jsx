@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
+import { getProducts, getProductRedirectUrl } from '../services/api';
 import '../styles/product-detail.css';
 
 const DEFAULT = {
@@ -10,36 +11,58 @@ const DEFAULT = {
   specs: ['Dimensions: 25cm x 15cm x 12cm', 'Water-resistant wax coating'],
   imgs: [
     'https://lh3.googleusercontent.com/aida-public/AB6AXuD_ehHkEgonIDemsK8JToitfRydIHae_8U_LTLj2tDgZRsopFDir2HF9_oinA4f82mZeH3aAp6T4x_JPRv7opnKVBBGrXlxNLlroyls3M6I7HQKhhX6oV20MhwnzUpsbDyOc6G-PLUzewNHepNgUP4-6b3g3GnfR5hN4KPRsX-ItOaJPAO9k3c6DD_4FELKkdakXXHDD7yhcCu7K9gUUvHCNzJnjEsJxKDbclDMIVzp-_VtKvxzVU9RsMmfGer7CFxyCA8Q2tuhJUI6',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDoO3GUU-XukQatPJe1r7Pab3EJM_Iv4-ph70wMFAsW99LoAdEeMD-9YrG3ykeI23G6e7FYwNTqu6UjppVOBFm3NTCgVhpMHtUQbtFtFiS1PMeBjHs78RPHb_HoWyRGeTd9AQF-6nM2gggaJM88YIwiKe-shcJKY1X_J-8YOL8GKQDDumP0esn3776LPEUooTu5qhZGjKcZ887ZZnXYPup4dXFFd5yPQrl_cVCkkA5le4BTPoaiMIXLNU-zJvat9osH0ZuDze1HtzRq',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuBlSOA0G-rIJCqdRL6CSxde6Xw9O9r9dthkkhsOBwsz3sqZHtNG_Vay7Wya-XVXptjcWd5yzvYSVHrCyaD5xelD3JDMXrvsD0JljWemC4CSKBJQkCDJ8rA87_3vagxo3GLOxOWZBV9pQxqZS9-4uJfO8UCKqk9r_1bYrchcNxhEsUZXMBDah8oKFzC11Rm58BvANzaWRYG1K5aw5PvC3_C4Nt7JJn6wsWxEXIixaNPlKRukcCRZIZ_Acem1LSUKfP_hWfe8Rb6qm0IP',
   ],
-  related: [
-    { name: 'Felt Laptop Sleeve', price: '$19.99', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDyU4ndqS48u0hcvE5ybIT1qbF-eyzTNVpSQdXa_7Ij-xbDV_rEv4NPi0C1FHXcErTAphTiQoTVfHcLjuKfvUjd5dUQschyzX6sbj5SGwOs8z5ge78esEvWNZnRUbgJ1VJNJUPH32gwNhg9wTkgejZrrX4BIPjJltj0p-JSAEG7ib4wrSi0GoZOrYozQrmR9ZDCKTfjdjkNGX5JEwkF7q0yRkYqNXAPHvXCEo_uLAkfwdGQ6DFmOeSpteelM8eDHy3oua5IqeS_Cqqx' },
-    { name: 'Solar Desk Lamp',    price: '$45.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA3rS8Lyhw13FvuTViItniI7cS4geLa97fWcRoyk2fml32j3Ueud0Ht70YjDjXBEud87mSmwSz3WCTNrsT0LNISVEv728RVde9qevZZABHOz6CAUaPaOleCFAdZIQf3h9YRjLJFfdOTH25nH44Mys7o2coKK5iyIjj_tMx8MR4oQF84KQgvbROZKKUk9vzBYB-1MZTct2oMzXuDylFENrO2H2X_NA-BjwzfO_SoZxng3SoEEeQe0GUxxH9HK-hb6WPFDGx_EXPtxJMU' },
-    { name: 'Natural Cork Set',   price: '$12.50', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCfiSL1MuBMWm7RNu9yqMvHLSUrHOT66R0_SSVlnkLLLd2JSKF8UW1otoFZc25BjVmQCL-_J9O76BBsDxWb4Uvd3DlmuOvtQCgHewaqEkVDIUsygPNr5ECXRLlKaimaP_thAlLBMx16kVc8Fu7nLEdH7kGKiek8yjirR05KpOEyDqMcxxkNwb9Po0UCUDfIrVyL564RZzABv3KLG8ABmDKNl1tysyrsRgtG8et97Cb2uyv47Pj67IVykleoAjdLFy4pUYJjTG5ef8mo' },
-  ],
+  related: [],
 };
 
 export default function ProductDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const raw = location.state?.product ?? {};
-  const product = { ...DEFAULT, ...raw, imgs: raw.img ? [raw.img, ...DEFAULT.imgs.slice(1)] : DEFAULT.imgs };
+  
+  // Use actual db fields, mapped to display fields
+  const product = {
+    _id: raw._id,
+    name: raw.name || DEFAULT.name,
+    partner: raw.partnerName || DEFAULT.partner,
+    price: raw.priceINR ? `₹${raw.priceINR}` : DEFAULT.price,
+    points: raw.ecoPointsCost || DEFAULT.points,
+    category: raw.category,
+    co2: '1.2kg CO2 Saved',
+    about: raw.description || DEFAULT.about,
+    specs: DEFAULT.specs,
+    imgs: (raw.imageUrls && raw.imageUrls.length > 0) ? [raw.imageUrls[0]] : (raw.img ? [raw.img] : DEFAULT.imgs),
+  };
+
   const [slide, setSlide] = useState(0);
   const [expanded, setExpanded] = useState(false);
+  const [related, setRelated] = useState([]);
+
+  useEffect(() => {
+    // Fetch products from the same category for the "You Might Also Like" section
+    const fetchRelated = async () => {
+      try {
+        const res = await getProducts(product.category);
+        if (res.data && res.data.length > 0) {
+          // Filter out the current product
+          setRelated(res.data.filter(p => p._id !== product._id).slice(0, 4));
+        }
+      } catch (err) {
+        console.error('Failed to load related products');
+      }
+    };
+    if (product.category) fetchRelated();
+  }, [product.category, product._id]);
 
   return (
     <div className="pd-root">
       <Navbar />
       <main className="pd-main">
 
-        {/* Carousel */}
+        {/* Carousel / Image */}
         <section className="pd-carousel">
-          <div className="pd-carousel-track" style={{ transform: `translateX(-${slide * 100}%)` }}>
-            {product.imgs.map((src, i) => <img key={i} src={src} alt={`${product.name} ${i+1}`} className="pd-carousel-img" />)}
-          </div>
-          <div className="pd-dots">
-            {product.imgs.map((_, i) => <button key={i} className={`pd-dot${slide === i ? ' active' : ''}`} onClick={() => setSlide(i)} />)}
+          <div className="pd-carousel-track" style={{ transform: `translateX(0%)` }}>
+            <img src={product.imgs[0]} alt={`${product.name}`} className="pd-carousel-img" />
           </div>
           <button className="pd-fav-btn"><span className="material-symbols-outlined">favorite</span></button>
           <button className="pd-back-btn" onClick={() => navigate(-1)}><span className="material-symbols-outlined">arrow_back</span></button>
@@ -97,26 +120,29 @@ export default function ProductDetailPage() {
           )}
         </section>
 
-        {/* Related */}
-        <section className="pd-related-section">
-          <div className="pd-related-header">
-            <h2 className="pd-related-title">You Might Also Like</h2>
-            <button className="pd-view-all">View All</button>
-          </div>
-          <div className="pd-related-scroll">
-            {product.related.map((r, i) => (
-              <div className="pd-related-card" key={i}>
-                <div className="pd-related-img-wrap"><img src={r.img} alt={r.name} className="pd-related-img" /></div>
-                <p className="pd-related-name">{r.name}</p>
-                <p className="pd-related-price">{r.price}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        {related.length > 0 && (
+          <section className="pd-related-section">
+            <div className="pd-related-header">
+              <h2 className="pd-related-title">You Might Also Like</h2>
+              <button className="pd-view-all">View All</button>
+            </div>
+            <div className="pd-related-scroll">
+              {related.map((r, i) => (
+                <div className="pd-related-card" key={r._id} onClick={() => navigate('/product-detail', { state: { product: r }, replace: true })}>
+                  <div className="pd-related-img-wrap"><img src={r.imageUrls?.[0]} alt={r.name} className="pd-related-img" /></div>
+                  <p className="pd-related-name">{r.name}</p>
+                  <p className="pd-related-price">₹{r.priceINR}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
       </main>
       <footer className="pd-footer">
-        <button className="pd-buy-btn">Buy on Partner <span className="material-symbols-outlined">arrow_forward</span></button>
+        <button className="pd-buy-btn" onClick={() => window.open(getProductRedirectUrl(product._id), '_blank', 'noopener,noreferrer')}>
+          Buy on Partner <span className="material-symbols-outlined">arrow_forward</span>
+        </button>
       </footer>
       <BottomNav />
     </div>

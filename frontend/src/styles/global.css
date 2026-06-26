@@ -142,3 +142,142 @@ body {
 }
 .stat-card--green .stat-card-value { color: inherit; }
 .stat-card-sub { font-size: 0.8rem; color: var(--outline); }
+
+/* ── Global: Spin animation for loading states ───────────────────── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.log-spin { animation: spin 1s linear infinite; }
+
+/* ── Global: Error banner ────────────────────────────────────────── */
+.log-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff0f0;
+  border: 1px solid #ffcccc;
+  color: var(--error, #b3261e);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin: 0 1rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* ── Global: Alert banners (vouchers, events etc.) ───────────────── */
+.vr-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+.vr-alert button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+}
+.vr-alert.error {
+  background: #fff0f0;
+  border: 1px solid #ffcccc;
+  color: var(--error, #b3261e);
+}
+.vr-alert.success {
+  background: #f0fff4;
+  border: 1px solid #a3d9b4;
+  color: var(--primary, #005127);
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+.vr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  opacity: 0.6;
+}
+.vr-empty-icon { font-size: 2.5rem !important; }
+.vr-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  opacity: 0.6;
+}
+
+/* RSVP states on EventDetailPage */
+.ed-rsvp-btn.rsvped { background: var(--primary-container); color: var(--on-primary-container); }
+.ed-rsvp-success {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f0fff4;
+  border: 1px solid #a3d9b4;
+  border-radius: 12px;
+  color: var(--primary, #005127);
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+.ed-rsvp-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fffbf0;
+  border: 1px solid #f0d0a0;
+  border-radius: 12px;
+  color: #7a4f00;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+/* WasteHistoryPage load more */
+.wh-load-more {
+  display: block;
+  width: 100%;
+  padding: 0.875rem;
+  text-align: center;
+  background: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: background 0.2s;
+}
+.wh-load-more:hover { background: var(--surface-container-high); }
+.wh-load-more:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.wh-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff0f0;
+  border: 1px solid #ffcccc;
+  color: var(--error, #b3261e);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+/* Voucher badge count */
+.vr-badge-count {
+  font-size: 0.8rem;
+  background: var(--primary);
+  color: var(--on-primary);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-weight: 600;
+}
+
+/* Expired voucher */
+.vr-voucher-card.expired { opacity: 0.6; filter: grayscale(0.5); }

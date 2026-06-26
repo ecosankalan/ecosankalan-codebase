@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:id/redirect', protect, async (req, res) => {
+router.get('/:id/redirect', async (req, res) => {
   try {
     const product = await PartnerProduct.findOne({ _id: req.params.id, isActive: true });
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });

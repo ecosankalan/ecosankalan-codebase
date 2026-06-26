@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
+import { rsvpEvent } from '../services/api';
 import '../styles/event-detail.css';
 
 const DEFAULT_EVENT = {
@@ -31,12 +33,49 @@ export default function EventDetailPage() {
   const location  = useLocation();
   const event     = location.state?.event ?? DEFAULT_EVENT;
 
+  const [rsvped,    setRsvped]    = useState(false);
+  const [rsvping,   setRsvping]   = useState(false);
+  const [rsvpError, setRsvpError] = useState('');
+  const [rsvpPts,   setRsvpPts]   = useState(0);
+
   const {
-    title, category, date, dateFull, time, location: venue,
-    distance, points, attendees, img, about, organizer, avatars,
+    _id, title, category, date, dateFull, time,
+    location: venue, distance, points, attendees,
+    img, about, organizer, avatars,
   } = event;
 
-  const extraCount = Math.max(0, attendees - avatars.length);
+  // If organizer is a string (from backend), wrap it
+  const org = typeof organizer === 'string'
+    ? { name: organizer, type: 'Organiser' }
+    : organizer ?? { name: 'EcoSankalan', type: 'Community' };
+
+  const extraCount = Math.max(0, (attendees || 0) - (avatars?.length || 0));
+
+  const handleRSVP = async () => {
+    if (rsvped) return;
+    if (!_id) {
+      // Fallback for demo events without real ID
+      setRsvped(true);
+      setRsvpPts(points || 50);
+      return;
+    }
+    setRsvping(true);
+    setRsvpError('');
+    try {
+      const { data } = await rsvpEvent(_id);
+      setRsvped(true);
+      setRsvpPts(data.pointsAwarded || points || 0);
+    } catch (err) {
+      if (err.message?.includes('409') || err.message?.toLowerCase().includes('already')) {
+        setRsvped(true);
+        setRsvpError('You have already RSVP\'d for this event.');
+      } else {
+        setRsvpError(err.message || 'Failed to RSVP. Please try again.');
+      }
+    } finally {
+      setRsvping(false);
+    }
+  };
 
   return (
     <div className="ed-root">
@@ -44,7 +83,7 @@ export default function EventDetailPage() {
 
       <main className="ed-main">
 
-        {/* ── Hero image ──────────────────────────────────────── */}
+        {/* ── Hero image */}
         <section className="ed-hero">
           <img src={img} alt={title} className="ed-hero-img" />
           <div className="ed-hero-overlay">
@@ -64,13 +103,13 @@ export default function EventDetailPage() {
 
         <div className="ed-body-grid">
 
-          {/* ── Left column: content ────────────────────────── */}
+          {/* ── Left column */}
           <div className="ed-left">
 
             {/* About */}
             <div className="ed-card">
               <h2 className="ed-card-title">About the Event</h2>
-              {about.map((p, i) => (
+              {(Array.isArray(about) ? about : [about]).map((p, i) => (
                 <p key={i} className="ed-body-text">{p}</p>
               ))}
             </div>
@@ -78,16 +117,14 @@ export default function EventDetailPage() {
             {/* Organizer */}
             <div className="ed-card ed-organizer">
               <div className="ed-org-avatar">
-                <span className="material-symbols-outlined ed-org-icon"
-                  style={{ fontVariationSettings: "'FILL' 1" }}>spa</span>
+                <span className="material-symbols-outlined ed-org-icon" style={{ fontVariationSettings: "'FILL' 1" }}>spa</span>
               </div>
               <div className="ed-org-info">
                 <h3 className="ed-org-name">
-                  {organizer.name}
-                  <span className="material-symbols-outlined ed-verified"
-                    style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                  {org.name}
+                  <span className="material-symbols-outlined ed-verified" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                 </h3>
-                <p className="ed-org-type">{organizer.type}</p>
+                <p className="ed-org-type">{org.type}</p>
               </div>
               <button className="ed-follow-btn">Follow</button>
             </div>
@@ -99,7 +136,7 @@ export default function EventDetailPage() {
                 <span className="ed-attendees-count">{attendees} Joined</span>
               </div>
               <div className="ed-avatar-row">
-                {avatars.map((src, i) => (
+                {(avatars || []).map((src, i) => (
                   <img key={i} src={src} alt="Attendee" className="ed-avatar" />
                 ))}
                 {extraCount > 0 && (
@@ -109,7 +146,7 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          {/* ── Right column: sidebar ───────────────────────── */}
+          {/* ── Right column */}
           <div className="ed-right">
 
             {/* Info card */}
@@ -135,10 +172,12 @@ export default function EventDetailPage() {
               </div>
               <div className="ed-info-detail">
                 <p>{venue}</p>
-                <p className="ed-info-distance">
-                  <span className="material-symbols-outlined">directions_walk</span>
-                  {distance}
-                </p>
+                {distance && (
+                  <p className="ed-info-distance">
+                    <span className="material-symbols-outlined">directions_walk</span>
+                    {distance}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -148,7 +187,7 @@ export default function EventDetailPage() {
               <div className="ed-reward-content">
                 <div className="ed-reward-left">
                   <span className="ed-reward-earn">Earn</span>
-                  <h3 className="ed-reward-pts">+{points} Eco Points</h3>
+                  <h3 className="ed-reward-pts">+{rsvpPts || points} Eco Points</h3>
                 </div>
                 <div className="ed-reward-icon-wrap">
                   <span className="material-symbols-outlined ed-reward-icon">emoji_events</span>
@@ -156,10 +195,40 @@ export default function EventDetailPage() {
               </div>
             </div>
 
+            {/* RSVP success banner */}
+            {rsvped && (
+              <div className="ed-rsvp-success">
+                <span className="material-symbols-outlined">check_circle</span>
+                RSVP confirmed! {rsvpPts ? `+${rsvpPts} pts earned.` : ''}
+              </div>
+            )}
+
+            {/* RSVP error */}
+            {rsvpError && (
+              <div className="ed-rsvp-error">
+                <span className="material-symbols-outlined">info</span>
+                {rsvpError}
+              </div>
+            )}
+
             {/* Action buttons */}
             <div className="ed-actions">
-              <button className="ed-rsvp-btn">
-                RSVP Now
+              <button
+                className={`ed-rsvp-btn${rsvped ? ' rsvped' : ''}`}
+                onClick={handleRSVP}
+                disabled={rsvping || rsvped}
+              >
+                {rsvping ? (
+                  <>
+                    <span className="material-symbols-outlined" style={{ animation: 'spin 1s linear infinite' }}>progress_activity</span>
+                    RSVP'ing…
+                  </>
+                ) : rsvped ? (
+                  <>
+                    <span className="material-symbols-outlined">check_circle</span>
+                    RSVP'd
+                  </>
+                ) : 'RSVP Now'}
               </button>
               <button className="ed-cal-btn">
                 <span className="material-symbols-outlined">calendar_add_on</span>

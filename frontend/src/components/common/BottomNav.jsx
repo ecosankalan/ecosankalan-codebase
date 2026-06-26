@@ -15,13 +15,27 @@ export default function BottomNav() {
 
   return (
     <>
-      {/* FAB — floating action button for quick waste log */}
+      {/* FAB — floating action button for quick AI waste scan */}
       <button
         className="fab"
         onClick={() => navigate('/waste')}
-        aria-label="Log waste"
+        aria-label="AI Scan Waste"
+        style={{
+          background: 'var(--primary)',
+          color: 'var(--on-primary)',
+          boxShadow: '0 4px 12px rgba(0, 81, 39, 0.4)',
+          transform: 'translateY(-20px)',
+          width: '64px',
+          height: '64px',
+          borderRadius: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '2px'
+        }}
       >
-        <span className="material-symbols-outlined">add</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.75rem' }}>photo_camera</span>
       </button>
 
       {/* Bottom nav bar — always visible, full width */}

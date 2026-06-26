@@ -48,10 +48,14 @@ const binSchema = new mongoose.Schema(
         message: 'At least one bin type is required',
       },
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     capacityStatus: {
       type: String,
-      enum: ['empty', 'half', 'full'],
-      default: 'empty',
+      trim: true,
+      default: 'low',
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

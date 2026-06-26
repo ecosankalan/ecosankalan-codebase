@@ -5,21 +5,17 @@ const { wasteScanSchema } = require('../config/aiSchema');
 const { buildAiInput } = require('../utils/buildAiInput');
 
 const extractOutputText = (response) => {
-  if (response.output_text) return response.output_text;
-
-  return response.output
-    ?.flatMap((item) => item.content || [])
-    .find((content) => content.type === 'output_text')?.text;
+  return response.choices[0]?.message?.content;
 };
 
 const analyzeWasteImages = async (files) => {
   const client = getOpenAIClient();
-  const response = await client.responses.create({
+  const response = await client.chat.completions.create({
     model: OPENAI_VISION_MODEL,
-    input: buildAiInput(files, WASTE_SCAN_PROMPT),
-    text: {
-      format: {
-        type: 'json_schema',
+    messages: buildAiInput(files, WASTE_SCAN_PROMPT),
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
         name: 'waste_scan',
         strict: true,
         schema: wasteScanSchema,
@@ -37,8 +33,8 @@ const analyzeWasteImages = async (files) => {
   return {
     model: OPENAI_VISION_MODEL,
     usage: {
-      inputTokens: response.usage?.input_tokens,
-      outputTokens: response.usage?.output_tokens,
+      inputTokens: response.usage?.prompt_tokens,
+      outputTokens: response.usage?.completion_tokens,
       totalTokens: response.usage?.total_tokens,
     },
     parsed: JSON.parse(outputText),

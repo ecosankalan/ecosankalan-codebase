@@ -28,9 +28,12 @@ router.post('/unlock', async (req, res) => {
     const { partnerName } = req.body;
     if (!partnerName) return res.status(400).json({ success: false, message: 'partnerName is required' });
 
+    const costMap = { 'Amazon': 500, 'Decathlon': 800, 'Starbucks': 1200 };
+    const cost = costMap[partnerName] || 500;
+
     const user = await User.findById(req.user.userId).select('ecoPoints');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    if (user.ecoPoints < 500) {
+    if (user.ecoPoints < cost) {
       return res.status(400).json({ success: false, message: 'Insufficient ecoPoints' });
     }
 
@@ -44,8 +47,8 @@ router.post('/unlock', async (req, res) => {
       return res.status(409).json({ success: false, message: 'No voucher available for this partner' });
     }
 
-    await User.findByIdAndUpdate(req.user.userId, { $inc: { ecoPoints: -500 } });
-    res.status(200).json(voucher);
+    await User.findByIdAndUpdate(req.user.userId, { $inc: { ecoPoints: -cost } });
+    res.status(200).json({ ...voucher.toObject(), cost });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to unlock voucher' });
   }

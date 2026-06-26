@@ -19,6 +19,7 @@ const distanceMetres = ([lng1, lat1], [lng2, lat2]) => {
   return Math.round(radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 };
 
+// FR-12: GET /bins?lat&lng&radius — sorted nearest-first using $near + $2dsphere
 router.get('/', async (req, res) => {
   try {
     const lat = toNumber(req.query.lat);
@@ -48,6 +49,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+// FR-11: POST /bins — Admin-only bin creation
 router.post('/', protect, authorize('admin'), async (req, res) => {
   try {
     const { name, address, location, types, capacityStatus } = req.body;
@@ -75,11 +77,11 @@ router.post('/', protect, authorize('admin'), async (req, res) => {
 });
 
 router.put('/:id', protect, authorize('admin'), (req, res) => {
-  res.status(501).json({ success: false, message: 'PUT /bins/:id coming in Month 4.' });
+  res.status(501).json({ success: false, message: 'PUT /bins/:id not implemented.' });
 });
 
 router.delete('/:id', protect, authorize('admin'), (req, res) => {
-  res.status(501).json({ success: false, message: 'DELETE /bins/:id coming in Month 4.' });
+  res.status(501).json({ success: false, message: 'DELETE /bins/:id not implemented.' });
 });
 
 module.exports = router;

@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // ── Pages ────────────────────────────────────────────────────────────
 import LoginPage           from './pages/LoginPage';
@@ -25,6 +27,7 @@ import EventDetailPage        from './pages/EventDetailPage';
 import WeeklyChallengesPage   from './pages/WeeklyChallengesPage';
 import ProductDetailPage      from './pages/ProductDetailPage';
 import VouchersPage           from './pages/VouchersPage';
+import AdminDashboardPage     from './pages/AdminDashboardPage';
 
 import './styles/global.css';
 
@@ -63,6 +66,7 @@ function AppRoutes() {
       <Route path="/weekly-challenges"   element={<ProtectedRoute><WeeklyChallengesPage     /></ProtectedRoute>} />
       <Route path="/product-detail"      element={<ProtectedRoute><ProductDetailPage   /></ProtectedRoute>} />
       <Route path="/vouchers"            element={<ProtectedRoute><VouchersPage         /></ProtectedRoute>} />
+      <Route path="/admin"               element={<ProtectedRoute><AdminDashboardPage     /></ProtectedRoute>} />
       <Route path="/analytics"           element={<Navigate to="/impact" replace />} />
 
       {/* Fallback */}
@@ -74,10 +78,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </AuthProvider>
+    <ErrorBoundary>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'dummy-client-id.apps.googleusercontent.com'}>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    </ErrorBoundary>
   );
 }

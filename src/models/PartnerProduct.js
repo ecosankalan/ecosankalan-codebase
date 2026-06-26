@@ -7,6 +7,7 @@ const partnerProductSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     priceINR: { type: Number, required: true, min: 0 },
+    ecoPointsCost: { type: Number, required: true, min: 0 },
     category: { type: String, required: true, trim: true, index: true },
     imageUrls: { type: [String], default: [] },
     partnerProductUrl: { type: String, required: true },

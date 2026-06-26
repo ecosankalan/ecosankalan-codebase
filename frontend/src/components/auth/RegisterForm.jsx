@@ -5,16 +5,34 @@
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../../services/api';
+import { GoogleLogin } from '@react-oauth/google';
+import { useAuth } from '../../context/AuthContext';
+import { registerUser, authGoogle } from '../../services/api';
 
 export default function RegisterForm() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '', email: '', password: '', confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setLoading(true);
+    try {
+      const res = await authGoogle({ token: tokenResponse.credential });
+      if (res.data && res.data.token) {
+        login(res.data.user, res.data.token);
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.message || 'Google signup failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setError('');
@@ -37,15 +55,18 @@ export default function RegisterForm() {
     }
     setLoading(true);
     try {
-      // ── Uncomment when backend is live (Month 2) ────────────
-      // await registerUser({ name: formData.name, email: formData.email, password: formData.password });
-      // navigate('/otp', { state: { email: formData.email } });
-
-      // ── MOCK for Month 1 ─────────────────────────────────────
-      await new Promise(r => setTimeout(r, 900));
-      navigate('/otp', { state: { email: formData.email } });
+      // ── Call real backend API ────────────────────────────────
+      const res = await registerUser({ name: formData.name, email: formData.email, password: formData.password });
+      
+      // Auto login since OTP is bypassed for CPVS
+      if (res.data && res.data.token) {
+        login(res.data.user, res.data.token);
+        navigate('/dashboard');
+      } else {
+        navigate('/login');
+      }
     } catch (err) {
-      setError(err?.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -53,6 +74,20 @@ export default function RegisterForm() {
 
   return (
     <div className="auth-form-wrapper">
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => setError('Google signup failed')}
+          useOneTap
+        />
+      </div>
+
+      <div className="divider">
+        <div className="divider-line" />
+        <span className="divider-text">Or with email</span>
+        <div className="divider-line" />
+      </div>
+
       {error && <div className="error-banner">{error}</div>}
 
       <form className="auth-form" onSubmit={handleSubmit} noValidate>

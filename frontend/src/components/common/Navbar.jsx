@@ -10,14 +10,7 @@ export default function Navbar() {
     <header className="navbar">
       {/* Logo */}
       <div className="navbar-logo" onClick={() => navigate('/dashboard')}>
-        <div className="navbar-logo-icon">
-          <span
-            className="material-symbols-outlined"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            eco
-          </span>
-        </div>
+        <img src="/logo.png" alt="EcoSankalan Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
         <span className="navbar-brand">EcoSankalan</span>
       </div>
 

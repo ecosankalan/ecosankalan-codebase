@@ -67,7 +67,8 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. Postman, mobile apps)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Or if we are in development mode, allow anything!
+      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
         callback(new Error(`CORS policy: origin ${origin} not allowed`));
