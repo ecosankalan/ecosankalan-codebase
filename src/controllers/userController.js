@@ -4,6 +4,7 @@
  */
 
 const User = require('../models/User');
+const getCloudinary = require('../config/cloudinary');
 
 // GET /user/profile (and /api/v1/users/profile)
 exports.getProfile = async (req, res) => {
@@ -73,3 +74,51 @@ exports.getBadges = async (req, res) => {
   }
 };
 
+// PUT /user/profile/avatar (and /api/v1/users/profile/avatar)
+exports.uploadAvatar = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'Avatar file is required. Use form-data key "avatar".' });
+  }
+
+  try {
+    const cloudinary = getCloudinary();
+    const base64Image = req.file.buffer.toString('base64');
+    const dataUri = `data:${req.file.mimetype};base64,${base64Image}`;
+
+    const uploadResult = await cloudinary.uploader.upload(dataUri, {
+      folder: process.env.CLOUDINARY_AVATAR_FOLDER || 'ecosankalan/avatars',
+      public_id: `user_${req.user.userId}_${Date.now()}`,
+      overwrite: true,
+      invalidate: true,
+      resource_type: 'image',
+      transformation: [
+        {
+          width: 512,
+          height: 512,
+          crop: 'fill',
+          gravity: 'face',
+          fetch_format: 'auto',
+          quality: 'auto',
+        },
+      ],
+    });
+
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { $set: { avatarUrl: uploadResult.secure_url } },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    return res.status(200).json({
+      message: 'Avatar updated successfully',
+      avatarUrl: user.avatarUrl,
+      user,
+    });
+  } catch (err) {
+    return res.status(err.statusCode || 500).json({
+      message: err.message || 'Server error',
+    });
+  }
+};

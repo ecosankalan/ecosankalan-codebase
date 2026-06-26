@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ['user', 'seller', 'admin'],
+      enum: ['user', 'seller', 'admin', 'ngo'],
       default: 'user',
     },
 
@@ -81,7 +81,6 @@ const userSchema = new mongoose.Schema(
       type: { type: String, enum: ['Point'] },
       coordinates: { type: [Number] },
     },
-
     fcmToken: {
       type: String,
       default: null,

@@ -9,8 +9,8 @@
 .env.development.local
 .env.test.local
 .env.production.local
-
-# ── Node.js ───────────────────────────────
+.env.example
+ Node.js ───────────────────────────────
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -60,6 +60,4 @@ temp/
 *.dump
 dump/
 
-# -- Project Irrelevant Files ------------------
-BACKEND_DEV_DOCUMENTATION.md
-MOBILE_TESTING.md
+.docs

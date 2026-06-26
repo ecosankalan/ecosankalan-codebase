@@ -34,7 +34,11 @@ const binRoutes = require('./routes/bins');
 const eventRoutes = require('./routes/events');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
-const quizRoutes = require('./routes/quizRoutes'); // <--- ADD THIS
+
+const challengeRoutes = require('./routes/challenges');
+const voucherRoutes = require('./routes/vouchers');
+const adminRoutes = require('./routes/admin');
+const aiRoutes = require('./routes/ai');
 // Middleware imports
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
@@ -72,7 +76,8 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. Postman, mobile apps)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Or if we are in development mode, allow anything!
+      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
         callback(new Error(`CORS policy: origin ${origin} not allowed`));
@@ -138,8 +143,11 @@ app.use('/api/v1/bins', binRoutes);             // Month 4
 app.use('/api/v1/events', eventRoutes);         // Month 4
 app.use('/api/v1/products', productRoutes);     // Month 5
 app.use('/api/v1/orders', orderRoutes);         // Month 5
-app.use('/api/v1/quiz', quizRoutes); // Versioned route
-app.use('/quiz', quizRoutes);        // Alias for easier testing
+app.use('/api/v1/challenges', challengeRoutes); // Month 4
+app.use('/api/v1/vouchers', voucherRoutes);     // Month 5
+app.use('/api/v1/admin', adminRoutes);          // Month 6
+app.use('/api/v1/ai', aiRoutes);                // AI waste scan
+
 // Root route
 app.get('/', (req, res) => {
   res.json({

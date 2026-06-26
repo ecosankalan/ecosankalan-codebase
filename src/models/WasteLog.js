@@ -30,15 +30,15 @@ const mongoose = require('mongoose');
 // Embedded because it's always read with the log entry, and it's small.
 const aiScanSchema = new mongoose.Schema({
   rawResponse: {
-    type: String,    // Gemini's full text response (for debugging)
+    type: String,    // OpenAI's full text response (for debugging)
   },
   confidence: {
-    type: Number,    // 0-1 confidence score from Gemini
+    type: Number,    // 0-1 confidence score from OpenAI
     min: 0,
     max: 1,
   },
   detectedCategory: {
-    type: String,    // what Gemini thinks it is — may differ from user's final choice
+    type: String,    // what OpenAI thinks it is — may differ from user's final choice
   },
 }, { _id: false });
 
@@ -84,7 +84,7 @@ const wasteLogSchema = new mongoose.Schema(
     },
 
     imageUrl: {
-      type: String,   // URL of uploaded waste photo (used by Gemini in Month 3)
+      type: String,   // URL of uploaded waste photo (used by OpenAI in Month 3)
       default: null,
     },
 

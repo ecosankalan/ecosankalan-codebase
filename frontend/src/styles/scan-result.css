@@ -1,0 +1,370 @@
+/* ── Scan Result Page ─────────────────────────────────────────────── */
+.scan-result-root {
+  min-height: 100dvh;
+  background: var(--surface);
+  color: var(--on-surface);
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.scan-result-main {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 5.5rem 1.5rem 10rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+}
+
+/* ── Scanning Glow Atmosphere ─────────────────────────────────────── */
+.scanning-glow {
+  position: relative;
+  overflow: hidden;
+}
+.scanning-glow::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(27,107,58,0.12) 0%, transparent 68%);
+  animation: scan-glow-pulse 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes scan-glow-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%       { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* ── Image Wrap ───────────────────────────────────────────────────── */
+.scan-image-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.scan-image-placeholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 1.5rem;
+  background: var(--surface-container-low);
+  border: 1px solid rgba(191,201,189,0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 4px rgba(25,28,27,0.06);
+}
+
+.scan-placeholder-icon {
+  font-size: 5rem;
+  color: var(--primary-container);
+}
+.scan-placeholder-label {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--on-surface-variant);
+  font-weight: 600;
+}
+
+/* ── Confidence Badge ─────────────────────────────────────────────── */
+.scan-confidence-badge {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(248,250,248,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 16px rgba(25,28,27,0.08);
+  border: 1px solid rgba(191,201,189,0.15);
+}
+
+.scan-confidence-ring {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.scan-ring-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.scan-ring-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-headline);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.scan-conf-label {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+}
+.scan-conf-level {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* ── Identity Section ─────────────────────────────────────────────── */
+.scan-identity {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.scan-identity-icon-wrap {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: var(--primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+.scan-identity-icon {
+  font-size: 2.25rem;
+  color: var(--on-primary-container);
+}
+.scan-identity-title {
+  font-family: var(--font-headline);
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--on-surface);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.scan-identity-material {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+}
+.scan-switch-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.25rem 0;
+  margin-top: 0.25rem;
+  transition: opacity 0.15s;
+}
+.scan-switch-btn:hover { opacity: 0.75; text-decoration: underline; }
+.scan-switch-btn .material-symbols-outlined { font-size: 1.1rem; }
+
+/* ── Disposal Card ────────────────────────────────────────────────── */
+.scan-disposal-card {
+  background: var(--surface-container-low);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 1px 4px rgba(25,28,27,0.04);
+  position: relative;
+  z-index: 1;
+}
+
+.scan-disposal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.scan-disposal-icon-wrap {
+  padding: 0.5rem;
+  background: var(--secondary-container);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-secondary-container);
+}
+.scan-disposal-title {
+  font-family: var(--font-headline);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.scan-disposal-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.scan-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.scan-step-num {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.scan-step-text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--on-surface-variant);
+  line-height: 1.55;
+  padding-top: 0.2rem;
+}
+.scan-step-text strong { color: var(--on-surface); }
+
+/* ── Impact Grid ──────────────────────────────────────────────────── */
+.scan-impact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+.scan-impact-card {
+  background: var(--surface-container-lowest);
+  border: 1px solid rgba(191,201,189,0.15);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+}
+.scan-impact-num {
+  font-family: var(--font-headline);
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.scan-impact-num.primary   { color: var(--primary); }
+.scan-impact-num.secondary { color: var(--secondary); }
+.scan-impact-label {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+}
+
+/* ── Footer Actions ───────────────────────────────────────────────── */
+.scan-result-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background: rgba(248,250,248,0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 1rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 -8px 24px rgba(25,28,27,0.04);
+}
+
+.scan-confirm-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  font-family: var(--font-headline);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.scan-confirm-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+.scan-edit-btn {
+  width: 100%;
+  background: var(--surface-container);
+  color: var(--on-surface);
+  border: none;
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  font-family: var(--font-headline);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.scan-edit-btn:hover  { background: var(--surface-container-high); }
+.scan-edit-btn:active { transform: scale(0.97); }
+
+/* ── Mobile ───────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .scan-result-main { padding: 5rem 1rem 10rem; }
+  .scan-identity-title { font-size: 1.9rem; }
+}
+
+/* ── FR-06 Disposal Tip Banner ── */
+.scan-disposal-tip-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  background: var(--secondary-container);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.scan-tip-icon {
+  font-size: 1.25rem;
+  color: var(--secondary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.scan-disposal-tip-text {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--on-surface);
+  margin: 0;
+}
