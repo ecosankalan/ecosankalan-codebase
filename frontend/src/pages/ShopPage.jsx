@@ -194,7 +194,7 @@ export default function ShopPage() {
               {filtered.map(product => (
                 <div className="shop-card" key={product._id} onClick={() => handleProductClick(product)}>
                   <div className="shop-card-img-wrap">
-                    <img className="shop-card-img" src={product.imageUrl || product.img} alt={product.name} />
+                    <img className="shop-card-img" src={product.imageUrl || product.img || (product.imageUrls && product.imageUrls[0]) || (product.imgs && product.imgs[0])} alt={product.name} />
                     <div className="shop-card-partner-badge">
                       <span className="material-symbols-outlined shop-verified-icon">verified</span>
                       <span className="shop-partner-name">{product.partnerName || product.partner}</span>
