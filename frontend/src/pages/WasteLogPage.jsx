@@ -20,6 +20,7 @@ const CO2_MAP = { plastic: 1.5, organic: 0.5, 'e-waste': 2.0, metal: 1.8, paper:
 export default function WasteLogPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   const [selected,   setSelected]   = useState('organic');
   const [qty,        setQty]        = useState(2.5);
@@ -157,29 +158,44 @@ export default function WasteLogPage() {
             <div className="log-ai-badge">AI Powered</div>
             <h2 className="log-ai-title">Instant AI Classification</h2>
             <p className="log-ai-desc">Don't know the category? Point your camera and let our AI handle the rest.</p>
-            <button
-              className="log-ai-btn"
-              onClick={handleAIScan}
-              disabled={scanning}
-            >
-              {scanning ? (
-                <>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', width: '100%' }}>
+              <button
+                className="log-ai-btn"
+                style={{ flex: 1, padding: '0.75rem 0.5rem', fontSize: '0.9rem', background: 'var(--surface-variant)', color: 'var(--on-surface-variant)' }}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={scanning}
+              >
+                <span className="material-symbols-outlined">upload_file</span>
+                Upload
+              </button>
+              <button
+                className="log-ai-btn"
+                style={{ flex: 1, padding: '0.75rem 0.5rem', fontSize: '0.9rem' }}
+                onClick={() => cameraInputRef.current?.click()}
+                disabled={scanning}
+              >
+                {scanning ? (
                   <span className="material-symbols-outlined log-spin">progress_activity</span>
-                  Analysing…
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined">camera</span>
-                  Start AI Scan
-                </>
-              )}
-            </button>
-            {/* Hidden file input for image capture */}
+                ) : (
+                  <span className="material-symbols-outlined">photo_camera</span>
+                )}
+                Camera
+              </button>
+            </div>
+            {/* Hidden file input for gallery upload (no capture attribute) */}
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              multiple
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+            />
+            {/* Hidden file input for live camera (forces camera on mobile) */}
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
               style={{ display: 'none' }}
               onChange={handleFileSelect}
             />
