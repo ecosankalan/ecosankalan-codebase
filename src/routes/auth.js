@@ -107,6 +107,14 @@ router.post('/google', async (req, res) => {
     const payload = ticket.getPayload();
     const { email, name, picture } = payload;
     
+    const adminEmails = [
+      'vipin.gupta.ug24@nsut.ac.in',
+      'krishna.ug24@nsut.ac.in',
+      'atishay.jain.ug24@nsut.ac.in',
+      'bhagya.singh.ug24@nsut.ac.in',
+      'ayush.jha.ug24@nsut.ac.in'
+    ];
+
     // Check if user exists
     let user = await User.findOne({ email });
     
@@ -115,11 +123,16 @@ router.post('/google', async (req, res) => {
       user = await User.create({
         name,
         email,
+        role: adminEmails.includes(email) ? 'admin' : 'user',
         phone: '9' + Math.floor(Math.random() * 1000000000).toString().padStart(9, '0'), // Fake phone to pass validation
         password: Math.random().toString(36).slice(-10) + 'Aa1!', // Random secure password
         avatarUrl: picture,
         isVerified: true
       });
+    } else if (adminEmails.includes(email) && user.role !== 'admin') {
+      // Upgrade existing users if they are on the list
+      user.role = 'admin';
+      await user.save();
     }
     
     const authToken = generateToken(user);
