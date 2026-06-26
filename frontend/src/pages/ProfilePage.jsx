@@ -99,6 +99,7 @@ export default function ProfilePage() {
   ];
 
   const SETTINGS = [
+    ...(user?.role === 'admin' ? [{ icon: 'admin_panel_settings', label: 'Admin Dashboard', action: () => navigate('/admin') }] : []),
     { icon: 'person_edit',          label: 'Edit Profile',  action: () => setActiveModal('edit') },
     { icon: 'notifications_active', label: 'Notifications', action: () => setActiveModal('notifications') },
     { icon: 'lock',                 label: 'Privacy',       action: () => setActiveModal('privacy') },
