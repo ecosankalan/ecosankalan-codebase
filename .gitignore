@@ -61,3 +61,7 @@ temp/
 dump/
 
 .docs
+
+# ── Project Irrelevant Files ──────────────────
+MOBILE_TESTING.md
+BACKEND_DEV_DOCUMENTATION.md
