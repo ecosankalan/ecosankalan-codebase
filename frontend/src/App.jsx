@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
 // ── Pages ────────────────────────────────────────────────────────────
+import LandingPage        from './pages/LandingPage';
 import LoginPage           from './pages/LoginPage';
 import RegisterPage        from './pages/RegisterPage';
 import OTPPage             from './pages/OTPPage';
@@ -41,6 +42,9 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <Routes>
+      {/* Landing page — public, shown to unauthenticated visitors at "/" */}
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+
       {/* Public / Auth routes */}
       <Route path="/login"           element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
       <Route path="/register"        element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
@@ -70,8 +74,7 @@ function AppRoutes() {
       <Route path="/analytics"           element={<Navigate to="/impact" replace />} />
 
       {/* Fallback */}
-      <Route path="/"  element={<Navigate to="/login" replace />} />
-      <Route path="*"  element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
