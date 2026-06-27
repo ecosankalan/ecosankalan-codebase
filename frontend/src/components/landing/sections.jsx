@@ -425,19 +425,26 @@ export function DownloadSection() {
               Download the EcoSankalan app and become part of a movement that matters.
             </p>
             <div className="lp-store-btns">
-              <button className="lp-store-btn" aria-label="Get it on Google Play">
-                <span className="material-symbols-outlined" aria-hidden="true">play_books</span>
-                <div className="lp-store-btn-text">
+              <button type="button" className="lp-store-btn" aria-label="Download on the App Store">
+                <svg className="lp-store-apple" viewBox="0 0 32 38" aria-hidden="true">
+                  <path d="M26.73 20.2c.04-4.05 3.31-6 3.46-6.09a7.44 7.44 0 0 0-5.86-3.17c-2.46-.26-4.84 1.47-6.09 1.47-1.28 0-3.2-1.45-5.29-1.4a7.76 7.76 0 0 0-6.54 3.98c-2.83 4.9-.72 12.1 1.99 16.05 1.36 1.94 2.94 4.1 5.03 4.02 2.04-.08 2.8-1.29 5.26-1.29 2.44 0 3.16 1.29 5.28 1.24 2.2-.03 3.58-1.94 4.89-3.89a16.02 16.02 0 0 0 2.24-4.56 7.02 7.02 0 0 1-4.37-6.36ZM22.72 8.33A7.12 7.12 0 0 0 24.35 3a7.28 7.28 0 0 0-4.72 2.54 6.79 6.79 0 0 0-1.68 5.14 6.02 6.02 0 0 0 4.77-2.35Z" />
+                </svg>
+                <span className="lp-store-btn-text">
+                  <small>Download on the</small>
+                  <strong>App Store</strong>
+                </span>
+              </button>
+              <button type="button" className="lp-store-btn" aria-label="Get it on Google Play">
+                <svg className="lp-store-google" viewBox="0 0 42 46" aria-hidden="true">
+                  <path fill="#00d2ff" d="M2.1 2.6A4.4 4.4 0 0 0 1 5.7v34.6a4.4 4.4 0 0 0 1.1 3.1l.2.2 19.4-19.4v-.5L2.3 2.4l-.2.2Z" />
+                  <path fill="#ffca28" d="m28.2 30.7-6.5-6.5v-.5l6.5-6.5.2.1 7.8 4.4c2.2 1.3 2.2 3.3 0 4.6l-7.8 4.4h-.2Z" />
+                  <path fill="#f44336" d="m28.4 30.7-6.7-6.7L2.1 43.5c.7.8 1.9.9 3.2.2l23.1-13Z" />
+                  <path fill="#4caf50" d="M28.4 17.3 5.3 4.3c-1.3-.7-2.5-.6-3.2.2L21.7 24l6.7-6.7Z" />
+                </svg>
+                <span className="lp-store-btn-text">
                   <small>GET IT ON</small>
                   <strong>Google Play</strong>
-                </div>
-              </button>
-              <button className="lp-store-btn" aria-label="Download on the App Store">
-                <span className="material-symbols-outlined" aria-hidden="true">apps</span>
-                <div className="lp-store-btn-text">
-                  <small>DOWNLOAD ON THE</small>
-                  <strong>App Store</strong>
-                </div>
+                </span>
               </button>
             </div>
           </div>

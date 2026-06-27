@@ -1203,29 +1203,56 @@
   gap: 14px;
 }
 .lp-store-btn {
-  background: var(--lp-on-surface);
-  color: var(--lp-surface);
-  border: none;
-  padding: 14px 24px;
-  border-radius: 14px;
+  width: 216px;
+  min-height: 78px;
+  background: #202020;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 11px 16px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: flex-start;
+  gap: 14px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   font-family: 'Inter', sans-serif;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
 }
-.lp-store-btn:hover { transform: scale(1.04); }
-.lp-store-btn .material-symbols-outlined { font-size: 28px; }
+.lp-store-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+.lp-store-btn:focus-visible {
+  outline: 3px solid var(--lp-primary);
+  outline-offset: 3px;
+}
+.lp-store-apple {
+  width: 38px;
+  height: 45px;
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+.lp-store-google {
+  width: 40px;
+  height: 45px;
+  flex: 0 0 auto;
+}
 .lp-store-btn-text { text-align: left; }
 .lp-store-btn-text small {
-  font-size: 10px;
-  opacity: 0.55;
+  font-size: 12px;
+  line-height: 1.2;
+  opacity: 0.9;
   display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
-.lp-store-btn-text strong { font-size: 17px; font-weight: 700; }
+.lp-store-btn-text strong {
+  display: block;
+  font-size: 23px;
+  line-height: 1.15;
+  font-weight: 600;
+  white-space: nowrap;
+}
 /* QR */
 .lp-qr-wrap {
   text-align: center;
