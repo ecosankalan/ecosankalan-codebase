@@ -28,6 +28,7 @@ import WeeklyChallengesPage   from './pages/WeeklyChallengesPage';
 import ProductDetailPage      from './pages/ProductDetailPage';
 import VouchersPage           from './pages/VouchersPage';
 import AdminDashboardPage     from './pages/AdminDashboardPage';
+import LandingPage            from './pages/LandingPage';
 
 import './styles/global.css';
 
@@ -70,8 +71,8 @@ function AppRoutes() {
       <Route path="/analytics"           element={<Navigate to="/impact" replace />} />
 
       {/* Fallback */}
-      <Route path="/"  element={<Navigate to="/login" replace />} />
-      <Route path="*"  element={<Navigate to="/login" replace />} />
+      <Route path="/"  element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+      <Route path="*"  element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
