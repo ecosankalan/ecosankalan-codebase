@@ -32,7 +32,7 @@ export default function LandingNavbar() {
             className="material-symbols-outlined lp-nav-logo-icon"
             style={{ fontVariationSettings: "'FILL' 1" }}
           >
-            eco
+            <img id='land_logo'src="/logo.png" alt="EcoSankalan logo" style={{ height: '25px' }}/>
           </span>
           <span className="lp-nav-brand">EcoSankalan</span>
         </div>

@@ -6,7 +6,7 @@ const AVATARS = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDbM7yI7DzNeBNdUa4tAdfafaGKwzpQIhu893utcVZYzEMld11uqotGMWXC-JPfwCp5nggJZ-G-KdYjrmdEorbCqczdzbP6QOGHzYZwyznHybgaxEHaYBfs5-7F1OgFVwxJ64Rp8A_NGpX1jq9SwWyXQ9tyXOhGiGykAc0dDnvNzqOmZe7CEnUmbf99RDffvyuuQkgq5SgFY4RHQqHeHC_E7_bz3qUMVwiaD-05LREejYhk8corXRk_chPrXEpBTgruIesji8DiL-mf',
 ];
 
-const HERO_MOCKUP = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYTWKu7dSkvuFTP13hVygQ_zqMdsXZOx4oaU9TD5O62iD1XyA_kJhU6Jievcvq-zApQkqHwcX0hhTCEzueA1vPHn08CjR8_jyDLkJTD8lzkpBiXUyqhdLb3odPw1WnJBBQEJkeHfr7xPR0SvdQVWUmMktHbJcNiN433fSjZ23W3K5qveFh1ZLe7jQ72hl97eyKGfpUOEqZokhPgm6j35du8k9TpL0rbSafxWW-PO-tpZ5Bs30TAZCbOXvYxrga5ErSAZlL9EnBkXSj';
+const HERO_MOCKUP = '/phone_landing.png';
 
 export default function HeroSection() {
   const navigate = useNavigate();
