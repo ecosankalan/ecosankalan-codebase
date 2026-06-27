@@ -764,3 +764,139 @@
   transition: background 0.15s;
 }
 .badge-share-btn:hover { background: rgba(161,244,182,0.4); }
+
+/* ── Quiz selection screen ── */
+.quiz-select-header {
+  padding: 1.5rem 1rem 1rem;
+  text-align: center;
+}
+.quiz-select-title {
+  font-family: var(--font-headline);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--on-surface);
+  margin: 0 0 0.25rem;
+}
+.quiz-select-sub {
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+  margin: 0;
+}
+.quiz-select-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 0 1rem 2rem;
+}
+.quiz-select-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--surface-container-low);
+  border: 1.5px solid transparent;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.quiz-select-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 16px rgba(0,81,39,0.1);
+}
+.quiz-select-icon-wrap {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.quiz-select-info { flex: 1; min-width: 0; }
+.quiz-select-name {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--on-surface);
+  margin: 0 0 2px;
+}
+.quiz-select-meta {
+  font-size: 0.78rem;
+  color: var(--on-surface-variant);
+  margin: 0 0 4px;
+}
+.quiz-select-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.75rem;
+  color: var(--secondary);
+  font-weight: 600;
+}
+.quiz-select-arrow {
+  color: var(--on-surface-variant);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* ── Explanation block shown after reveal ── */
+.quiz-explanation {
+  margin: 0 1rem 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.quiz-explanation.correct {
+  background: var(--secondary-container);
+  color: var(--on-surface);
+}
+.quiz-explanation.wrong {
+  background: #fde8ea;
+  color: var(--on-surface);
+}
+.quiz-explanation .material-symbols-outlined {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.quiz-explanation.correct .material-symbols-outlined { color: var(--secondary); }
+.quiz-explanation.wrong  .material-symbols-outlined { color: var(--error); }
+.quiz-explanation p { margin: 0; }
+
+/* ── Quiz question card without image ── */
+.quiz-question-text {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  font-weight: 600;
+  color: var(--on-surface);
+  padding: 1.25rem 1.25rem 0.75rem;
+  margin: 0;
+}
+
+/* ── Quiz result badge banner ── */
+.result-badge-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background: #d9f7e5;
+  border: 1.5px solid #2b8a4f;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  margin: 0 1rem 1.25rem;
+}
+.result-badge-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin: 0 0 2px;
+}
+.result-badge-sub {
+  font-size: 0.78rem;
+  color: #2b5e38;
+  margin: 0;
+}

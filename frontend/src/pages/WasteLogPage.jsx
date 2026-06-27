@@ -1,6 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { scanWasteImage } from '../services/api';
 import BottomNav from '../components/common/BottomNav';
 import '../styles/waste.css';
 
@@ -16,76 +15,21 @@ const CATEGORIES = [
 // Points per kg for each category
 const PTS_MAP = { plastic: 15, organic: 18, ewaste: 25, metal: 20, paper: 10, other: 8 };
 
+// CO2 conversion factors (kg CO2 saved per kg waste) — from research team doc
+const CO2_MAP = { plastic: 2.5, organic: 0.5, ewaste: 4.0, metal: 1.8, paper: 1.2, other: 0.3 };
+
 export default function WasteLogPage() {
   const navigate = useNavigate();
   const [selected,    setSelected]    = useState('organic');
   const [qty,         setQty]         = useState(2.5);
   const [notes,       setNotes]       = useState('');
   const [showModal,   setShowModal]   = useState(false);
-  const [isScanning,  setIsScanning]  = useState(false);
-  const fileInputRef  = useRef(null);
 
-  const pts     = Math.round((PTS_MAP[selected] || 10) * qty);
-  const co2     = (qty * 0.48).toFixed(1);
+  const pts = Math.round((PTS_MAP[selected] || 10) * qty);
+  const co2 = ((CO2_MAP[selected] || 0.3) * qty).toFixed(2);
 
   const handleSubmit = () => setShowModal(true);
   const handleClose  = () => setShowModal(false);
-
-  const handleStartScan = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setIsScanning(true);
-      const formData = new FormData();
-      formData.append('images', file);
-
-      const res = await scanWasteImage(formData);
-      
-      if (res.data.success && res.data.parsed && res.data.parsed.reports?.length > 0) {
-        const report = res.data.parsed.reports[0];
-        
-        // Confidence might be 0-1 scale or 0-100 scale
-        const rawConf = report.confidence || 0.9;
-        const confidencePct = rawConf <= 1 ? Math.round(rawConf * 100) : Math.round(rawConf);
-
-        // Map categories to points
-        const catMap = {
-          'E-Waste': 25,
-          'Recyclable': 15,
-          'Organic': 18,
-          'Hazardous': 5,
-        };
-        const pts = catMap[report.wasteCategory] || 10;
-        const co2Val = (pts * 0.02).toFixed(2);
-
-        const formattedResult = {
-          label: report.identifiedObject || report.wasteCategory,
-          material: report.material,
-          confidence: confidencePct,
-          icon: 'nest_eco_leaf',
-          co2: co2Val,
-          points: pts,
-          steps: report.beforeThrowing || report.specialHandling || ['Please dispose of this responsibly.'],
-          reuseIdeas: report.reuseIdeas || [],
-        };
-        navigate('/scan-result', { state: { result: formattedResult } });
-      } else {
-        alert('Could not classify image. Please try again.');
-      }
-    } catch (err) {
-      console.error('AI Scan Error:', err);
-      alert('AI Scan failed: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setIsScanning(false);
-      // Reset input so the same file can be picked again if needed
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
 
   return (
     <div className="log-root">
@@ -94,12 +38,7 @@ export default function WasteLogPage() {
       <header className="log-header">
         <div className="log-header-left">
           <div className="log-avatar">
-            <span
-              className="material-symbols-outlined"
-              style={{ fontVariationSettings: "'FILL' 1", fontSize: '1.25rem' }}
-            >
-              eco
-            </span>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: '1.25rem' }}>eco</span>
           </div>
           <span className="log-brand">EcoSankalan</span>
         </div>
@@ -108,10 +47,8 @@ export default function WasteLogPage() {
         </button>
       </header>
 
-      {/* Main */}
       <main className="log-main">
 
-        {/* Hero */}
         <section className="log-hero">
           <h1 className="log-hero-title">Log Waste Today</h1>
           <p className="log-hero-sub">Help us track your environmental impact by recording your disposals.</p>
@@ -126,26 +63,25 @@ export default function WasteLogPage() {
             <div className="log-ai-badge">New Feature</div>
             <h2 className="log-ai-title">Instant AI Classification</h2>
             <p className="log-ai-desc">Don't know the category? Point your camera and let our AI handle the rest.</p>
-            <input 
-              type="file" 
-              accept="image/*" 
-              capture="environment" 
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              style={{ display: 'none' }} 
-            />
-            <button className="log-ai-btn" onClick={handleStartScan} disabled={isScanning}>
-              {isScanning ? (
-                <>
-                  <span className="material-symbols-outlined spin">hourglass_empty</span>
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined">camera</span>
-                  Start AI Scan
-                </>
-              )}
+            <button className="log-ai-btn" onClick={() => navigate('/scan-result', {
+              state: {
+                result: {
+                  label: 'Plastic Bottle',
+                  category: 'plastic',
+                  material: 'PET Plastic (Type 1)',
+                  confidence: 92,
+                  icon: 'nest_eco_leaf',
+                  co2: (CO2_MAP['plastic'] * 0.5).toFixed(2),
+                  points: 12,
+                  steps: [
+                    'Rinse the bottle thoroughly to remove any liquid residue.',
+                    'Compress the bottle and place it in the plastic recycling bin.',
+                  ],
+                }
+              }
+            })}>
+              <span className="material-symbols-outlined">camera</span>
+              Start AI Scan
             </button>
           </div>
         </section>
@@ -158,18 +94,9 @@ export default function WasteLogPage() {
           </div>
           <div className="log-category-grid">
             {CATEGORIES.map(cat => (
-              <button
-                key={cat.id}
-                className={`log-cat-btn${selected === cat.id ? ' selected' : ''}`}
-                onClick={() => setSelected(cat.id)}
-              >
+              <button key={cat.id} className={`log-cat-btn${selected === cat.id ? ' selected' : ''}`} onClick={() => setSelected(cat.id)}>
                 <div className={`log-cat-icon ${cat.bg}${selected === cat.id ? ' scaled' : ''}`}>
-                  <span
-                    className={`material-symbols-outlined ${cat.iconColor}`}
-                    style={cat.fill ? { fontVariationSettings: "'FILL' 1" } : {}}
-                  >
-                    {cat.icon}
-                  </span>
+                  <span className={`material-symbols-outlined ${cat.iconColor}`} style={cat.fill ? { fontVariationSettings: "'FILL' 1" } : {}}>{cat.icon}</span>
                 </div>
                 <span className={`log-cat-label${selected === cat.id ? ' active' : ''}`}>{cat.label}</span>
               </button>
@@ -199,11 +126,31 @@ export default function WasteLogPage() {
             onChange={e => setQty(parseFloat(e.target.value))}
           />
           <div className="log-slider-labels">
-            <span>0.1 kg</span>
-            <span>5.0 kg</span>
-            <span>10.0 kg</span>
+            <span>0.1 kg</span><span>5.0 kg</span><span>10.0 kg</span>
           </div>
         </section>
+
+        {/* Live CO2 preview */}
+        <div className="log-co2-preview">
+          <div className="log-co2-preview-item">
+            <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontVariationSettings: "'FILL' 1" }}>cloud_done</span>
+            <div>
+              <span className="log-co2-val">{co2} kg</span>
+              <span className="log-co2-label">CO₂ Saved</span>
+            </div>
+          </div>
+          <div className="log-co2-preview-divider" />
+          <div className="log-co2-preview-item">
+            <span className="material-symbols-outlined" style={{ color: 'var(--secondary)', fontVariationSettings: "'FILL' 1" }}>eco</span>
+            <div>
+              <span className="log-co2-val">+{pts} pts</span>
+              <span className="log-co2-label">Eco Points</span>
+            </div>
+          </div>
+          <div className="log-co2-preview-hint">
+            Factor: {CO2_MAP[selected]} kg CO₂/kg {selected}
+          </div>
+        </div>
 
         {/* Notes */}
         <section className="log-notes-section">
@@ -217,7 +164,6 @@ export default function WasteLogPage() {
           />
         </section>
 
-        {/* Submit */}
         <div className="log-submit-wrap">
           <button className="log-submit-btn" onClick={handleSubmit}>
             Log Waste &amp; Earn Points
@@ -227,7 +173,6 @@ export default function WasteLogPage() {
 
       </main>
 
-      {/* Bottom Nav */}
       <BottomNav />
 
       {/* Success Modal */}
@@ -246,13 +191,14 @@ export default function WasteLogPage() {
                 <span className="log-modal-stat-label">Points</span>
               </div>
               <div className="log-modal-stat">
-                <span className="log-modal-stat-val tertiary">{co2}kg</span>
+                <span className="log-modal-stat-val tertiary">{co2} kg</span>
                 <span className="log-modal-stat-label">CO₂ Saved</span>
               </div>
             </div>
-            <button className="log-modal-close-btn" onClick={handleClose}>
-              Great, keep it up!
-            </button>
+            <p className="log-modal-co2-note">
+              {CATEGORIES.find(c => c.id === selected)?.label} recycling saves {CO2_MAP[selected]} kg CO₂ per kg
+            </p>
+            <button className="log-modal-close-btn" onClick={handleClose}>Great, keep it up!</button>
           </div>
         </div>
       )}

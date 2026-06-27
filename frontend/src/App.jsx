@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // ── Pages ────────────────────────────────────────────────────────────
+import LandingPage        from './pages/LandingPage';
 import LoginPage           from './pages/LoginPage';
 import RegisterPage        from './pages/RegisterPage';
 import OTPPage             from './pages/OTPPage';
@@ -23,6 +24,8 @@ import AnalyticsDashboardPage from './pages/AnalyticsDashboardPage';
 import ChallengeProgressPage  from './pages/ChallengeProgressPage';
 import EventDetailPage        from './pages/EventDetailPage';
 import WeeklyChallengesPage   from './pages/WeeklyChallengesPage';
+import ProductDetailPage      from './pages/ProductDetailPage';
+import VouchersPage           from './pages/VouchersPage';
 
 import './styles/global.css';
 
@@ -36,6 +39,9 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <Routes>
+      {/* Landing page — public, shown to unauthenticated visitors at "/" */}
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+
       {/* Public / Auth routes */}
       <Route path="/login"           element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
       <Route path="/register"        element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
@@ -59,11 +65,12 @@ function AppRoutes() {
       <Route path="/challenge-progress"  element={<ProtectedRoute><ChallengeProgressPage    /></ProtectedRoute>} />
       <Route path="/event-detail"        element={<ProtectedRoute><EventDetailPage          /></ProtectedRoute>} />
       <Route path="/weekly-challenges"   element={<ProtectedRoute><WeeklyChallengesPage     /></ProtectedRoute>} />
+      <Route path="/product-detail"      element={<ProtectedRoute><ProductDetailPage   /></ProtectedRoute>} />
+      <Route path="/vouchers"            element={<ProtectedRoute><VouchersPage         /></ProtectedRoute>} />
       <Route path="/analytics"           element={<Navigate to="/impact" replace />} />
 
       {/* Fallback */}
-      <Route path="/"  element={<Navigate to="/login" replace />} />
-      <Route path="*"  element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

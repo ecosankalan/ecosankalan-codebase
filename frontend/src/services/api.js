@@ -16,9 +16,6 @@ export const registerUser = (data) => api.post('/api/v1/auth/register', data);
 export const verifyOTP    = (data) => api.post('/api/v1/auth/verify-otp', data);
 export const loginUser    = (data) => api.post('/api/v1/auth/login', data);
 export const getProfile   = ()     => api.get('/api/v1/users/profile');
-export const scanWasteImage = (formData) => api.post('/api/v1/ai/analyze', formData, {
-  headers: { 'Content-Type': 'multipart/form-data' }
-});
 
 // ── 📊 MOCK data (static for now, swap with real calls later) ────────
 export const getMockDashboardStats = () => ({
