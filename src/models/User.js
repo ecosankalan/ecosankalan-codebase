@@ -105,7 +105,9 @@ userSchema.index({ location: '2dsphere' });
 userSchema.index({ totalPointsEarned: -1 });
 
 userSchema.methods.comparePassword = async function comparePassword(enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.passwordHash);
+  const hash = this.passwordHash || this.password;
+  if (!hash) return false;
+  return bcrypt.compare(enteredPassword, hash);
 };
 
 userSchema.methods.isOtpValid = async function isOtpValid(enteredOtp) {
@@ -113,6 +115,17 @@ userSchema.methods.isOtpValid = async function isOtpValid(enteredOtp) {
   if (this.otp.expiresAt <= new Date()) return false;
   return bcrypt.compare(String(enteredOtp), this.otp.code);
 };
+
+userSchema.virtual('password').set(function (password) {
+  this._password = password;
+});
+
+userSchema.pre('save', async function (next) {
+  if (this._password) {
+    this.passwordHash = await bcrypt.hash(this._password, 12);
+  }
+  next();
+});
 
 module.exports = mongoose.model('User', userSchema);
 
