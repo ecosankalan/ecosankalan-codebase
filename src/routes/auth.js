@@ -120,12 +120,16 @@ router.post('/google', async (req, res) => {
     
     if (!user) {
       // Create user if they don't exist
+      // Pre-hash the random password so Mongoose validation passes
+      const bcrypt = require('bcryptjs');
+      const randomPwd = Math.random().toString(36).slice(-10) + 'Aa1!';
+      const passwordHash = await bcrypt.hash(randomPwd, 12);
       user = await User.create({
         name,
         email,
         role: adminEmails.includes(email) ? 'admin' : 'user',
-        phone: '9' + Math.floor(Math.random() * 1000000000).toString().padStart(9, '0'), // Fake phone to pass validation
-        password: Math.random().toString(36).slice(-10) + 'Aa1!', // Random secure password
+        phone: '9' + Math.floor(Math.random() * 1000000000).toString().padStart(9, '0'),
+        passwordHash,
         avatarUrl: picture,
         isVerified: true
       });
