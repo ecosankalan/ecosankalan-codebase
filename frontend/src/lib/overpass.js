@@ -7,12 +7,12 @@
 
 /* ── Multiple Overpass endpoints for failover ──────────────────── */
 const OVERPASS_ENDPOINTS = [
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
-  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
 ];
 
-const FETCH_TIMEOUT_MS = 60000; // 60s per attempt
+const FETCH_TIMEOUT_MS = 30000; // 30s per attempt
 const MAX_RETRIES = 2;
 
 /* ── Global rate-limit cooldown ────────────────────────────────── */

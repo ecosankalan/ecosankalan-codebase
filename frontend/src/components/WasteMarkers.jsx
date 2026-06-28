@@ -27,15 +27,6 @@ const CATEGORY_META = {
   landfill:               { label: 'Landfills',          color: '#B71C1C', icon: 'terrain',          bgColor: '#ffebee' },
 };
 
-const COLOR_MAP = {
-  green:  '#005127',
-  blue:   '#1565C0',
-  purple: '#7B1FA2',
-  orange: '#E65100',
-  red:    '#B71C1C',
-  grey:   '#546E7A',
-};
-
 /* ── Default active categories ─────────────────────────────────── */
 const DEFAULT_CATEGORIES = [
   { key: 'waste_basket',          active: true },
@@ -111,7 +102,7 @@ function buildPopupHTML(loc, filterKey) {
 
 /* ── Main Component ────────────────────────────────────────────── */
 
-export default function WasteMarkers({ map }) {
+export default function WasteMarkers({ map, onMarkerClick }) {
   const [loading, setLoading] = useState(false);
   const [error, setError]       = useState(null);
   const [retryIn, setRetryIn]   = useState(0);
@@ -123,6 +114,12 @@ export default function WasteMarkers({ map }) {
   const clusterEnabled  = useRef(false);
   const categoriesRef   = useRef(DEFAULT_CATEGORIES);
   const inFlightCount   = useRef(0);
+  const onMarkerClickRef = useRef(onMarkerClick);
+
+  // Keep ref in sync with latest callback from parent
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick;
+  }, [onMarkerClick]);
 
   /* ── Render all locations currently visible in viewport ─────── */
   const renderMarkers = useCallback(() => {
@@ -138,6 +135,8 @@ export default function WasteMarkers({ map }) {
       south: b.getSouth(), west: b.getWest(),
       north: b.getNorth(), east: b.getEast(),
     });
+
+    console.log('[WasteMarkers] renderMarkers: store size=' + locationStore.size + ' visible=' + locations.length);
 
     if (layerRef.current) {
       layerRef.current.clearLayers();
@@ -179,13 +178,18 @@ export default function WasteMarkers({ map }) {
       const icon = createWasteIcon(L, filterKey);
       const marker = L.marker([loc.lat, loc.lng], { icon });
       marker.bindPopup(buildPopupHTML(loc, filterKey), { maxWidth: 300 });
+      marker.on('click', () => {
+        if (onMarkerClickRef.current) onMarkerClickRef.current({ lat: loc.lat, lng: loc.lng, name: loc.name || loc.category, category: loc.category });
+      });
       layerRef.current.addLayer(marker);
     }
-  }, [map]);
+  }, [map]); // ← ONLY depends on map. Stable.
 
   /* ── Fetch Overpass data — never cancels, results always cached ── */
   const fetchData = useCallback(async (bounds, zoom) => {
-    if (zoom != null && zoom < 7) {
+    console.log('[WasteMarkers] fetchData called, zoom=' + zoom, bounds);
+
+    if (zoom != null && zoom < 5) {
       setZoomMsg('Zoom in to load waste spots for this area');
       setLoading(false);
       setError(null);
@@ -194,6 +198,7 @@ export default function WasteMarkers({ map }) {
     setZoomMsg('');
 
     if (locationStore.hasFetched(bounds)) {
+      console.log('[WasteMarkers] Already fetched this area, rendering from cache');
       renderMarkers();
       return;
     }
@@ -203,11 +208,14 @@ export default function WasteMarkers({ map }) {
     setError(null);
 
     try {
+      console.log('[WasteMarkers] Fetching Overpass...');
       const data = await fetchWasteLocations(bounds);
       const locations = parseOverpassResponse(data);
+      console.log('[WasteMarkers] Got ' + locations.length + ' locations from ' + (data.elements?.length || 0) + ' elements');
 
       locationStore.add(locations);
       locationStore.markFetched(bounds);
+      console.log('[WasteMarkers] Store size now: ' + locationStore.size);
 
       renderMarkers();
     } catch (err) {
@@ -222,13 +230,13 @@ export default function WasteMarkers({ map }) {
           });
         }, 1000);
       }
-      console.error('Overpass fetch error:', err);
+      console.error('[WasteMarkers] Fetch error:', err);
       setError(err.message);
     } finally {
       inFlightCount.current--;
       if (inFlightCount.current === 0) setLoading(false);
     }
-  }, [renderMarkers]);
+  }, [renderMarkers]); // ← stable because renderMarkers is stable
 
   /* ── Debounced map move handler ────────────────────────────── */
   const onMapMove = useCallback(() => {
@@ -241,11 +249,13 @@ export default function WasteMarkers({ map }) {
         north: b.getNorth(), east: b.getEast(),
       }, map.getZoom());
     }, 1000);
-  }, [map, fetchData]);
+  }, [map, fetchData]); // ← stable
 
   /* ── Attach map events — runs ONCE, never re-runs ────────────── */
   useEffect(() => {
     if (!map) return;
+
+    console.log('[WasteMarkers] Effect running — attaching map events');
 
     map.on('moveend', onMapMove);
     map.on('zoomend', onMapMove);
@@ -258,6 +268,7 @@ export default function WasteMarkers({ map }) {
     }, map.getZoom());
 
     return () => {
+      console.log('[WasteMarkers] Effect cleanup');
       map.off('moveend', onMapMove);
       map.off('zoomend', onMapMove);
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -266,9 +277,9 @@ export default function WasteMarkers({ map }) {
         layerRef.current = null;
       }
     };
-  }, [map]);
+  }, [map]); // ← ONLY depends on map. Never re-runs.
 
-  /* ── Filter toggle — updates ref + re-renders markers ──────── */
+  /* ── Filter toggle ───────────────────────────────────────── */
   const toggleCategory = (key) => {
     setChipState(prev => {
       const next = prev.map(c => c.key === key ? { ...c, active: !c.active } : c);
@@ -336,7 +347,7 @@ export default function WasteMarkers({ map }) {
             fetchData({
               south: b.getSouth(), west: b.getWest(),
               north: b.getNorth(), east: b.getEast(),
-            });
+            }, map.getZoom());
           }}>retry</button>
         </div>
       )}

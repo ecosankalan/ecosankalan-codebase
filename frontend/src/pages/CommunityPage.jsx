@@ -2,6 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/common/BottomNav';
 import WasteMarkers from '../components/WasteMarkers';
+import RouteLayer from '../components/RouteLayer';
+import RouteInfo from '../components/RouteInfo';
+import useRoute from '../hooks/useRoute';
 import { searchPlaces } from '../lib/geocode';
 import { getUpcomingEvents, getNearbyBins } from '../services/api';
 import '../styles/community.css';
@@ -52,6 +55,7 @@ export default function CommunityPage() {
   const [selected,     setSelected]     = useState(null);
   const [loading,      setLoading]      = useState(true);
   const [locating,     setLocating]     = useState(false);
+  const [locError,     setLocError]     = useState('');
   const [mapReady,     setMapReady]     = useState(false);
   const [searchQuery,  setSearchQuery]  = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -64,6 +68,9 @@ export default function CommunityPage() {
   const userMarkerRef  = useRef(null);
   const searchTimerRef = useRef(null);
   const searchWrapRef  = useRef(null);
+  const userLocationRef = useRef(null);
+
+  const { route, loading: routeLoading, error: routeError, fetchRoute, clearRoute } = useRoute();
 
   const filters = [
     { key: 'all',    icon: 'filter_list',    label: 'All Bins' },
@@ -114,6 +121,48 @@ export default function CommunityPage() {
       handleSearchSelect(searchResults[0]);
     }
   }, [searchResults, handleSearchSelect]);
+
+  /* ── Waste marker click → fetch route from user location ──────── */
+  const handleWasteMarkerClick = useCallback(async (markerData) => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    // Ensure we have user location
+    let userLoc = userLocationRef.current;
+    if (!userLoc) {
+      try {
+        const pos = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+          });
+        });
+        userLoc = [pos.coords.latitude, pos.coords.longitude];
+        userLocationRef.current = userLoc;
+
+        // Show user marker if not already present
+        const L = window.L;
+        if (L && !userMarkerRef.current) {
+          userMarkerRef.current = L.marker(userLoc, { icon: createUserIcon(L) }).addTo(map);
+        }
+      } catch {
+        // If geolocation fails, try to center on the destination
+        return;
+      }
+    }
+
+    fetchRoute(userLoc, [markerData.lat, markerData.lng]);
+  }, [fetchRoute]);
+
+  /* ── Directions button in bottom sheet ────────────────────────── */
+  const handleDirections = useCallback(() => {
+    if (!selected) return;
+    handleWasteMarkerClick({
+      lat: selected.data._lat || selected.data.location?.coordinates?.[1],
+      lng: selected.data._lng || selected.data.location?.coordinates?.[0],
+      name: selected.data.name || selected.data.title,
+    });
+  }, [selected, handleWasteMarkerClick]);
 
   /* ── Close dropdown on outside click ──────────────────────────── */
   useEffect(() => {
@@ -239,8 +288,13 @@ export default function CommunityPage() {
 
   /* ── Locate user & fetch nearby bins ───────────────────────────── */
   const handleLocate = useCallback(() => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setLocError('Geolocation not supported');
+      setTimeout(() => setLocError(''), 3000);
+      return;
+    }
     setLocating(true);
+    setLocError('');
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         const L   = window.L;
@@ -248,6 +302,7 @@ export default function CommunityPage() {
         if (!map || !L) { setLocating(false); return; }
 
         const latlng = [coords.latitude, coords.longitude];
+        userLocationRef.current = latlng;
         map.setView(latlng, 14);
 
         if (userMarkerRef.current) map.removeLayer(userMarkerRef.current);
@@ -263,7 +318,13 @@ export default function CommunityPage() {
           setLocating(false);
         }
       },
-      () => setLocating(false),
+      (err) => {
+        setLocating(false);
+        if (err.code === 1) setLocError('Location access denied. Enable it in browser settings.');
+        else if (err.code === 2) setLocError('Location unavailable. Try again.');
+        else setLocError('Location request timed out. Try again.');
+        setTimeout(() => setLocError(''), 4000);
+      },
       { enableHighAccuracy: true, timeout: 8000 }
     );
   }, []);
@@ -304,7 +365,8 @@ export default function CommunityPage() {
       <main className="community-map-canvas">
         <div ref={mapRef} className="community-leaflet-map" />
 
-        {mapReady && <WasteMarkers map={mapInstanceRef.current} />}
+        {mapReady && <WasteMarkers map={mapInstanceRef.current} onMarkerClick={handleWasteMarkerClick} />}
+        {mapReady && <RouteLayer map={mapInstanceRef.current} geometry={route?.geometry} />}
 
         <div className="community-floating-top">
           <div className="community-search-wrap" ref={searchWrapRef}>
@@ -361,13 +423,16 @@ export default function CommunityPage() {
         </div>
 
         <div className="community-fabs">
+          {locError && (
+            <div className="waste-loading-badge" style={{ background: '#ffebee', color: '#B71C1C', marginBottom: '0.25rem', pointerEvents: 'auto' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>error</span>
+              <span>{locError}</span>
+            </div>
+          )}
           <button className="community-fab-sm" onClick={handleLocate} disabled={locating}>
             <span className="material-symbols-outlined">
               {locating ? 'progress_activity' : 'my_location'}
             </span>
-          </button>
-          <button className="community-fab-lg">
-            <span className="material-symbols-outlined" style={{ fontSize: '1.75rem' }}>add</span>
           </button>
         </div>
 
@@ -421,9 +486,11 @@ export default function CommunityPage() {
                   </div>
                 )}
                 <div className="community-sheet-actions">
-                  <button className="community-sheet-btn-sec">
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>directions</span>
-                    Directions
+                  <button className="community-sheet-btn-sec" onClick={handleDirections} disabled={routeLoading}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+                      {routeLoading ? 'progress_activity' : 'directions'}
+                    </span>
+                    {routeLoading ? 'Loading...' : 'Directions'}
                   </button>
                   {sheetItem.type === 'event' ? (
                     <button className="community-sheet-btn-pri" onClick={() => handleEventClick(sheetItem.data)}>
@@ -441,6 +508,13 @@ export default function CommunityPage() {
             </div>
           </div>
         )}
+
+        <RouteInfo
+          route={route}
+          loading={routeLoading}
+          error={routeError}
+          onClose={clearRoute}
+        />
       </main>
 
       <BottomNav />
