@@ -36,6 +36,7 @@ export default function WasteHistoryPage() {
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState('');
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
+  const [selectedLog, setSelectedLog] = useState(null);
 
   const loadHistory = async (page = 1) => {
     setLoading(true);
@@ -119,8 +120,9 @@ export default function WasteHistoryPage() {
           {logs.map(item => {
             const meta = ICON_MAP[item.category] ?? ICON_MAP.other;
             const qtyKg = item.unit === 'g' ? (item.quantity / 1000).toFixed(2) : item.quantity.toFixed(1);
+            const co2 = Number(item.co2Saved).toFixed(4);
             return (
-              <div className="wh-card" key={item._id}>
+              <div className="wh-card" key={item._id} onClick={() => setSelectedLog(item)} style={{ cursor: 'pointer' }}>
                 <div className="wh-card-left">
                   <div className="wh-card-icon" style={{ background: meta.bg, color: meta.color }}>
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -142,7 +144,7 @@ export default function WasteHistoryPage() {
                   <div className="wh-card-weight">{qtyKg} kg</div>
                   <div className="wh-card-badges">
                     <span className="wh-pts-badge">+{item.pointsEarned} Pts</span>
-                    <span className="wh-co2-badge">{item.co2Saved} kg CO₂</span>
+                    <span className="wh-co2-badge">{co2} kg CO₂</span>
                   </div>
                 </div>
               </div>
@@ -158,6 +160,74 @@ export default function WasteHistoryPage() {
         </div>
 
       </main>
+
+      {/* Detail Dialog */}
+      {selectedLog && (
+        <div className="wh-dialog-overlay" onClick={() => setSelectedLog(null)}>
+          <div className="wh-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="wh-dialog-header">
+              <h3>{capitalize(selectedLog.category)} Waste</h3>
+              <button className="wh-dialog-close" onClick={() => setSelectedLog(null)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="wh-dialog-body">
+              <div className="wh-dialog-row">
+                <span className="wh-dialog-label">Date & Time</span>
+                <span className="wh-dialog-value">{formatDateTime(selectedLog.createdAt)}</span>
+              </div>
+              <div className="wh-dialog-row">
+                <span className="wh-dialog-label">Quantity</span>
+                <span className="wh-dialog-value">{selectedLog.unit === 'g' ? (selectedLog.quantity / 1000).toFixed(2) : selectedLog.quantity.toFixed(1)} kg</span>
+              </div>
+              <div className="wh-dialog-row">
+                <span className="wh-dialog-label">Points Earned</span>
+                <span className="wh-dialog-value wh-dialog-pts">+{selectedLog.pointsEarned} pts</span>
+              </div>
+              <div className="wh-dialog-row">
+                <span className="wh-dialog-label">CO₂ Saved</span>
+                <span className="wh-dialog-value">{Number(selectedLog.co2Saved).toFixed(4)} kg</span>
+              </div>
+              <div className="wh-dialog-row">
+                <span className="wh-dialog-label">Log Method</span>
+                <span className="wh-dialog-value">{selectedLog.logMethod === 'ai_scan' ? 'AI Scan' : 'Manual'}</span>
+              </div>
+              {selectedLog.description && (
+                <div className="wh-dialog-row">
+                  <span className="wh-dialog-label">Description</span>
+                  <span className="wh-dialog-value">{selectedLog.description}</span>
+                </div>
+              )}
+              {selectedLog.aiScan && (
+                <div className="wh-dialog-ai">
+                  <p className="wh-dialog-ai-title">
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>smart_toy</span>
+                    AI Analysis
+                  </p>
+                  {selectedLog.aiScan.detectedCategory && (
+                    <div className="wh-dialog-row">
+                      <span className="wh-dialog-label">Detected</span>
+                      <span className="wh-dialog-value">{selectedLog.aiScan.detectedCategory}</span>
+                    </div>
+                  )}
+                  {selectedLog.aiScan.confidence != null && (
+                    <div className="wh-dialog-row">
+                      <span className="wh-dialog-label">Confidence</span>
+                      <span className="wh-dialog-value">{(selectedLog.aiScan.confidence * 100).toFixed(1)}%</span>
+                    </div>
+                  )}
+                  {selectedLog.aiScan.rawResponse && (
+                    <div className="wh-dialog-raw">
+                      <span className="wh-dialog-label">Raw Response</span>
+                      <pre className="wh-dialog-pre">{selectedLog.aiScan.rawResponse}</pre>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>

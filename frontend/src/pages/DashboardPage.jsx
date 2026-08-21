@@ -157,7 +157,7 @@ export default function DashboardPage() {
         icon: 'recycling',
         iconColor: 'var(--primary)',
         title: `${log.category} Waste Logged`,
-        meta: `${log.unit === 'g' ? (log.quantity / 1000).toFixed(2) : log.quantity.toFixed(1)} kg • ${new Date(log.date).toLocaleDateString()}`,
+        meta: `${log.unit === 'g' ? (log.quantity / 1000).toFixed(2) : log.quantity.toFixed(1)} kg • ${new Date(log.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
         points: `+${log.pointsEarned} pts`,
         pointsType: 'positive',
         status: log.pointsEarned > 0 ? 'Verified' : 'Pending',
