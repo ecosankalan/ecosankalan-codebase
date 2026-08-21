@@ -3,7 +3,7 @@ const { protect, authorize } = require('../middleware/auth');
 const User = require('../models/User');
 const WasteLog = require('../models/WasteLog');
 const Event = require('../models/Event');
-const ChallengeProgress = require('../models/ChallengeProgress');
+const Challenge = require('../models/Challenge');
 const Voucher = require('../models/Voucher');
 
 const router = express.Router();
@@ -84,12 +84,12 @@ router.get('/stats', async (req, res) => {
       return res.status(200).json(statsCache.data);
     }
 
-    const [totalUsers, wasteTotals, totalEventsConducted, totalChallengeCompletions, vouchersIssuedByPartner] =
+    const [totalUsers, wasteTotals, totalEventsConducted, totalActiveChallenges, vouchersIssuedByPartner] =
       await Promise.all([
         User.countDocuments(),
         WasteLog.aggregate([{ $group: { _id: null, totalWasteKg: { $sum: '$quantity' } } }]),
         Event.countDocuments({ eventDate: { $lt: new Date() }, isCancelled: false }),
-        ChallengeProgress.countDocuments({ allCompleted: true }),
+        Challenge.countDocuments({ isActive: true }),
         Voucher.aggregate([
           { $match: { assignedTo: { $ne: null } } },
           { $group: { _id: '$partnerName', issued: { $sum: 1 } } },
@@ -102,7 +102,7 @@ router.get('/stats', async (req, res) => {
       totalUsers,
       totalWasteKg: round2(wasteTotals[0]?.totalWasteKg),
       totalEventsConducted,
-      totalChallengeCompletions,
+      totalActiveChallenges,
       vouchersIssuedByPartner,
       openAICostMTD: 0,
     };
@@ -115,6 +115,26 @@ router.get('/stats', async (req, res) => {
     res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to load admin stats' });
+  }
+});
+
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const limit = Math.min(50, parseInt(req.query.limit) || 20);
+    const users = await User.find({ role: 'user' })
+      .sort({ totalPointsEarned: -1 })
+      .limit(limit)
+      .select('name avatarUrl area ecoPoints totalPointsEarned totalWasteLogged totalCo2Saved badgesEarned createdAt')
+      .lean();
+
+    const ranked = users.map((u, i) => ({
+      rank: i + 1,
+      ...u,
+    }));
+
+    res.status(200).json(ranked);
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to load leaderboard' });
   }
 });
 

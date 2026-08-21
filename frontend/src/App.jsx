@@ -28,7 +28,7 @@ import QuizResultPage      from './pages/QuizResultPage';
 import ScanResultPage      from './pages/ScanResultPage';
 import WasteHistoryPage    from './pages/WasteHistoryPage';
 import AnalyticsDashboardPage from './pages/AnalyticsDashboardPage';
-import ChallengeProgressPage  from './pages/ChallengeProgressPage';
+import ChallengeDetailPage     from './pages/ChallengeDetailPage';
 import EventDetailPage        from './pages/EventDetailPage';
 import WeeklyChallengesPage   from './pages/WeeklyChallengesPage';
 import ProductDetailPage      from './pages/ProductDetailPage';
@@ -71,7 +71,7 @@ function AppRoutes() {
       <Route path="/quiz-result"  element={<ProtectedRoute><QuizResultPage   /></ProtectedRoute>} />
       <Route path="/scan-result"        element={<ProtectedRoute><ScanResultPage          /></ProtectedRoute>} />
       <Route path="/waste-history"       element={<ProtectedRoute><WasteHistoryPage         /></ProtectedRoute>} />
-      <Route path="/challenge-progress"  element={<ProtectedRoute><ChallengeProgressPage    /></ProtectedRoute>} />
+      <Route path="/challenge/:id"      element={<ProtectedRoute><ChallengeDetailPage      /></ProtectedRoute>} />
       <Route path="/event-detail"        element={<ProtectedRoute><EventDetailPage          /></ProtectedRoute>} />
       <Route path="/weekly-challenges"   element={<ProtectedRoute><WeeklyChallengesPage     /></ProtectedRoute>} />
       <Route path="/product-detail"      element={<ProtectedRoute><ProductDetailPage   /></ProtectedRoute>} />

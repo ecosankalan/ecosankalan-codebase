@@ -1,0 +1,212 @@
+.lb-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+  animation: lb-fade 160ms ease-out;
+}
+
+.lb-panel {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface, #fff);
+  color: var(--on-surface, #1c1b1f);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 1.25rem 1.25rem 1.75rem;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.18);
+  animation: lb-slide 220ms ease-out;
+}
+
+@keyframes lb-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes lb-slide {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.lb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.lb-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--on-surface);
+}
+.lb-title .material-symbols-outlined {
+  color: var(--primary);
+  font-variation-settings: 'FILL' 1;
+}
+.lb-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--outline);
+}
+
+.lb-close {
+  background: var(--surface-variant, #f1ece6);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+}
+.lb-close:hover { background: var(--outline-variant); }
+
+.lb-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 0;
+  color: var(--outline);
+  font-size: 0.9rem;
+}
+.lb-state.error { color: var(--error, #b3261e); }
+.lb-spin { animation: lb-spin 1s linear infinite; }
+@keyframes lb-spin { to { transform: rotate(360deg); } }
+
+.lb-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lb-row {
+  display: grid;
+  grid-template-columns: 36px 40px 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--surface-container, #f7f2ec);
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.lb-row.me {
+  background: var(--primary-container, #f0e4d6);
+  border-color: var(--primary, #5a8d3a);
+}
+
+.lb-rank {
+  text-align: center;
+  font-weight: 700;
+  color: var(--on-surface);
+  min-width: 36px;
+}
+.lb-medal {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.lb-rank-num {
+  font-size: 0.95rem;
+  color: var(--outline);
+}
+
+.lb-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-variant);
+}
+
+.lb-user {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.lb-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lb-you {
+  color: var(--primary);
+  font-weight: 500;
+}
+.lb-completed-badge {
+  font-size: 0.7rem;
+  background: var(--tertiary-fixed, #d7e8c2);
+  color: var(--on-tertiary-fixed-variant, #2c4a16);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.lb-points {
+  font-weight: 700;
+  color: var(--primary, #5a8d3a);
+  font-size: 1rem;
+}
+.lb-points small {
+  font-size: 0.7rem;
+  color: var(--outline);
+  margin-left: 0.15rem;
+}
+
+.lb-me-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--primary-container, #f0e4d6);
+  border-radius: 14px;
+  border: 1px solid var(--primary);
+  margin-top: 0.5rem;
+}
+.lb-me-label {
+  font-size: 0.8rem;
+  color: var(--outline);
+}
+.lb-me-rank {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.lb-me-points {
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.lb-footer {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--outline);
+}
+
+@media (min-width: 600px) {
+  .lb-panel {
+    border-radius: 24px;
+    margin: 4vh auto;
+    max-height: 80vh;
+  }
+  .lb-overlay { align-items: center; }
+}

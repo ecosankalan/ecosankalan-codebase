@@ -146,23 +146,32 @@ export const rsvpEvent = (eventId) => api.post(`/api/v1/events/${eventId}/rsvp`)
 
 /**
  * GET /challenges/active
- * Returns this week's challenges with per-user progress and deadline (Sunday 23:59 IST)
+ * Returns active challenges with per-user summary progress and today's dayIndex.
  */
 export const getActiveChallenges = () => api.get('/api/v1/challenges/active');
 
 /**
- * POST /challenges/:id/progress
- * Body: { action, category?, count? }
- * Returns: { progress, reward }
+ * GET /challenges/:id
+ * Returns full challenge with computed daily slots and the requester's submissions.
  */
-export const updateChallengeProgress = (challengeId, data) =>
-  api.post(`/api/v1/challenges/${challengeId}/progress`, data);
+export const getChallengeById = (id) => api.get(`/api/v1/challenges/${id}`);
 
 /**
- * GET /challenges/history
- * Returns last 8 weeks of challenge history for the authenticated user
+ * POST /challenges/:id/submit
+ * Body: multipart form-data with fields `dayIndex`, optional `remarks`, optional `image` file.
+ * Returns: { success, progress, totalPoints, allCompleted }
  */
-export const getChallengeHistory = () => api.get('/api/v1/challenges/history');
+export const submitChallengeTask = (id, formData) =>
+  api.post(`/api/v1/challenges/${id}/submit`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+/**
+ * GET /challenges/:id/leaderboard
+ * Returns { top10, currentUser, total } sorted by totalPoints desc.
+ */
+export const getChallengeLeaderboard = (id) =>
+  api.get(`/api/v1/challenges/${id}/leaderboard`);
 
 // ════════════════════════════════════════════════════════════════════════════
 // PRODUCTS / ECO-SHOP  (FR-16, FR-17)
@@ -250,6 +259,22 @@ export const getAdminVoucherStats = () => api.get('/api/v1/admin/vouchers/stats'
 /** POST /admin/vouchers — bulk import voucher array */
 export const bulkImportVouchers = (vouchers) =>
   api.post('/api/v1/admin/vouchers', vouchers);
+
+/** GET /admin/leaderboard — global user ranking by points */
+export const getAdminLeaderboard = (limit = 20) =>
+  api.get('/api/v1/admin/leaderboard', { params: { limit } });
+
+// ════════════════════════════════════════════════════════════════════════════
+// NOTIFICATIONS  (admin broadcast + history)
+// ════════════════════════════════════════════════════════════════════════════
+
+/** POST /notifications/broadcast — send push notification to all users */
+export const broadcastNotification = (title, body) =>
+  api.post('/api/notifications/broadcast', { title, body });
+
+/** GET /notifications — paginated notification history (admin) */
+export const getNotifications = (params = {}) =>
+  api.get('/api/notifications', { params });
 
 // ════════════════════════════════════════════════════════════════════════════
 // AI SCAN  (direct to /api/v1/ai/analyze — alternate endpoint)

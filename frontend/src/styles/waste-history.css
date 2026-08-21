@@ -195,6 +195,17 @@
   gap: 0.3rem;
 }
 .wh-date-icon { font-size: 0.9rem !important; }
+.wh-card-desc {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--on-surface-variant);
+  margin-top: 0.15rem;
+  opacity: 0.8;
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .wh-card-right { text-align: right; }
 .wh-card-weight {

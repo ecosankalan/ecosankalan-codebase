@@ -6,8 +6,6 @@ import Loader from '../components/common/Loader';
 import { getWasteHistory } from '../services/api';
 import '../styles/waste-history.css';
 
-const FILTER_CHIPS = ['All', 'Plastic', 'Organic', 'E-waste', 'Metal', 'Paper', 'Other'];
-
 const ICON_MAP = {
   plastic:  { icon: 'recycling',               bg: 'var(--secondary-container)',       color: 'var(--on-secondary-container)' },
   organic:  { icon: 'compost',                 bg: 'var(--primary-container)',         color: 'var(--on-primary-container)'   },
@@ -17,33 +15,33 @@ const ICON_MAP = {
   other:    { icon: 'pending',                 bg: 'var(--surface-dim)',               color: 'var(--on-surface)' },
 };
 
-const formatDate = (isoString) => {
+const formatDateTime = (isoString) => {
   const d = new Date(isoString);
-  const now = new Date();
-  const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays} days ago`;
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  return d.toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 };
 
 const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
 
 export default function WasteHistoryPage() {
   const navigate = useNavigate();
-  const [filter,   setFilter]   = useState('All');
+  const [sort,     setSort]     = useState('desc');
   const [logs,     setLogs]     = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState('');
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
 
-  const categoryParam = filter === 'All' ? undefined : filter.toLowerCase().replace('-', '-');
-
   const loadHistory = async (page = 1) => {
     setLoading(true);
     setError('');
     try {
-      const { data } = await getWasteHistory({ category: categoryParam, page, limit: 20 });
+      const { data } = await getWasteHistory({ sort, page, limit: 20 });
       setLogs(page === 1 ? data.logs : prev => [...prev, ...data.logs]);
       setPagination(data.pagination);
     } catch (err) {
@@ -55,7 +53,7 @@ export default function WasteHistoryPage() {
 
   useEffect(() => {
     loadHistory(1);
-  }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sort]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalKg  = logs.reduce((s, l) => s + (l.unit === 'g' ? l.quantity / 1000 : l.quantity), 0).toFixed(1);
   const totalPts = logs.reduce((s, l) => s + (l.pointsEarned || 0), 0);
@@ -75,9 +73,9 @@ export default function WasteHistoryPage() {
             <span className="wh-eyebrow">Activity</span>
             <h1 className="wh-title">Waste History</h1>
           </div>
-          <button className="wh-filter-btn">
-            <span className="material-symbols-outlined">tune</span>
-            Filters
+          <button className="wh-filter-btn" onClick={() => setSort(s => s === 'desc' ? 'asc' : 'desc')}>
+            <span className="material-symbols-outlined">{sort === 'desc' ? 'arrow_downward' : 'arrow_upward'}</span>
+            {sort === 'desc' ? 'Newest' : 'Oldest'}
           </button>
         </div>
 
@@ -95,19 +93,6 @@ export default function WasteHistoryPage() {
             <span className="wh-summary-num">{pagination.total}</span>
             <span className="wh-summary-label">Logs</span>
           </div>
-        </div>
-
-        {/* ── Filter Chips */}
-        <div className="wh-chips">
-          {FILTER_CHIPS.map(chip => (
-            <button
-              key={chip}
-              className={`wh-chip${filter === chip ? ' active' : ''}`}
-              onClick={() => setFilter(chip)}
-            >
-              {chip}
-            </button>
-          ))}
         </div>
 
         {/* Error */}
@@ -146,8 +131,11 @@ export default function WasteHistoryPage() {
                     <h3 className="wh-card-name">{capitalize(item.category)} Waste</h3>
                     <p className="wh-card-date">
                       <span className="material-symbols-outlined wh-date-icon">schedule</span>
-                      {formatDate(item.createdAt)}
+                      {formatDateTime(item.createdAt)}
                     </p>
+                    {item.description && (
+                      <p className="wh-card-desc">{item.description}</p>
+                    )}
                   </div>
                 </div>
                 <div className="wh-card-right">

@@ -347,7 +347,7 @@ export default function DashboardPage() {
 
               {challenges.length === 0 && (
                 <>
-                  <div className="wc-preview-card" onClick={() => navigate('/challenge-progress', { state: { challenge: { tag: 'Weekly Mission', title: 'Zero-Plastic Week', subtitle: 'Zero-Plastic Week', desc: 'Eliminate all single-use plastics from your routine this week.', progress: 60, tasksCompleted: 3, tasksTotal: 5, reward: { points: 80, note: 'Unlock upon completing all tasks.' }, tasks: [] } } })}>
+                  <div className="wc-preview-card" onClick={() => navigate('/weekly-challenges')}>
                     <div className="wc-preview-icon-wrap">
                       <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>recycling</span>
                     </div>

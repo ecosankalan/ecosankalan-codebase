@@ -267,3 +267,79 @@
   .wc-main  { padding: 4.5rem 1rem 8rem; }
   .wc-title { font-size: 1.9rem; }
 }
+
+/* ── Day-dot strip ─────────────────────────────────── */
+.wc-dots {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0 0.5rem;
+}
+.wc-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface-container-high);
+  border: 1px solid var(--outline-variant);
+  transition: background 120ms ease, transform 120ms ease;
+}
+.wc-dot.done {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.wc-dot.today {
+  outline: 2px solid var(--tertiary);
+  outline-offset: 1px;
+  transform: scale(1.15);
+}
+
+/* ── Card layout refinements ───────────────────────── */
+.wc-card-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.wc-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: flex-end;
+}
+.wc-badge.neutral {
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+}
+.wc-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  gap: 0.5rem;
+}
+.wc-card-status {
+  flex: 1;
+}
+.wc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.wc-status-pill.nostart     { background: var(--surface-variant); color: var(--on-surface-variant); }
+.wc-status-pill.inprogress  { background: #fff3e0; color: #e65100; }
+.wc-status-pill.complete    { background: #e8f5e9; color: #2e7d32; }
+.wc-completed-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+}

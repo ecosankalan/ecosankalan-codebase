@@ -8,33 +8,40 @@ import '../styles/weekly-challenges.css';
 
 const FILTER_TABS = ['All', 'In Progress', 'Not Started', 'Completed'];
 
-// Map task actions to icons
+// Status badge mapping per taskTemplate characteristics
 const ICON_MAP = {
-  log_waste:    { icon: 'recycling',       bg: 'var(--secondary-container)',       color: 'var(--on-secondary-container)' },
-  rsvp:         { icon: 'event',           bg: 'var(--tertiary-fixed)',            color: 'var(--on-tertiary-fixed-variant)' },
-  quiz:         { icon: 'quiz',            bg: 'var(--primary-container)',         color: 'var(--on-primary-container)' },
-  default:      { icon: 'emoji_events',   bg: 'var(--surface-container-high)',    color: 'var(--on-surface-variant)' },
+  bottle: { icon: 'water_drop', bg: 'var(--secondary-container)', color: 'var(--on-secondary-container)' },
+  bag:    { icon: 'shopping_bag', bg: 'var(--tertiary-fixed)',     color: 'var(--on-tertiary-fixed-variant)' },
+  energy: { icon: 'bolt',         bg: 'var(--primary-container)',  color: 'var(--on-primary-container)' },
+  food:   { icon: 'restaurant',   bg: 'var(--tertiary-fixed)',     color: 'var(--on-tertiary-fixed-variant)' },
+  default:{ icon: 'emoji_events', bg: 'var(--surface-container-high)', color: 'var(--on-surface-variant)' },
 };
 
-// Derive user-facing status from challenge progress
+const pickIcon = (ch) => {
+  const haystack = `${ch?.taskTemplate?.action || ''} ${ch?.taskTemplate?.category || ''} ${ch?.title || ''}`.toLowerCase();
+  if (haystack.includes('bottle') || haystack.includes('water')) return ICON_MAP.bottle;
+  if (haystack.includes('bag'))    return ICON_MAP.bag;
+  if (haystack.includes('energy') || haystack.includes('electric')) return ICON_MAP.energy;
+  if (haystack.includes('food')    || haystack.includes('compost')) return ICON_MAP.food;
+  return ICON_MAP.default;
+};
+
 const deriveStatus = (challenge) => {
-  const prog = challenge.progress;
-  if (!prog || !prog.taskProgress) return 'Not Started';
-  if (prog.allCompleted) return 'Completed';
-  const anyDone = prog.taskProgress.some(t => t.currentCount > 0);
-  return anyDone ? 'In Progress' : 'Not Started';
+  if (challenge.userProgress?.allCompleted) return 'Completed';
+  if (!challenge.joined) return 'Not Started';
+  const submitted = (challenge.userProgress?.submittedDays || []).length;
+  return submitted > 0 ? 'In Progress' : 'Not Started';
 };
 
-// Derive percentage from task progress
-const derivePercent = (challenge) => {
-  const tasks = challenge.tasks || [];
-  const prog = challenge.progress?.taskProgress || [];
-  if (!tasks.length) return 0;
-  const done = prog.filter(p => p.completed).length;
-  return Math.round((done / tasks.length) * 100);
+const buildDayDots = (challenge) => {
+  const total = challenge.durationDays || 1;
+  const submitted = new Set(challenge.userProgress?.submittedDays || []);
+  return Array.from({ length: total }).map((_, i) => ({
+    dayIndex: i,
+    submitted: submitted.has(i),
+  }));
 };
 
-// Time left until Sunday 23:59 IST
 const timeLeft = (deadline) => {
   if (!deadline) return null;
   const diff = new Date(deadline) - new Date();
@@ -47,10 +54,10 @@ const timeLeft = (deadline) => {
 
 export default function WeeklyChallengesPage() {
   const navigate = useNavigate();
-  const [tab,        setTab]        = useState('All');
+  const [tab, setTab] = useState('All');
   const [challenges, setChallenges] = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -75,93 +82,68 @@ export default function WeeklyChallengesPage() {
     }
   };
 
-  const enriched = challenges.map(ch => ({
+  const enriched = challenges.map((ch) => ({
     ...ch,
-    _status:  deriveStatus(ch),
-    _percent: derivePercent(ch),
-    _timeLeft: timeLeft(ch.deadline),
-    _joined:  !!ch.progress?._id,
+    _status: deriveStatus(ch),
+    _icon: pickIcon(ch),
+    _timeLeft: timeLeft(ch.expiryDate),
+    _dayDots: buildDayDots(ch),
   }));
 
   const visible = tab === 'All'
     ? enriched
-    : enriched.filter(c => c._status === tab);
-
-  const buildNavState = (ch) => ({
-    challenge: {
-      id: ch._id,
-      tag: 'Weekly Mission',
-      title: ch.title,
-      subtitle: ch.title,
-      desc: ch.description || '',
-      progress: ch._percent,
-      tasksCompleted: (ch.progress?.taskProgress || []).filter(t => t.completed).length,
-      tasksTotal: ch.tasks?.length || 0,
-      deadline: ch.deadline,
-      reward: { points: ch.rewardPoints || 100, note: `Complete all tasks to earn ${ch.rewardPoints || 100} eco points.` },
-      tasks: (ch.tasks || []).map((t, i) => ({
-        id: i,
-        label: t.label || t.description || `Task ${i + 1}`,
-        done: ch.progress?.taskProgress?.[i]?.completed || false,
-        pending: !ch.progress?.taskProgress?.[i]?.completed && (ch.progress?.taskProgress?.[i]?.currentCount || 0) > 0,
-      })),
-    },
-  });
+    : enriched.filter((c) => c._status === tab);
 
   return (
     <div className="wc-root">
       <Navbar />
 
       <main className="wc-main">
-
-        {/* ── Header */}
         <div className="wc-header">
           <button className="wc-back-btn" onClick={() => navigate('/dashboard')}>
             <span className="material-symbols-outlined">arrow_back</span>
-          </button>
+         </button>
           <div>
-            <span className="wc-eyebrow">This Week</span>
-            <h1 className="wc-title">Weekly Challenges</h1>
-            <p className="wc-subtitle">Complete tasks and earn rewards while making a positive impact on the environment.</p>
-          </div>
-        </div>
+            <span className="wc-eyebrow">Eco Challenges</span>
+            <h1 className="wc-title">Active Challenges</h1>
+            <p className="wc-subtitle">Submit daily proof, climb the leaderboard, earn points</p>
+         </div>
+       </div>
 
-        {/* ── Filter tabs */}
         <div className="wc-tabs">
-          {FILTER_TABS.map(t => (
+          {FILTER_TABS.map((t) => (
             <button
               key={t}
               className={`wc-tab${tab === t ? ' active' : ''}`}
               onClick={() => setTab(t)}
             >
               {t}
-            </button>
+           </button>
           ))}
-        </div>
+       </div>
 
-        {/* Loading */}
         {loading && <Loader text="Loading challenges…" />}
 
-        {/* Error */}
         {error && (
           <div className="wc-empty">
             <span className="material-symbols-outlined wc-empty-icon" style={{ color: 'var(--error)' }}>error</span>
             <p>{error}</p>
-          </div>
+         </div>
         )}
 
-        {/* ── Cards grid */}
         <div className="wc-grid">
           {!loading && visible.length === 0 && (
             <div className="wc-empty">
               <span className="material-symbols-outlined wc-empty-icon">inbox</span>
-              <p>No challenges in this category yet.</p>
-            </div>
+              <p>No challenges in this category yet</p>
+           </div>
           )}
 
-          {visible.map(ch => {
-            const iconMeta = ICON_MAP[ch.tasks?.[0]?.action] || ICON_MAP.default;
+          {visible.map((ch) => {
+            const iconMeta = ch._icon;
             const isCompleted = ch._status === 'Completed';
+            const submittedCount = ch._dayDots.filter((d) => d.submitted).length;
+            const totalDays = ch.durationDays || 1;
             return (
               <article
                 key={ch._id}
@@ -170,73 +152,84 @@ export default function WeeklyChallengesPage() {
                 {isCompleted && <div className="wc-card-completed-bg" />}
 
                 <div className="wc-card-top-row">
-                  {/* Icon */}
                   <div className="wc-card-icon-wrap" style={{ background: iconMeta.bg, color: iconMeta.color }}>
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{iconMeta.icon}</span>
-                  </div>
+                 </div>
 
-                  {/* Status badge */}
-                  {ch._timeLeft ? (
-                    <div className="wc-badge timer">
-                      <span className="material-symbols-outlined wc-badge-icon" style={{ color: 'var(--tertiary)' }}>timer</span>
-                      <span>Ends in: {ch._timeLeft}</span>
-                    </div>
-                  ) : ch.rewardPoints ? (
-                    <div className="wc-badge bonus">
-                      <span className="material-symbols-outlined wc-badge-icon">stars</span>
-                      <span>+{ch.rewardPoints} pts</span>
-                    </div>
-                  ) : isCompleted ? (
-                    <div className="wc-badge done">
-                      <span className="material-symbols-outlined wc-badge-icon">check_circle</span>
-                      <span>Reward Unlocked</span>
-                    </div>
-                  ) : null}
-                </div>
+                  <div className="wc-card-meta">
+                    {ch._timeLeft && (
+                      <div className="wc-badge timer">
+                        <span className="material-symbols-outlined wc-badge-icon" style={{ color: 'var(--tertiary)' }}>timer</span>
+                        <span>Ends in: {ch._timeLeft}</span>
+                     </div>
+                    )}
+                    <div className="wc-badge neutral">
+                      <span className="material-symbols-outlined wc-badge-icon">calendar_today</span>
+                      <span>{totalDays} day{totalDays === 1 ? '' : 's'}</span>
+                   </div>
+                 </div>
+               </div>
 
                 <h3 className="wc-card-title">{ch.title}</h3>
-                <p className="wc-card-desc">{ch.description || `Complete ${ch.tasks?.length || 0} tasks this week.`}</p>
+                <p className="wc-card-desc">
+                  {ch.taskTemplate?.description || ch.description || `Submit daily proof for ${totalDays} days.`}
+               </p>
 
-                {/* Progress bar */}
-                <div className={`wc-progress-wrap${ch._status === 'Not Started' ? ' muted' : ''}`}>
-                  <div className="wc-progress-labels">
-                    <span className={`wc-progress-status ${ch._status === 'In Progress' ? 'inprogress' : isCompleted ? 'complete' : 'nostart'}`}>
-                      {ch._status}
-                    </span>
-                    <span className="wc-progress-pct">{ch._percent}%</span>
-                  </div>
-                  <div className="wc-progress-bar">
-                    <div className="wc-progress-fill" style={{ width: `${ch._percent}%` }} />
-                  </div>
-                </div>
-
-                {/* CTA */}
-                {isCompleted ? (
-                  <div className="wc-completed-label">Challenge Completed ✓</div>
-                ) : !ch._joined ? (
-                  <button className="wc-btn start" onClick={() => handleJoin(ch._id)}
-                    style={{ background: 'var(--tertiary)', color: 'var(--on-tertiary)' }}>
-                    Join Challenge
-                  </button>
-                ) : ch._status === 'In Progress' ? (
-                  <button className="wc-btn continue"
-                    onClick={() => navigate('/challenge-progress', { state: buildNavState(ch) })}>
-                    Continue
-                  </button>
-                ) : (
-                  <button className="wc-btn start"
-                    onClick={() => navigate('/challenge-progress', { state: buildNavState(ch) })}>
-                    Start
-                  </button>
+                {/* Day dots strip */}
+                {ch.joined && (
+                  <div className="wc-dots" aria-label={`${submittedCount} of ${totalDays} days completed`}>
+                    {ch._dayDots.map((d) => (
+                      <span
+                        key={d.dayIndex}
+                        className={`wc-dot${d.submitted ? ' done' : ''}${ch.dayIndexToday === d.dayIndex ? ' today' : ''}`}
+                      />
+                    ))}
+                 </div>
                 )}
-              </article>
+
+                {/* Footer: status + CTA */}
+                <div className="wc-card-footer">
+                  <div className="wc-card-status">
+                    {ch.joined ? (
+                      <span className={`wc-status-pill ${isCompleted ? 'complete' : ch._status === 'In Progress' ? 'inprogress' : 'nostart'}`}>
+                        {isCompleted && <span className="material-symbols-outlined" style={{ fontSize: '0.85rem' }}>check_circle</span>}
+                        {ch._status}
+                        {ch.userProgress?.totalPoints > 0 && <span> · {ch.userProgress.totalPoints} pts</span>}
+                      </span>
+                    ) : (
+                      <span className="wc-status-pill nostart">Not joined</span>
+                    )}
+                 </div>
+
+                  {isCompleted ? (
+                    <div className="wc-completed-label">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Completed
+                   </div>
+                  ) : !ch.joined ? (
+                    <button
+                      className="wc-btn start"
+                      onClick={() => handleJoin(ch._id)}
+                      style={{ background: 'var(--tertiary)', color: 'var(--on-tertiary)' }}
+                    >
+                      Join
+                   </button>
+                  ) : (
+                    <button
+                      className="wc-btn continue"
+                      onClick={() => navigate(`/challenge/${ch._id}`)}
+                    >
+                      {submittedCount > 0 ? 'Continue' : 'Start'}
+                   </button>
+                  )}
+               </div>
+             </article>
             );
           })}
-        </div>
-
-      </main>
+       </div>
+     </main>
 
       <BottomNav />
-    </div>
+   </div>
   );
 }

@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Notification = require("../models/Notification");
 const { sendMulticastNotification } = require("../services/notification");
 
 exports.saveFCMToken = async (req, res) => {
@@ -99,9 +100,43 @@ exports.broadcast = async (req, res) => {
       );
     }
 
-    res.json({ success: true, result });
+    const saved = await Notification.create({
+      title,
+      body,
+      sentBy: req.user.userId,
+      recipientCount: result.successCount || 0,
+      failedCount: result.failureCount || 0,
+    });
+
+    res.json({ success: true, notification: saved, result });
   } catch (err) {
     console.error("broadcast error:", err);
     res.status(500).json({ success: false, message: "Failed to broadcast" });
+  }
+};
+
+exports.getNotifications = async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, parseInt(req.query.limit) || 20);
+    const skip = (page - 1) * limit;
+
+    const [notifications, total] = await Promise.all([
+      Notification.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('sentBy', 'name')
+        .lean(),
+      Notification.countDocuments(),
+    ]);
+
+    res.status(200).json({
+      notifications,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
+  } catch (err) {
+    console.error("getNotifications error:", err);
+    res.status(500).json({ success: false, message: "Failed to load notifications" });
   }
 };

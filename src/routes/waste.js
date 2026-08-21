@@ -85,12 +85,13 @@ router.get('/history', async (req, res) => {
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
     const skip = (page - 1) * limit;
     const category = req.query.category;
+    const sortDir = req.query.sort === 'asc' ? 1 : -1;
 
     const match = { userId: new mongoose.Types.ObjectId(req.user.userId) };
     if (category) match.category = category;
 
     const [logs, total] = await Promise.all([
-      WasteLog.find(match).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      WasteLog.find(match).sort({ createdAt: sortDir }).skip(skip).limit(limit).lean(),
       WasteLog.countDocuments(match),
     ]);
 
