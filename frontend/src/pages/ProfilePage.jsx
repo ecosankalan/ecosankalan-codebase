@@ -239,7 +239,7 @@ export default function ProfilePage() {
         <section className="profile-section">
           <div className="profile-section-header-row">
             <h4 className="profile-section-title">Quiz Progress</h4>
-            <button className="profile-quiz-all-btn" onClick={() => navigate('/quiz')}>Take Quiz</button>
+            <button type="button" className="profile-quiz-all-btn" onClick={() => navigate('/quiz')}>Take Quiz</button>
           </div>
           <div className="profile-quiz-grid">
             {Object.entries(QUIZ_META).map(([id, meta]) => {

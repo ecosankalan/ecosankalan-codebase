@@ -379,7 +379,7 @@
   padding: 2px 7px;
   border-radius: 999px;
   background: var(--primary-container);
-  color: var(--primary);
+  color: #ffffff;
 }
 
 /* ── Empty state ── */

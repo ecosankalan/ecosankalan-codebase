@@ -472,7 +472,7 @@
 .profile-quiz-all-btn {
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--primary);
+  color: #ffffff;
   background: var(--primary-container);
   border: none;
   border-radius: 999px;
