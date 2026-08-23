@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/common/BottomNav';
+import Navbar from '../components/common/Navbar';
 import { logWaste, scanWasteImage } from '../services/api';
 import '../styles/waste.css';
 
@@ -128,18 +129,7 @@ export default function WasteLogPage() {
   return (
     <div className="log-root">
 
-      {/* Top App Bar */}
-      <header className="log-header">
-        <div className="log-header-left">
-          <div className="log-avatar">
-            <img src="/logo.png" alt="EcoSankalan Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
-          </div>
-          <span className="log-brand">EcoSankalan</span>
-        </div>
-        <button className="log-notif-btn">
-          <span className="material-symbols-outlined">notifications</span>
-        </button>
-      </header>
+      <Navbar />
 
       <main className="log-main">
 
