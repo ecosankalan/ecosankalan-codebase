@@ -74,8 +74,19 @@ export default function LearnPage() {
 
   const showUpcyclingSection = isUpcycling || filteredTutorials.length > 0;
 
-  const handleTutorialAction = (tutorial, action) => {
-    window.open(tutorial.url, '_blank', 'noopener,noreferrer');
+  const handleOpenExternal = (e, url) => {
+    if (!url) return;
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.currentTarget && typeof e.currentTarget.blur === 'function') {
+        e.currentTarget.blur();
+      }
+    }
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -99,7 +110,7 @@ export default function LearnPage() {
                 <span className="learn-quiz-badge">4 Quizzes Available</span>
                 <span className="learn-quiz-badge">5 Questions Each</span>
               </div>
-              <button className="learn-quiz-btn" onClick={() => navigate('/quiz')}>Start Quiz</button>
+              <button type="button" className="learn-quiz-btn" onClick={() => navigate('/quiz')}>Start Quiz</button>
             </div>
             <div className="learn-quiz-divider" />
             <div className="learn-quiz-right">
@@ -119,6 +130,7 @@ export default function LearnPage() {
             {FILTER_CATEGORIES.map(cat => (
               <button
                 key={cat}
+                type="button"
                 className={`learn-filter-pill${activeCategory === cat ? ' active' : ''}`}
                 onClick={() => setActiveCategory(cat)}
               >
@@ -131,7 +143,7 @@ export default function LearnPage() {
         {/* ── Upcycling featured card (only on Upcycling tab) ── */}
         {isUpcycling && (
           <section className="learn-upcycle-featured">
-            <div className="learn-upcycle-featured-card" onClick={() => window.open(UPCYCLING_FEATURED.url, '_blank', 'noopener,noreferrer')}>
+            <div className="learn-upcycle-featured-card" onClick={(e) => handleOpenExternal(e, UPCYCLING_FEATURED.url)}>
               <img src={UPCYCLING_FEATURED.img} alt={UPCYCLING_FEATURED.title} className="learn-upcycle-featured-img" />
               <div className="learn-upcycle-featured-overlay" />
               <div className="learn-upcycle-featured-content">
@@ -178,17 +190,17 @@ export default function LearnPage() {
                   </div>
                   <div className="learn-upcycle-card-actions">
                     {t.type === 'YouTube' ? (
-                      <button className="learn-upcycle-watch-btn" onClick={() => handleTutorialAction(t, 'watch')}>
+                      <button type="button" className="learn-upcycle-watch-btn" onClick={(e) => handleOpenExternal(e, t.url)}>
                         <span className="material-symbols-outlined">smart_display</span>
                         Watch Video
                       </button>
                     ) : (
-                      <button className="learn-upcycle-read-btn" onClick={() => handleTutorialAction(t, 'read')}>
+                      <button type="button" className="learn-upcycle-read-btn" onClick={(e) => handleOpenExternal(e, t.url)}>
                         <span className="material-symbols-outlined">menu_book</span>
                         Read Guide
                       </button>
                     )}
-                    <button className="learn-upcycle-read-btn" onClick={() => handleTutorialAction(t, 'read')}>
+                    <button type="button" className="learn-upcycle-read-btn" onClick={(e) => handleOpenExternal(e, t.url)}>
                       <span className="material-symbols-outlined">open_in_new</span>
                       Open
                     </button>
@@ -206,7 +218,7 @@ export default function LearnPage() {
               <div 
                 className="learn-video-card" 
                 key={video.id}
-                onClick={() => video.url && window.open(video.url, '_blank', 'noopener,noreferrer')}
+                onClick={(e) => video.url && handleOpenExternal(e, video.url)}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="learn-video-thumb">
@@ -238,7 +250,7 @@ export default function LearnPage() {
           <div className="learn-empty-state">
             <span className="material-symbols-outlined learn-empty-icon">search_off</span>
             <p>No content found for "{activeCategory}" yet.</p>
-            <button className="learn-filter-pill active" onClick={() => setActiveCategory('All')}>Show All</button>
+            <button type="button" className="learn-filter-pill active" onClick={() => setActiveCategory('All')}>Show All</button>
           </div>
         )}
 

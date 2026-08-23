@@ -521,7 +521,7 @@
 
 /* ── Mobile ───────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .impact-main         { padding: 4.5rem 1rem 8rem; }
+  .impact-main         { padding: 1rem 1rem 8rem; }
   .impact-title        { font-size: 1.9rem; }
   .impact-score-num    { font-size: 2.4rem; }
   .impact-stats-row    { grid-template-columns: repeat(2, 1fr); }
