@@ -26,7 +26,7 @@ router.use(protect);
 // POST /waste/log — manual waste logging
 router.post('/log', async (req, res) => {
   try {
-    const { category, quantity, unit = 'kg', description, logMethod = 'manual' } = req.body;
+    const { category, quantity, unit = 'kg', description, logMethod = 'manual', aiScan } = req.body;
 
     if (!category || !quantity) {
       return res.status(400).json({ success: false, message: 'category and quantity are required' });
@@ -47,7 +47,7 @@ router.post('/log', async (req, res) => {
     // Dynamically calculate points and CO2 saved via AI
     const { pointsEarned, co2Saved } = await calculateWasteImpact(category, kgQty, description);
 
-    const log = await WasteLog.create({
+    const logData = {
       userId: req.user.userId,
       category,
       quantity: qty,
@@ -56,7 +56,17 @@ router.post('/log', async (req, res) => {
       logMethod,
       pointsEarned,
       co2Saved,
-    });
+    };
+
+    if (aiScan && typeof aiScan === 'object') {
+      logData.aiScan = {
+        rawResponse: aiScan.rawResponse || null,
+        confidence: aiScan.confidence != null ? Number(aiScan.confidence) : null,
+        detectedCategory: aiScan.detectedCategory || null,
+      };
+    }
+
+    const log = await WasteLog.create(logData);
 
     // Atomically credit points to the user
     await User.findByIdAndUpdate(req.user.userId, {
@@ -85,12 +95,13 @@ router.get('/history', async (req, res) => {
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
     const skip = (page - 1) * limit;
     const category = req.query.category;
+    const sortDir = req.query.sort === 'asc' ? 1 : -1;
 
     const match = { userId: new mongoose.Types.ObjectId(req.user.userId) };
     if (category) match.category = category;
 
     const [logs, total] = await Promise.all([
-      WasteLog.find(match).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      WasteLog.find(match).sort({ createdAt: sortDir }).skip(skip).limit(limit).lean(),
       WasteLog.countDocuments(match),
     ]);
 

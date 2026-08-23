@@ -157,7 +157,7 @@ export default function DashboardPage() {
         icon: 'recycling',
         iconColor: 'var(--primary)',
         title: `${log.category} Waste Logged`,
-        meta: `${log.unit === 'g' ? (log.quantity / 1000).toFixed(2) : log.quantity.toFixed(1)} kg • ${new Date(log.date).toLocaleDateString()}`,
+        meta: `${log.unit === 'g' ? (log.quantity / 1000).toFixed(2) : log.quantity.toFixed(1)} kg • ${new Date(log.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
         points: `+${log.pointsEarned} pts`,
         pointsType: 'positive',
         status: log.pointsEarned > 0 ? 'Verified' : 'Pending',
@@ -347,7 +347,7 @@ export default function DashboardPage() {
 
               {challenges.length === 0 && (
                 <>
-                  <div className="wc-preview-card" onClick={() => navigate('/challenge-progress', { state: { challenge: { tag: 'Weekly Mission', title: 'Zero-Plastic Week', subtitle: 'Zero-Plastic Week', desc: 'Eliminate all single-use plastics from your routine this week.', progress: 60, tasksCompleted: 3, tasksTotal: 5, reward: { points: 80, note: 'Unlock upon completing all tasks.' }, tasks: [] } } })}>
+                  <div className="wc-preview-card" onClick={() => navigate('/weekly-challenges')}>
                     <div className="wc-preview-icon-wrap">
                       <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>recycling</span>
                     </div>

@@ -73,6 +73,11 @@ export default function ScanResultPage() {
         unit: 'kg',
         description: `AI scan: ${label} (${material})`,
         logMethod: 'ai_scan',
+        aiScan: {
+          rawResponse: result.rawResponse || result.parsed || null,
+          confidence: confidence != null ? confidence / 100 : null,
+          detectedCategory: result.category || result.detectedCategory || null,
+        },
       });
       await refreshAllStats(); // Update global stats
       setConfirmed(true);
