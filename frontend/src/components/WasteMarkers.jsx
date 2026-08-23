@@ -85,6 +85,7 @@ export default function WasteMarkers({ map, onMarkerClick }) {
   const [loading, setLoading] = useState(false);
   const [error, setError]       = useState(null);
   const [chipState, setChipState] = useState(DEFAULT_CATEGORIES);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const layerRef        = useRef(null);
   const debounceRef     = useRef(null);
@@ -170,6 +171,7 @@ export default function WasteMarkers({ map, onMarkerClick }) {
 
       locationsRef.current = data.locations || [];
       renderMarkers();
+      setHasLoaded(true);
     } catch (err) {
       console.error('[WasteMarkers] Fetch error:', err);
       setError(err.message || 'Failed to load markers');
@@ -231,26 +233,29 @@ export default function WasteMarkers({ map, onMarkerClick }) {
 
   return (
     <div className="waste-markers-ui">
-      <div className="waste-filter-chips">
-        {chipState.map(cat => {
-          const meta = getMeta(cat.key);
-          return (
-            <button
-              key={cat.key}
-              className={`waste-chip ${cat.active ? 'active' : ''}`}
-              style={cat.active ? { borderColor: meta.color, background: meta.color, color: '#fff' } : {}}
-              onClick={() => toggleCategory(cat.key)}
-            >
-              <span className="material-symbols-outlined" style={{
-                fontSize: '15px',
-                color: cat.active ? '#fff' : meta.color,
-                fontVariationSettings: "'FILL' 1",
-              }}>{meta.icon}</span>
-              {meta.label}
-            </button>
-          );
-        })}
-      </div>
+      {hasLoaded && (
+        <div className="waste-filter-chips">
+          {chipState.map(cat => {
+            const meta = getMeta(cat.key);
+            return (
+              <button
+                key={cat.key}
+                type="button"
+                className={`waste-chip ${cat.active ? 'active' : ''}`}
+                style={cat.active ? { borderColor: meta.color, background: meta.color, color: '#fff' } : {}}
+                onClick={() => toggleCategory(cat.key)}
+              >
+                <span className="material-symbols-outlined" style={{
+                  fontSize: '15px',
+                  color: cat.active ? '#fff' : meta.color,
+                  fontVariationSettings: "'FILL' 1",
+                }}>{meta.icon}</span>
+                {meta.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {loading && (
         <div className="waste-loading-badge">
@@ -263,7 +268,7 @@ export default function WasteMarkers({ map, onMarkerClick }) {
         <div className="waste-error-badge">
           <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>error</span>
           <span>Could not load markers. </span>
-          <button className="waste-retry-btn" onClick={() => {
+          <button type="button" className="waste-retry-btn" onClick={() => {
             if (!map) return;
             const b = map.getBounds();
             fetchData({
