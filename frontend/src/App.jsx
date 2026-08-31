@@ -34,6 +34,7 @@ import WeeklyChallengesPage   from './pages/WeeklyChallengesPage';
 import ProductDetailPage      from './pages/ProductDetailPage';
 import VouchersPage           from './pages/VouchersPage';
 import AdminDashboardPage     from './pages/AdminDashboardPage';
+import PrivacyPolicyPage      from './pages/PrivacyPolicyPage';
 
 import './styles/global.css';
 
@@ -58,6 +59,7 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/verify-phone"    element={<VerifyPhonePage />} />
       <Route path="/reset-password"  element={<ResetPasswordPage />} />
+      <Route path="/privacy"         element={<PrivacyPolicyPage />} />
 
       {/* Protected routes */}
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
