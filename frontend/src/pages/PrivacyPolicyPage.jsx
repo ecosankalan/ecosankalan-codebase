@@ -55,7 +55,7 @@ export default function PrivacyPolicyPage() {
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">5. Contact Us</h2>
             <p className="text-gray-600 mb-4">
-              If you have questions or comments about this notice, you may email us at support@ecosankalan.in.
+              If you have questions or comments about this notice, you may email us at ecosankalan@gmail.com.
             </p>
           </section>
         </div>
