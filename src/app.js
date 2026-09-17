@@ -60,16 +60,18 @@ app.use(helmet());
 // Browsers block requests from a different origin by default.
 // This tells the browser "yes, our API allows requests from these origins."
 // ─────────────────────────────────────────────────
-// Supports:
-// - CLIENT_URL (single origin, per task acceptance criteria)
-const clientUrl = (process.env.CLIENT_URL || 'http://localhost:3000').trim();
+// Supports multiple comma-separated origins via CLIENT_URL:
+//   CLIENT_URL=http://localhost:5173,https://ecosankalan.app,https://www.ecosankalan.app
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(',')
+  .map(u => u.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. Postman, mobile apps)
-      // Only allow the configured frontend client origin.
-      if (!origin || origin === clientUrl) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error(`CORS policy: origin ${origin} not allowed`));
@@ -106,13 +108,13 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 // Auth routes get a stricter limiter (defined in auth routes in Month 2).
 // ─────────────────────────────────────────────────
 const globalLimiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 min
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  windowMs: 60 * 1000, // 1 minute
+  max: 50,
   standardHeaders: true,  // include rate limit info in response headers
   legacyHeaders: false,
   message: {
     success: false,
-    message: 'Too many requests. Please try again after 15 minutes.',
+    message: 'Too many requests. Please try again after 1 minute.',
   },
 });
 

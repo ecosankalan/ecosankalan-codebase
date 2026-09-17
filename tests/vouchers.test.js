@@ -1,8 +1,52 @@
 process.env.JWT_SECRET = 'test_jwt_secret';
 process.env.NODE_ENV = 'test';
+process.env.APPWRITE_ENDPOINT = 'https://test.cloud.appwrite.io/v1';
+process.env.APPWRITE_PROJECT_ID = 'test-project';
+process.env.APPWRITE_API_KEY = 'test-api-key';
 
 const request = require('supertest');
-const jwt = require('jsonwebtoken');
+
+// Token-aware mock — different Appwrite identities for admin vs user tokens
+jest.mock('node-appwrite', () => {
+  let sessionToken = null;
+
+  const adminAccount = {
+    get: jest.fn().mockResolvedValue({
+      $id: 'appwrite-admin-123',
+      email: 'admin@example.com',
+      name: 'Admin User',
+    }),
+  };
+
+  const userAccount = {
+    get: jest.fn().mockResolvedValue({
+      $id: 'appwrite-user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    }),
+  };
+
+  const mockClient = {
+    setEndpoint: jest.fn().mockReturnThis(),
+    setProject: jest.fn().mockReturnThis(),
+    setKey: jest.fn().mockReturnThis(),
+    setJWT: jest.fn().mockImplementation((token) => {
+      sessionToken = token;
+      return mockClient;
+    }),
+    config: {
+      endpoint: 'https://test.cloud.appwrite.io/v1',
+      project: 'test-project',
+    },
+    account: jest.fn(() => sessionToken === 'test-admin-token' ? adminAccount : userAccount),
+  };
+
+  return {
+    Client: jest.fn(() => mockClient),
+    Account: mockClient.account,
+  };
+});
+
 const app = require('../src/app');
 const User = require('../src/models/User');
 const Voucher = require('../src/models/Voucher');
@@ -10,6 +54,7 @@ const Voucher = require('../src/models/Voucher');
 jest.mock('../src/models/User', () => ({
   findById: jest.fn(),
   findByIdAndUpdate: jest.fn(),
+  findOne: jest.fn(),
 }));
 
 jest.mock('../src/models/Voucher', () => ({
@@ -19,9 +64,13 @@ jest.mock('../src/models/Voucher', () => ({
 
 describe('Vouchers API', () => {
   const userId = '507f1f77bcf86cd799439011';
-  const token = jwt.sign({ userId, role: 'user' }, process.env.JWT_SECRET);
+  const token = 'test-token';
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // findOne is called by protect's findOrCreateMongoUser
+    User.findOne.mockResolvedValue({ _id: userId, role: 'user', email: 'test@example.com' });
+  });
 
   const mockUserQuery = (user) => ({
     select: jest.fn().mockResolvedValue(user),
@@ -29,7 +78,9 @@ describe('Vouchers API', () => {
 
   test('unlock succeeds and deducts points after voucher assignment', async () => {
     User.findById.mockReturnValue(mockUserQuery({ _id: userId, ecoPoints: 500 }));
-    Voucher.findOneAndUpdate.mockResolvedValue({ _id: 'voucher1', partnerName: 'GreenKart' });
+    const mockVoucher = { _id: 'voucher1', partnerName: 'GreenKart' };
+    mockVoucher.toObject = function () { return { ...this }; };
+    Voucher.findOneAndUpdate.mockResolvedValue(mockVoucher);
     User.findByIdAndUpdate.mockResolvedValue({});
 
     const res = await request(app)

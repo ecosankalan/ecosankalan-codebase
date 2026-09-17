@@ -1,8 +1,52 @@
 process.env.JWT_SECRET = 'test_jwt_secret';
 process.env.NODE_ENV = 'test';
+process.env.APPWRITE_ENDPOINT = 'https://test.cloud.appwrite.io/v1';
+process.env.APPWRITE_PROJECT_ID = 'test-project';
+process.env.APPWRITE_API_KEY = 'test-api-key';
 
 const request = require('supertest');
-const jwt = require('jsonwebtoken');
+
+// Token-aware mock — different Appwrite identities for admin vs user tokens
+jest.mock('node-appwrite', () => {
+  let sessionToken = null;
+
+  const adminAccount = {
+    get: jest.fn().mockResolvedValue({
+      $id: 'appwrite-admin-123',
+      email: 'admin@example.com',
+      name: 'Admin User',
+    }),
+  };
+
+  const userAccount = {
+    get: jest.fn().mockResolvedValue({
+      $id: 'appwrite-user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    }),
+  };
+
+  const mockClient = {
+    setEndpoint: jest.fn().mockReturnThis(),
+    setProject: jest.fn().mockReturnThis(),
+    setKey: jest.fn().mockReturnThis(),
+    setJWT: jest.fn().mockImplementation((token) => {
+      sessionToken = token;
+      return mockClient;
+    }),
+    config: {
+      endpoint: 'https://test.cloud.appwrite.io/v1',
+      project: 'test-project',
+    },
+    account: jest.fn(() => sessionToken === 'test-admin-token' ? adminAccount : userAccount),
+  };
+
+  return {
+    Client: jest.fn(() => mockClient),
+    Account: mockClient.account,
+  };
+});
+
 const app = require('../src/app');
 const Event = require('../src/models/Event');
 const User = require('../src/models/User');
@@ -16,14 +60,25 @@ jest.mock('../src/models/Event', () => ({
 
 jest.mock('../src/models/User', () => ({
   findByIdAndUpdate: jest.fn(),
+  findOne: jest.fn(),
+  findById: jest.fn(),
 }));
 
 describe('Events API', () => {
   const userId = '507f1f77bcf86cd799439011';
-  const userToken = jwt.sign({ userId, role: 'user' }, process.env.JWT_SECRET);
-  const adminToken = jwt.sign({ userId, role: 'admin' }, process.env.JWT_SECRET);
+  const userToken = 'test-user-token';
+  const adminToken = 'test-admin-token';
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // findOne is called by protect's findOrCreateMongoUser — match on appwriteUserId OR email
+    User.findOne.mockImplementation((query) => {
+      if (query.email === 'admin@example.com' || query.appwriteUserId === 'appwrite-admin-123') {
+        return Promise.resolve({ _id: userId, role: 'admin', email: 'admin@example.com' });
+      }
+      return Promise.resolve({ _id: userId, role: 'user', email: 'test@example.com' });
+    });
+  });
 
   test('GET upcoming excludes cancelled/past through query and hides rsvpList', async () => {
     const lean = jest.fn().mockResolvedValue([

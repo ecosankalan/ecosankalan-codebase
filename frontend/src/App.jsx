@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AppwriteProvider } from '@appwrite.io/react';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -35,12 +36,20 @@ import ProductDetailPage      from './pages/ProductDetailPage';
 import VouchersPage           from './pages/VouchersPage';
 import AdminDashboardPage     from './pages/AdminDashboardPage';
 import PrivacyPolicyPage      from './pages/PrivacyPolicyPage';
+import OAuthPage              from './pages/OAuthPage';
+import OAuthSuccessPage       from './pages/OAuthSuccessPage';
+import OAuthFailurePage       from './pages/OAuthFailurePage';
+import OAuthDashboardPage     from './pages/OAuthDashboardPage';
 
 import './styles/global.css';
 
+// ── TanStack Query client for Appwrite React SDK ─────────────────────
+const queryClient = new QueryClient();
+
 // ── Protected route: redirects to /login if not authenticated ────────
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  if (isLoading) return null;
   return user ? children : <Navigate to="/login" replace />;
 };
 
@@ -55,7 +64,12 @@ function AppRoutes() {
       {/* Public / Auth routes */}
       <Route path="/login"           element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
       <Route path="/register"        element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
-      <Route path="/otp"             element={<OTPPage />} />
+      <Route path="/auth"            element={<OAuthPage />} />
+      <Route path="/auth/success"    element={<OAuthSuccessPage />} />
+      <Route path="/auth/failure"    element={<OAuthFailurePage />} />
+      <Route path="/oauth-dashboard" element={<OAuthDashboardPage />} />
+      <Route path="/verify-email"    element={<OTPPage />} />
+      <Route path="/otp"             element={<Navigate to="/verify-email" replace />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/verify-phone"    element={<VerifyPhonePage />} />
       <Route path="/reset-password"  element={<ResetPasswordPage />} />
@@ -90,18 +104,23 @@ function AppRoutes() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'dummy-client-id.apps.googleusercontent.com'}>
-        <NotificationProvider>
-        <AuthProvider>
-          <StatsProvider>
-            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-              <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
-              <AppRoutes />
-            </BrowserRouter>
-          </StatsProvider>
-        </AuthProvider>
-        </NotificationProvider>
-      </GoogleOAuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppwriteProvider
+          endpoint={import.meta.env.VITE_APPWRITE_ENDPOINT}
+          projectId={import.meta.env.VITE_APPWRITE_PROJECT_ID}
+        >
+          <NotificationProvider>
+            <AuthProvider>
+              <StatsProvider>
+                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                  <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+                  <AppRoutes />
+                </BrowserRouter>
+              </StatsProvider>
+            </AuthProvider>
+          </NotificationProvider>
+        </AppwriteProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }

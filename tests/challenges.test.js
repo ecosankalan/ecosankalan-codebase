@@ -1,11 +1,56 @@
 process.env.JWT_SECRET = 'test_jwt_secret';
 process.env.NODE_ENV = 'test';
+process.env.APPWRITE_ENDPOINT = 'https://test.cloud.appwrite.io/v1';
+process.env.APPWRITE_PROJECT_ID = 'test-project';
+process.env.APPWRITE_API_KEY = 'test-api-key';
 
 const request = require('supertest');
-const jwt = require('jsonwebtoken');
+
+// Token-aware mock — different Appwrite identities for admin vs user tokens
+jest.mock('node-appwrite', () => {
+  let sessionToken = null;
+
+  const adminAccount = {
+    get: jest.fn().mockResolvedValue({
+      $id: 'appwrite-admin-123',
+      email: 'admin@example.com',
+      name: 'Admin User',
+    }),
+  };
+
+  const userAccount = {
+    get: jest.fn().mockResolvedValue({
+      $id: 'appwrite-user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    }),
+  };
+
+  const mockClient = {
+    setEndpoint: jest.fn().mockReturnThis(),
+    setProject: jest.fn().mockReturnThis(),
+    setKey: jest.fn().mockReturnThis(),
+    setJWT: jest.fn().mockImplementation((token) => {
+      sessionToken = token;
+      return mockClient;
+    }),
+    config: {
+      endpoint: 'https://test.cloud.appwrite.io/v1',
+      project: 'test-project',
+    },
+    account: jest.fn(() => sessionToken === 'test-admin-token' ? adminAccount : userAccount),
+  };
+
+  return {
+    Client: jest.fn(() => mockClient),
+    Account: mockClient.account,
+  };
+});
+
 const app = require('../src/app');
 const Challenge = require('../src/models/Challenge');
 const ChallengeProgress = require('../src/models/ChallengeProgress');
+const User = require('../src/models/User');
 
 const MAX_DURATION_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -31,6 +76,12 @@ jest.mock('../src/models/ChallengeProgress', () => ({
   findOneAndUpdate: jest.fn(),
 }));
 
+jest.mock('../src/models/User', () => ({
+  findOne: jest.fn(),
+  findById: jest.fn(),
+  findByIdAndUpdate: jest.fn(),
+}));
+
 jest.mock('../src/services/notificationService', () => ({
   challengeCreated: jest.fn().mockResolvedValue(true),
   quizCreated: jest.fn().mockResolvedValue(true),
@@ -53,8 +104,8 @@ jest.mock('../src/config/cloudinary', () => {
 
 const userId = '507f1f77bcf86cd799439011';
 const challengeId = '507f1f77bcf86cd799439022';
-const token = jwt.sign({ userId, role: 'user' }, process.env.JWT_SECRET);
-const adminToken = jwt.sign({ userId, role: 'admin' }, process.env.JWT_SECRET);
+const token = 'test-token';
+const adminToken = 'test-admin-token';
 
 const START = new Date('2026-06-01T00:00:00.000Z');
 const END = new Date(START.getTime() + 3 * DAY_MS);
@@ -87,7 +138,16 @@ const futureStart = () => new Date(Date.now() + 60_000);
 const futureEnd = () => new Date(Date.now() + 3 * DAY_MS + 60_000);
 
 describe('Challenges API — admin & user', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // findOne is called by protect's findOrCreateMongoUser — match on appwriteUserId OR email
+    User.findOne.mockImplementation((query) => {
+      if (query.email === 'admin@example.com' || query.appwriteUserId === 'appwrite-admin-123') {
+        return Promise.resolve({ _id: userId, role: 'admin', email: 'admin@example.com' });
+      }
+      return Promise.resolve({ _id: userId, role: 'user', email: 'test@example.com' });
+    });
+  });
 
   describe('POST /api/v1/challenges (admin)', () => {
     test('rejects duration > 30 days', async () => {

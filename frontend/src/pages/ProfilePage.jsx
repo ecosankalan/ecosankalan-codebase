@@ -338,7 +338,7 @@ export default function ProfilePage() {
                     <div style={{ width: '5rem', height: '5rem', borderRadius: '50%', overflow: 'hidden', background: 'var(--surface-container-highest)', border: '2px solid var(--primary)' }}>
                       <img src={editPic || "https://lh3.googleusercontent.com/aida-public/AB6AXuCumhJLdM5zItnZGoQ9wC0uGI0AHo-Ho56Zvuk0ZsYMY_ZpAshgZtlV-xwAaiOPIO1cS4eIgYWuRrpt0kBibxsP7oBMt1gmkYA62-H-YlKm3I5BOjnOjOZan5n5qiP1D11LqF3SqRuDZEVqz4WJB-cN4zmIBXZTbIJK_E28F_YA8Lu6UFsEBumE0ktFV0vLzheyCIcvofLPMITIgS9D6FTIy6VydfSY8kFzcS9FIarwx7zv6f1CVrMmn7kviwNEpdaNQxf81xvbsPQS"} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '600', cursor: 'pointer', background: 'var(--primary-container)', padding: '0.4rem 0.8rem', borderRadius: '1rem' }}>
+                    <label style={{ fontSize: '0.8rem', color: 'white', fontWeight: '600', cursor: 'pointer', background: 'var(--primary-container)', padding: '0.4rem 0.8rem', borderRadius: '1rem' }}>
                       Change Picture
                       <input 
                         type="file" 

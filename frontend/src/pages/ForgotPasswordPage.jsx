@@ -1,37 +1,88 @@
 /**
- * ForgotPasswordPage — user enters phone number to receive OTP
- * Flow: /login → /forgot-password → /verify-phone → /reset-password
+ * ForgotPasswordPage — enter email to receive password reset link
+ * Flow: /login → /forgot-password → email link → /reset-password
+ *
+ * Uses Appwrite account.createRecovery() which sends a reset link.
+ * For security, shows the same message whether email exists or not.
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Client, Account } from 'appwrite';
 import '../styles/login.css';
 import '../styles/auth-extra.css';
 
+const client = new Client()
+  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
+  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+
+const account = new Account(client);
+
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
-  const [phone,   setPhone]   = useState('');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
+  const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const digits = phone.replace(/\D/g, '');
-    if (digits.length < 10) {
-      setError('Please enter a valid 10-digit phone number.');
+    if (!email || !email.includes('@')) {
+      setError('Please enter a valid email address.');
       return;
     }
     setLoading(true);
+    setError('');
     try {
-      // ── Uncomment when backend is live (Month 2) ────────────
-      // await sendForgotOTP({ phone: `+91${digits}` });
-      await new Promise(r => setTimeout(r, 800)); // mock delay
-      navigate('/verify-phone', { state: { phone: digits, flow: 'forgot' } });
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Could not send OTP. Try again.');
-    } finally {
-      setLoading(false);
+      const redirectUrl = `${window.location.origin}/reset-password`;
+      await account.createRecovery(email, redirectUrl);
+    } catch {
+      // Silently ignore — don't reveal whether email exists
     }
+    // Always show same message for security
+    setSent(true);
+    setLoading(false);
   };
+
+  if (sent) {
+    return (
+      <div className="auth-focused-root">
+        <div className="blob blob-tl" />
+        <div className="blob blob-br" />
+        <main className="auth-focused-main">
+          <div className="auth-icon-header">
+            <div className="auth-icon-circle">
+              <span className="material-symbols-outlined">mark_email_read</span>
+            </div>
+            <div className="auth-text-center">
+              <h1>Check your email</h1>
+              <p>
+                If an account exists with <strong>{email}</strong>, we've sent a
+                password reset link. Check your inbox and click the link to
+                reset your password.
+              </p>
+            </div>
+          </div>
+          <button
+            className="submit-btn"
+            style={{ marginTop: '1.5rem' }}
+            onClick={() => navigate('/login')}
+          >
+            Back to Login <span className="material-symbols-outlined">arrow_forward</span>
+          </button>
+          <p className="auth-support-text" style={{ marginTop: '1.5rem' }}>
+            Didn't receive it?{' '}
+            <button
+              type="button"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontWeight: 700, fontSize: 'inherit', padding: 0 }}
+              onClick={() => { setSent(false); setEmail(''); }}
+            >
+              Try another email
+            </button>
+          </p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-focused-root">
@@ -57,7 +108,6 @@ export default function ForgotPasswordPage() {
       </header>
 
       <main className="auth-focused-main">
-
         {/* Illustration */}
         <div className="auth-illustration">
           <img
@@ -69,7 +119,7 @@ export default function ForgotPasswordPage() {
         {/* Heading */}
         <div className="auth-text-center">
           <h1>Forgot Password</h1>
-          <p>Enter your phone number and we'll send you an OTP to reset your account access.</p>
+          <p>Enter your email address and we'll send you a link to reset your password.</p>
         </div>
 
         {/* Form */}
@@ -80,20 +130,16 @@ export default function ForgotPasswordPage() {
           noValidate
         >
           <div className="field-group">
-            <label htmlFor="fp-phone">Phone Number</label>
-            <div className="phone-input-wrap">
-              <div className="phone-prefix">
-                <span className="material-symbols-outlined">phone</span>
-                <span className="phone-prefix-code">+91</span>
-              </div>
+            <label htmlFor="fp-email">Email Address</label>
+            <div className="input-wrap">
+              <span className="material-symbols-outlined input-icon">mail</span>
               <input
-                id="fp-phone"
-                className="phone-input"
-                type="tel"
-                placeholder="98765 43210"
-                value={phone}
-                onChange={e => { setPhone(e.target.value); setError(''); }}
-                autoComplete="tel"
+                id="fp-email"
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setError(''); }}
+                autoComplete="email"
                 required
               />
             </div>
@@ -103,17 +149,22 @@ export default function ForgotPasswordPage() {
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading
               ? <span className="spinner" />
-              : <>Send OTP <span className="material-symbols-outlined">arrow_forward</span></>
+              : <>Send Reset Link <span className="material-symbols-outlined">arrow_forward</span></>
             }
           </button>
         </form>
 
         {/* Support */}
         <p className="auth-support-text">
-          Having trouble?
-          <a href="#">Contact Support</a>
+          Remember your password?{' '}
+          <button
+            type="button"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontWeight: 700, fontSize: 'inherit', padding: 0 }}
+            onClick={() => navigate('/login')}
+          >
+            Sign in
+          </button>
         </p>
-
       </main>
     </div>
   );

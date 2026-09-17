@@ -2,23 +2,37 @@
  * frontend/src/services/api.js
  * Central Axios instance + all API call functions.
  *
- * All requests are automatically authenticated via the JWT
- * interceptor below — pages just import and call the function,
- * no need to manually attach tokens.
+ * Authentication is handled by Appwrite:
+ *   - On each request, an Appwrite JWT is created via account.createJWT()
+ *   - The JWT is attached as a Bearer token
+ *   - The backend verifies the JWT via node-appwrite
  *
  * Base URL is set by VITE_API_URL env var (defaults to localhost:5000).
  */
 
 import axios from 'axios';
+import { Account } from 'appwrite';
+import appwriteClient from '../lib/appwrite';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '',
 });
 
-// ── Auto-attach JWT token to every request ──────────────────────────────────
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+// ── Auto-attach Appwrite JWT to every request ────────────────────────────────
+// Uses the shared Appwrite client from lib/appwrite.js which is configured
+// with the same endpoint/projectId as the AppwriteProvider. Sessions created
+// by useSignIn/useSignUp are stored in localStorage and accessible here.
+api.interceptors.request.use(async (config) => {
+  try {
+    const account = new Account(appwriteClient);
+    const jwtResponse = await account.createJWT();
+    config.headers.Authorization = `Bearer ${jwtResponse.jwt}`;
+  } catch (err) {
+    // Log for debugging — the request will go without auth (backend returns 401)
+    if (import.meta.env.DEV) {
+      console.warn('[api] createJWT failed:', err?.message || err);
+    }
+  }
   return config;
 });
 
@@ -36,14 +50,21 @@ api.interceptors.response.use(
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// AUTH
+// AUTH — Appwrite integration
 // ════════════════════════════════════════════════════════════════════════════
-export const registerUser  = (data) => api.post('/api/v1/auth/register', data);
-export const verifyOTP     = (data) => api.post('/api/v1/auth/verify-otp', data); // Stub to prevent OTPForm crash
-export const loginUser     = (data) => api.post('/api/v1/auth/login', data);
-export const authGoogle    = (data) => api.post('/api/v1/auth/google', data);
-export const forgotPassword = (data) => api.post('/api/v1/auth/forgot-password', data);
-export const resetPassword  = (data) => api.post('/api/v1/auth/reset-password', data);
+
+/**
+ * POST /auth/sync
+ * Called after Appwrite authentication to sync with MongoDB.
+ * Returns the MongoDB user profile.
+ */
+export const syncUser = () => api.post('/api/v1/auth/sync');
+
+/**
+ * GET /auth/me
+ * Returns the current authenticated user's MongoDB profile.
+ */
+export const getMe = () => api.get('/api/v1/auth/me');
 
 // ════════════════════════════════════════════════════════════════════════════
 // USER PROFILE
@@ -58,32 +79,14 @@ export const uploadAvatar  = (formData) => api.put('/api/v1/users/profile/avatar
 // WASTE  (FR-03, FR-04, FR-05 + M3 carryover FR stats)
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * POST /waste/log
- * Body: { category, quantity, unit?, description?, logMethod? }
- * Returns: { success, log, pointsEarned, co2Saved }
- */
 export const logWaste = (data) => api.post('/api/v1/waste/log', data);
 
-/**
- * GET /waste/history?category=&page=&limit=
- * Returns: { logs: [], pagination: { page, limit, total, pages } }
- */
 export const getWasteHistory = (params = {}) =>
   api.get('/api/v1/waste/history', { params });
 
-/**
- * GET /waste/stats?range=week|month|all
- * Returns: { totalKg, totalCo2Saved, totalPointsEarned, categoryBreakdown, weeklyTrend }
- */
 export const getWasteStats = (range = 'week') =>
   api.get('/api/v1/waste/stats', { params: { range } });
 
-/**
- * POST /waste/scan  (AI image scan)
- * Body: FormData with key "images" (file upload)
- * Returns: { success, model, usage, parsed: { label, category, material, confidence, steps } }
- */
 export const scanWasteImage = (formData) =>
   api.post('/api/v1/waste/scan', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -93,27 +96,15 @@ export const scanWasteImage = (formData) =>
 // BINS  (FR-11, FR-12)
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * GET /bins?lat=&lng=&radius=
- * Returns sorted array of bins nearest-first with distanceMetres field
- */
 export const getNearbyBins = ({ lat, lng, radius = 5000 }) =>
   api.get('/api/v1/bins', { params: { lat, lng, radius } });
 
-/**
- * POST /bins  (Admin only)
- * Body: { name, address, location: { type, coordinates }, types[], capacityStatus }
- */
 export const createBin = (data) => api.post('/api/v1/bins', data);
 
 // ════════════════════════════════════════════════════════════════════════════
 // MAP MARKERS  (from DB — no direct OSM calls)
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * GET /markers?north=&south=&east=&west=&categories=
- * Returns waste location markers within the bounding box
- */
 export const getMapMarkers = (bounds) =>
   api.get('/api/v1/markers', { params: bounds });
 
@@ -121,55 +112,25 @@ export const getMapMarkers = (bounds) =>
 // EVENTS  (FR-13, FR-14)
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * GET /events/upcoming
- * Returns events sorted chronologically, cancelled excluded
- */
 export const getUpcomingEvents = () => api.get('/api/v1/events/upcoming');
 
-/**
- * POST /events  (Admin / NGO only)
- * Body: { title, description, address, location, eventDate, organiser, bonusPoints }
- */
 export const createEvent = (data) => api.post('/api/v1/events', data);
 
-/**
- * POST /events/:id/rsvp
- * Returns: { success, message, pointsAwarded }
- * 409 if already RSVP'd
- */
 export const rsvpEvent = (eventId) => api.post(`/api/v1/events/${eventId}/rsvp`);
 
 // ════════════════════════════════════════════════════════════════════════════
 // CHALLENGES  (FR-21, FR-22, FR-23)
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * GET /challenges/active
- * Returns active challenges with per-user summary progress and today's dayIndex.
- */
 export const getActiveChallenges = () => api.get('/api/v1/challenges/active');
 
-/**
- * GET /challenges/:id
- * Returns full challenge with computed daily slots and the requester's submissions.
- */
 export const getChallengeById = (id) => api.get(`/api/v1/challenges/${id}`);
 
-/**
- * POST /challenges/:id/submit
- * Body: multipart form-data with fields `dayIndex`, optional `remarks`, optional `image` file.
- * Returns: { success, progress, totalPoints, allCompleted }
- */
 export const submitChallengeTask = (id, formData) =>
   api.post(`/api/v1/challenges/${id}/submit`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
-/**
- * GET /challenges/:id/leaderboard
- * Returns { top10, currentUser, total } sorted by totalPoints desc.
- */
 export const getChallengeLeaderboard = (id) =>
   api.get(`/api/v1/challenges/${id}/leaderboard`);
 
@@ -177,23 +138,11 @@ export const getChallengeLeaderboard = (id) =>
 // PRODUCTS / ECO-SHOP  (FR-16, FR-17)
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * GET /products?category=
- * Returns active partner products, optionally filtered by category
- */
 export const getProducts = (category) =>
   api.get('/api/v1/products', { params: category ? { category } : {} });
 
-/**
- * GET /products/:id
- * Returns a single product
- */
 export const getProductById = (id) => api.get(`/api/v1/products/${id}`);
 
-/**
- * GET /products/:id/redirect  (returns 302, open in new tab from JS)
- * We build the URL here and open it — no axios needed for a redirect
- */
 export const getProductRedirectUrl = (id) => {
   const base = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   return `${base}/api/v1/products/${id}/redirect`;
@@ -203,17 +152,8 @@ export const getProductRedirectUrl = (id) => {
 // VOUCHERS  (FR-18, FR-19)
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * GET /vouchers/my
- * Returns all vouchers assigned to the authenticated user (active first)
- */
 export const getMyVouchers = () => api.get('/api/v1/vouchers/my');
 
-/**
- * POST /vouchers/unlock
- * Body: { partnerName }
- * Returns the newly assigned voucher, or 409 if none available / 400 if insufficient points
- */
 export const unlockVoucher = (partnerName) =>
   api.post('/api/v1/vouchers/unlock', { partnerName });
 
@@ -221,46 +161,27 @@ export const unlockVoucher = (partnerName) =>
 // CHALLENGES — ADMIN
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * POST /challenges — Admin creates a new challenge
- */
 export const createChallenge = (data) => api.post('/api/v1/challenges', data);
 
-/**
- * PUT /challenges/:id — Admin updates a challenge
- */
 export const updateChallenge = (id, data) => api.put(`/api/v1/challenges/${id}`, data);
 
-/**
- * DELETE /challenges/:id — Admin soft-deletes a challenge
- */
 export const deleteChallenge = (id) => api.delete(`/api/v1/challenges/${id}`);
 
-/**
- * GET /challenges/admin — Admin lists all challenges
- */
 export const getAdminChallenges = () => api.get('/api/v1/challenges/admin');
 
-/**
- * POST /challenges/:id/join — User joins a challenge
- */
 export const joinChallenge = (challengeId) => api.post(`/api/v1/challenges/${challengeId}/join`);
 
 // ════════════════════════════════════════════════════════════════════════════
 // ADMIN  (FR-20, FR-25)
 // ════════════════════════════════════════════════════════════════════════════
 
-/** GET /admin/stats — platform-wide aggregated stats */
 export const getAdminStats = () => api.get('/api/v1/admin/stats');
 
-/** GET /admin/vouchers/stats — per-partner issued/assigned/remaining */
 export const getAdminVoucherStats = () => api.get('/api/v1/admin/vouchers/stats');
 
-/** POST /admin/vouchers — bulk import voucher array */
 export const bulkImportVouchers = (vouchers) =>
   api.post('/api/v1/admin/vouchers', vouchers);
 
-/** GET /admin/leaderboard — global user ranking by points */
 export const getAdminLeaderboard = (limit = 20) =>
   api.get('/api/v1/admin/leaderboard', { params: { limit } });
 
@@ -268,11 +189,9 @@ export const getAdminLeaderboard = (limit = 20) =>
 // NOTIFICATIONS  (admin broadcast + history)
 // ════════════════════════════════════════════════════════════════════════════
 
-/** POST /notifications/broadcast — send push notification to all users */
 export const broadcastNotification = (title, body) =>
   api.post('/api/notifications/broadcast', { title, body });
 
-/** GET /notifications — paginated notification history (admin) */
 export const getNotifications = (params = {}) =>
   api.get('/api/notifications', { params });
 
@@ -280,10 +199,6 @@ export const getNotifications = (params = {}) =>
 // AI SCAN  (direct to /api/v1/ai/analyze — alternate endpoint)
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * POST /ai/analyze
- * Same as /waste/scan — upload images via multipart/form-data key "images"
- */
 export const analyzeWasteAI = (formData) =>
   api.post('/api/v1/ai/analyze', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },

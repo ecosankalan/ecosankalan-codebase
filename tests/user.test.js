@@ -1,14 +1,44 @@
 process.env.JWT_SECRET = 'test_jwt_secret';
 process.env.NODE_ENV = 'test';
+process.env.APPWRITE_ENDPOINT = 'https://test.cloud.appwrite.io/v1';
+process.env.APPWRITE_PROJECT_ID = 'test-project';
+process.env.APPWRITE_API_KEY = 'test-api-key';
 
 const request = require('supertest');
-const jwt = require('jsonwebtoken');
+
+// Mock node-appwrite for the protect middleware
+jest.mock('node-appwrite', () => {
+  const mockAccount = {
+    get: jest.fn().mockResolvedValue({
+      $id: 'appwrite-user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    }),
+  };
+  const mockClient = {
+    setEndpoint: jest.fn().mockReturnThis(),
+    setProject: jest.fn().mockReturnThis(),
+    setKey: jest.fn().mockReturnThis(),
+    setJWT: jest.fn().mockReturnThis(),
+    config: {
+      endpoint: 'https://test.cloud.appwrite.io/v1',
+      project: 'test-project',
+    },
+    account: jest.fn(() => mockAccount),
+  };
+  return {
+    Client: jest.fn(() => mockClient),
+    Account: mockClient.account,
+  };
+});
+
 const app = require('../src/app');
 const User = require('../src/models/User');
 
 jest.mock('../src/models/User', () => ({
   findById: jest.fn(),
   findByIdAndUpdate: jest.fn(),
+  findOne: jest.fn(),
 }));
 
 describe('User Profile API', () => {
@@ -16,11 +46,7 @@ describe('User Profile API', () => {
   const mockUserId = '507f1f77bcf86cd799439011';
 
   beforeAll(() => {
-    token = jwt.sign(
-      { userId: mockUserId, role: 'user' }, 
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    token = 'test-token';
   });
 
   afterEach(() => {
@@ -28,6 +54,7 @@ describe('User Profile API', () => {
   });
 
   test('GET /user/profile should return 200 and user data', async () => {
+    User.findOne.mockResolvedValue({ _id: mockUserId, role: 'user', email: 'test@example.com' });
     const mockUser = { 
       _id: mockUserId, 
       email: 'ayushfinal@gmail.com', 
@@ -49,6 +76,7 @@ describe('User Profile API', () => {
   });
 
   test('PUT /user/profile should block email updates', async () => {
+    User.findOne.mockResolvedValue({ _id: mockUserId, role: 'user', email: 'test@example.com' });
     const res = await request(app)
       .put('/user/profile')
       .set('Authorization', `Bearer ${token}`)

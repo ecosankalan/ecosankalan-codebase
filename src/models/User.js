@@ -32,9 +32,17 @@ const userSchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      required: [true, 'Phone number is required'],
+      required: false,
       unique: true,
+      sparse: true,
       // match: [/^[6-9]\\d{9}$/, 'Please enter a valid 10-digit Indian mobile number'],
+    },
+
+    appwriteUserId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
     },
 
     passwordHash: {
