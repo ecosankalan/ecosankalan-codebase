@@ -409,8 +409,6 @@ JWT_SECRET=your_secret_key
 
 OPENAI_API_KEY=your_openai_api_key
 
-GOOGLE_CLIENT_ID=your_google_client_id
-
 CLIENT_URL=http://localhost:5173
 ```
 
@@ -421,7 +419,7 @@ CLIENT_URL=http://localhost:5173
 ```env
 VITE_API_URL=http://localhost:5000
 
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
+
 ```
 
 ---

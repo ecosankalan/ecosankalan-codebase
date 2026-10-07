@@ -1,33 +1,29 @@
 /**
  * LoginForm — handles email/password login via Appwrite
  * Used by: LoginPage.jsx
- * Auth: Appwrite useSignIn() hook from @appwrite.io/react
+ * Auth: Appwrite useSignIn() hook (email) + OAuth2 token flow (Google)
  *
  * Strict verify-before-use: email logins check the emailVerification flag
  * and bounce unverified users back out. Google OAuth is exempt
- * (provider-verified emails).
+ * (provider-verified emails) and follows the token flow:
+ * createOAuth2Token → /auth/success → createSession → /dashboard.
  */
 import { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSignIn } from '@appwrite.io/react';
 import { OAuthProvider, Account } from 'appwrite';
 import appwriteClient from '../../lib/appwrite';
+import OAuthReturnHint, { markOAuthPending } from './OAuthReturnHint';
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const { emailPassword, oAuth, isPending } = useSignIn();
+  const { emailPassword, isPending } = useSignIn();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [remember, setRemember] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
-
-  const handleAuthSuccess = useCallback(() => {
-    // AuthContext.useEffect watches appwriteUser and syncs with backend.
-    // After that, ProtectedRoute redirects to /dashboard.
-    navigate('/dashboard');
-  }, [navigate]);
 
   const handleEmailAuthSuccess = useCallback(async () => {
     // Strict gate: block unverified emails regardless of the Console's
@@ -52,18 +48,23 @@ export default function LoginForm() {
     navigate('/dashboard');
   }, [navigate]);
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
-    oAuth({
-      provider: OAuthProvider.Google,
-      scopes: [],
-      onSuccess: handleAuthSuccess,
-      onError: (err) => {
-        setError(err.message || 'Google login failed. Please try again.');
-        setLoading(false);
-      },
-    });
+    markOAuthPending();
+    try {
+      // Token flow: navigates the browser to Google; do not redirect manually.
+      // Google → Appwrite → /auth/success (createSession) → /dashboard.
+      const account = new Account(appwriteClient);
+      await account.createOAuth2Token({
+        provider: OAuthProvider.Google,
+        success: `${window.location.origin}/auth/success`,
+        failure: `${window.location.origin}/auth/failure`,
+      });
+    } catch (err) {
+      setError(err.message || 'Google login failed. Please try again.');
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -136,7 +137,7 @@ export default function LoginForm() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          Continue with Google
+          Sign in with Google
         </button>
       </div>
 
@@ -147,6 +148,7 @@ export default function LoginForm() {
       </div>
 
       {error && <div className="error-banner">{error}</div>}
+      <OAuthReturnHint />
 
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <div className="field-group">

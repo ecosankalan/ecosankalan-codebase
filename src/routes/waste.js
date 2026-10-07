@@ -200,7 +200,11 @@ router.get('/stats', async (req, res) => {
         },
         { $sort: { '_id.date': 1 } },
       ]),
-      WasteLog.find(match).sort({ createdAt: -1 }).limit(3).lean(),
+      // NOTE: recent logs ignore the date-range filter on purpose — the
+      // dashboard feed must show the user's latest entries even when they
+      // are older than the selected range (otherwise old accounts see an
+      // empty "No activity yet" state despite having history).
+      WasteLog.find({ userId }).sort({ createdAt: -1 }).limit(3).lean(),
     ]);
 
     const categoryBreakdown = categoryKeys.reduce((acc, key) => {

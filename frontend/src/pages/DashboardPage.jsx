@@ -42,7 +42,9 @@ export default function DashboardPage() {
 
   // Real data state
   const { statsData, loading: statsLoading } = useStats();
-  const stats = statsData.week; // waste stats
+  // Hero metrics are lifetime totals — the week range reads 0 for any
+  // account whose activity is older than 7 days.
+  const stats = statsData.all ?? statsData.week; // waste stats (lifetime)
   const recentLogs = stats?.recentLogs || []; // recent waste logs
   
   const { data: challenges = [] } = useQuery({

@@ -325,12 +325,21 @@ export default function AdminDashboardPage() {
       setError('Enter a valid penalty amount.');
       return;
     }
-    if (!window.confirm(`Deduct ${amount} points from ${request.requestedBy?.name || 'this user'}?`)) return;
+    if (!window.confirm(`Deduct ${amount} points from ${request.requestedBy?.name || 'this user'} and reject this report?`)) return;
     setReviewingId(request._id);
     setError('');
     try {
       const { data } = await penalizeUser(requesterId, amount, 'fake bin report');
-      setSuccessMsg(data.message || 'Penalty applied.');
+      // A penalized report is rejected automatically — no bin, no award.
+      try {
+        await rejectBinRequest(request._id, `Rejected with penalty: fake bin report (-${amount} pts)`);
+      } catch (rejectErr) {
+        // Penalty went through; surface the reject failure without hiding that.
+        setError(rejectErr.message || 'Penalty applied, but auto-reject failed.');
+        loadBinRequests(binStatusFilter);
+        return;
+      }
+      setSuccessMsg(`${data.message || 'Penalty applied.'} Report rejected.`);
       loadBinRequests(binStatusFilter);
     } catch (err) {
       setError(err.message || 'Failed to apply penalty');

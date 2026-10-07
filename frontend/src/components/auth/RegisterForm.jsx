@@ -2,7 +2,7 @@
  * RegisterForm — handles new user registration via Appwrite
  * Used by: RegisterPage.jsx
  * Auth: raw Appwrite SDK for email signup (account-only, no session)
- *       + useSignIn() hook from @appwrite.io/react for Google OAuth
+ *       + OAuth2 token flow for Google (createOAuth2Token → /auth/success)
  *
  * Strict verify-before-use flow:
  *   1. Create account via account.create() — no session is created
@@ -13,15 +13,14 @@
  *   4. User clicks link → /verify-email → updateVerification → /login
  *   5. MongoDB profile is created on first login sync (nothing reads it before)
  */
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSignIn } from '@appwrite.io/react';
 import { OAuthProvider, Account, ID } from 'appwrite';
 import appwriteClient from '../../lib/appwrite';
+import OAuthReturnHint, { markOAuthPending } from './OAuthReturnHint';
 
 export default function RegisterForm() {
   const navigate = useNavigate();
-  const { oAuth, isPending: signInPending } = useSignIn();
 
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', password: '', confirmPassword: '',
@@ -31,22 +30,23 @@ export default function RegisterForm() {
   const [verifySent, setVerifySent] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState('');
 
-  const handleAuthSuccess = useCallback(() => {
-    navigate('/dashboard');
-  }, [navigate]);
-
-  const handleGoogleSignup = () => {
+  const handleGoogleSignup = async () => {
     setLoading(true);
     setError('');
-    oAuth({
-      provider: OAuthProvider.Google,
-      scopes: [],
-      onSuccess: handleAuthSuccess,
-      onError: (err) => {
-        setError(err.message || 'Google signup failed. Please try again.');
-        setLoading(false);
-      },
-    });
+    markOAuthPending();
+    try {
+      // Token flow: navigates the browser to Google; do not redirect manually.
+      // Google → Appwrite → /auth/success (createSession) → /dashboard.
+      const account = new Account(appwriteClient);
+      await account.createOAuth2Token({
+        provider: OAuthProvider.Google,
+        success: `${window.location.origin}/auth/success`,
+        failure: `${window.location.origin}/auth/failure`,
+      });
+    } catch (err) {
+      setError(err.message || 'Google signup failed. Please try again.');
+      setLoading(false);
+    }
   };
 
   const getFriendlyError = (err) => {
@@ -156,7 +156,7 @@ export default function RegisterForm() {
           type="button"
           className="google-btn"
           onClick={handleGoogleSignup}
-          disabled={loading || signInPending}
+          disabled={loading}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.6rem 1.2rem', border: '1px solid #ddd', borderRadius: '8px',
@@ -170,7 +170,7 @@ export default function RegisterForm() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          Continue with Google
+          Sign in with Google
         </button>
       </div>
 
@@ -181,6 +181,7 @@ export default function RegisterForm() {
       </div>
 
       {error && <div className="error-banner">{error}</div>}
+      <OAuthReturnHint />
 
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <div className="field-group">

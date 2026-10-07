@@ -7,6 +7,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Client, Account } from 'appwrite';
 import { syncUser } from '../services/api';
 
@@ -19,6 +20,9 @@ const account = new Account(client);
 export default function OAuthSuccessPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  // Nearest QueryClientProvider is the SDK's own (AppwriteProvider nests one
+  // inside ours), so this invalidates the SDK's ["auth", "user"] cache.
+  const queryClient = useQueryClient();
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -41,6 +45,13 @@ export default function OAuthSuccessPage() {
         } catch (err) {
           console.warn('Failed to sync user with backend:', err?.message);
         }
+        // Refresh the SDK's cached user (raw createSession bypasses the
+        // React hooks, so without this the app still thinks we're logged out).
+        try {
+          await queryClient.refetchQueries({ queryKey: ['auth', 'user'] });
+        } catch {
+          // Non-fatal — AuthContext will pick the session up on next check.
+        }
         if (mounted) navigate('/dashboard', { replace: true });
       })
       .catch((err) => {
@@ -48,7 +59,7 @@ export default function OAuthSuccessPage() {
       });
 
     return () => { mounted = false; };
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, queryClient]);
 
   if (error) {
     return (
