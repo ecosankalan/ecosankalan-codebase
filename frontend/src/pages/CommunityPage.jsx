@@ -4,6 +4,7 @@ import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import Loader from '../components/common/Loader';
 import WasteMarkers from '../components/WasteMarkers';
+import AddBinModal from '../components/AddBinModal';
 import RouteLayer from '../components/RouteLayer';
 import RouteInfo from '../components/RouteInfo';
 import useRoute from '../hooks/useRoute';
@@ -64,6 +65,7 @@ export default function CommunityPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [searching,     setSearching]     = useState(false);
   const [showResults,   setShowResults]   = useState(false);
+  const [showAddBin,    setShowAddBin]    = useState(false);
 
   const mapRef         = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -461,6 +463,20 @@ export default function CommunityPage() {
               {locating ? 'progress_activity' : 'my_location'}
             </span>
           </button>
+          {/* Add Bin — live photo + live location report */}
+          <div className="waste-loading-badge" style={{ background: '#fff8e1', color: '#5d4037', padding: '0.4rem 0.75rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '0.35rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '0.72rem', maxWidth: '220px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>warning</span>
+            <span>Only report real bins — false reports lose points.</span>
+          </div>
+          <button
+            className="community-fab-addbin"
+            onClick={() => setShowAddBin(true)}
+            style={{ alignSelf: 'flex-end' }}
+            aria-label="Report a new bin"
+          >
+            <span className="material-symbols-outlined">add_location</span>
+            <span>Add Bin</span>
+          </button>
           {/* Marker legend */}
           <div className="waste-loading-badge" aria-label="Map legend" style={{ background: 'rgba(255,255,255,0.95)', color: '#37474f', padding: '0.5rem 0.75rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '0.75rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><span style={{ width: '0.6rem', height: '0.6rem', borderRadius: '50%', background: '#2e7d32', display: 'inline-block' }} /> Bin</span>
@@ -548,6 +564,13 @@ export default function CommunityPage() {
           error={routeError}
           onClose={clearRoute}
         />
+
+        {showAddBin && (
+          <AddBinModal
+            onClose={() => setShowAddBin(false)}
+            onSubmitted={() => handleLocate()}
+          />
+        )}
       </main>
 
       <BottomNav />

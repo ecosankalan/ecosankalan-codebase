@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Client, Account } from 'appwrite';
+import { syncUser } from '../services/api';
 
 const client = new Client()
   .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
@@ -22,8 +23,14 @@ export default function OAuthDashboardPage() {
 
   useEffect(() => {
     account.get()
-      .then((userData) => {
+      .then(async (userData) => {
         setUser(userData);
+        // Ensure the MongoDB profile exists for OAuth users too.
+        try {
+          await syncUser();
+        } catch (err) {
+          console.warn('Failed to sync user with backend:', err?.message);
+        }
         setLoading(false);
       })
       .catch(() => {

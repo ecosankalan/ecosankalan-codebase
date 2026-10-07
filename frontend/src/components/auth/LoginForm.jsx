@@ -2,6 +2,10 @@
  * LoginForm — handles email/password login via Appwrite
  * Used by: LoginPage.jsx
  * Auth: Appwrite useSignIn() hook from @appwrite.io/react
+ *
+ * Strict verify-before-use: email logins check the emailVerification flag
+ * and bounce unverified users back out. Google OAuth is exempt
+ * (provider-verified emails).
  */
 import { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -22,6 +26,29 @@ export default function LoginForm() {
   const handleAuthSuccess = useCallback(() => {
     // AuthContext.useEffect watches appwriteUser and syncs with backend.
     // After that, ProtectedRoute redirects to /dashboard.
+    navigate('/dashboard');
+  }, [navigate]);
+
+  const handleEmailAuthSuccess = useCallback(async () => {
+    // Strict gate: block unverified emails regardless of the Console's
+    // "require verification" toggle.
+    try {
+      const account = new Account(appwriteClient);
+      const me = await account.get();
+      if (me && me.emailVerification === false) {
+        try {
+          await account.deleteSession('current');
+        } catch {
+          // Ignore — session cleanup is best-effort
+        }
+        setError('Please verify your email before signing in. Check your inbox for the verification link.');
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // If the check itself fails, fall through — AuthContext and
+      // ProtectedRoute will handle invalid sessions.
+    }
     navigate('/dashboard');
   }, [navigate]);
 
@@ -76,7 +103,7 @@ export default function LoginForm() {
       emailPassword({
         email: formData.email,
         password: formData.password,
-        onSuccess: handleAuthSuccess,
+        onSuccess: handleEmailAuthSuccess,
         onError: (err) => {
           setError(getFriendlyError(err));
           setLoading(false);

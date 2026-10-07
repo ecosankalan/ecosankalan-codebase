@@ -1,23 +1,26 @@
 /**
  * RegisterForm — handles new user registration via Appwrite
  * Used by: RegisterPage.jsx
- * Auth: Appwrite useSignUp() + useSignIn() hooks from @appwrite.io/react
+ * Auth: raw Appwrite SDK for email signup (account-only, no session)
+ *       + useSignIn() hook from @appwrite.io/react for Google OAuth
  *
- * Flow:
- *   1. Create account + session via useSignUp().emailPassword()
- *   2. Send verification email via account.createVerification()
+ * Strict verify-before-use flow:
+ *   1. Create account via account.create() — no session is created
+ *   2. Dispatch the verification email via a short-lived ephemeral session
+ *      (createVerification requires auth; the raw SDK calls below never touch
+ *      the React Query auth cache, so AuthContext sees no ghost login)
  *   3. Show "Check your email" screen
- *   4. User clicks link → /verify-email → auto-verifies → redirects to /dashboard
+ *   4. User clicks link → /verify-email → updateVerification → /login
+ *   5. MongoDB profile is created on first login sync (nothing reads it before)
  */
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSignUp, useSignIn } from '@appwrite.io/react';
-import { OAuthProvider, Account } from 'appwrite';
+import { useSignIn } from '@appwrite.io/react';
+import { OAuthProvider, Account, ID } from 'appwrite';
 import appwriteClient from '../../lib/appwrite';
 
 export default function RegisterForm() {
   const navigate = useNavigate();
-  const { emailPassword: signUpEmailPassword, isPending: signUpPending } = useSignUp();
   const { oAuth, isPending: signInPending } = useSignIn();
 
   const [formData, setFormData] = useState({
@@ -77,50 +80,46 @@ export default function RegisterForm() {
       return;
     }
     setLoading(true);
+    setError('');
     try {
-      // Delete any existing session first to avoid conflicts
-      try {
-        const account = new Account(appwriteClient);
-        await account.deleteSession('current');
-      } catch {
-        // No existing session — expected on first signup
-      }
+      const account = new Account(appwriteClient);
 
-      signUpEmailPassword({
-        name: formData.name,
+      // 1. Register the account only — creates NO session.
+      await account.create({
+        userId: ID.unique(),
         email: formData.email,
         password: formData.password,
-        onSuccess: async () => {
-          // Send verification email
-          try {
-            const account = new Account(appwriteClient);
-            const redirectUrl = `${window.location.origin}/verify-email`;
-            await account.createVerification(redirectUrl);
-          } catch (err) {
-            console.warn('Failed to send verification email:', err?.message);
-          }
-
-          // Delete session so user stays on "Check your email" screen
-          // (don't want AuthContext to redirect to /dashboard)
-          try {
-            const account = new Account(appwriteClient);
-            await account.deleteSession('current');
-          } catch {
-            // Ignore
-          }
-
-          // Show "Check your email" screen
-          setVerifyEmail(formData.email);
-          setVerifySent(true);
-          setLoading(false);
-        },
-        onError: (err) => {
-          setError(getFriendlyError(err));
-          setLoading(false);
-        },
+        name: formData.name,
       });
+
+      // 2. Dispatch the verification email via a short-lived ephemeral session.
+      // createVerification requires auth, so we log in, send, and log back out
+      // using the raw SDK (bypasses the React Query auth cache, so AuthContext
+      // never observes this transient session and no redirect can fire).
+      try {
+        await account.createEmailPasswordSession({
+          email: formData.email,
+          password: formData.password,
+        });
+        const redirectUrl = `${window.location.origin}/verify-email`;
+        await account.createVerification(redirectUrl);
+      } catch (err) {
+        console.warn('Failed to send verification email:', err?.message);
+      } finally {
+        try {
+          await account.deleteSession('current');
+        } catch {
+          // Ignore — already logged out or session never established
+        }
+      }
+
+      // 3. Show "Check your email" screen (MongoDB profile is created
+      // on first login sync — nothing reads it before then).
+      setVerifyEmail(formData.email);
+      setVerifySent(true);
     } catch (err) {
       setError(getFriendlyError(err));
+    } finally {
       setLoading(false);
     }
   };
@@ -157,7 +156,7 @@ export default function RegisterForm() {
           type="button"
           className="google-btn"
           onClick={handleGoogleSignup}
-          disabled={loading || signUpPending || signInPending}
+          disabled={loading || signInPending}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.6rem 1.2rem', border: '1px solid #ddd', borderRadius: '8px',
@@ -249,8 +248,8 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        <button type="submit" className="submit-btn" disabled={loading || signUpPending}>
-          {loading || signUpPending
+        <button type="submit" className="submit-btn" disabled={loading}>
+          {loading
             ? <span className="spinner" />
             : <> Create Account <span className="material-symbols-outlined">arrow_forward</span> </>
           }

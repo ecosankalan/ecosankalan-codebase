@@ -103,6 +103,27 @@ export const scanWasteImage = (formData, config = {}) =>
   });
 
 // ════════════════════════════════════════════════════════════════════════════
+// BIN REQUESTS  (user-reported bins + admin review)
+// ════════════════════════════════════════════════════════════════════════════
+
+export const submitBinRequest = (formData) =>
+  api.post('/api/v1/bin-requests', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+export const getBinRequests = (status = 'pending') =>
+  api.get('/api/v1/bin-requests', { params: { status } });
+
+export const approveBinRequest = (id) =>
+  api.post(`/api/v1/bin-requests/${id}/approve`);
+
+export const rejectBinRequest = (id, reason) =>
+  api.post(`/api/v1/bin-requests/${id}/reject`, { reason });
+
+export const penalizeUser = (userId, points, reason) =>
+  api.post('/api/v1/bin-requests/penalty', { userId, points, reason });
+
+// ════════════════════════════════════════════════════════════════════════════
 // BINS  (FR-11, FR-12)
 // ════════════════════════════════════════════════════════════════════════════
 

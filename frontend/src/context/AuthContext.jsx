@@ -66,7 +66,21 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Failed to sync user with backend:', err);
-      // If sync fails (e.g., backend down), clear local state
+      // Retry once: post-OAuth logins hit /sync immediately, when the backend
+      // may still be cold or a transient blip occurs. Wiping state on the
+      // first failure bounces a validly-logged-in user back to /login with no
+      // automatic recovery (nothing re-triggers sync until auth state changes).
+      try {
+        await new Promise((r) => setTimeout(r, 1500));
+        const retry = await syncUser();
+        if (retry.data && retry.data.user) {
+          setMongoUser(retry.data.user);
+          localStorage.setItem('user', JSON.stringify(retry.data.user));
+          return;
+        }
+      } catch {
+        // Retry also failed — fall through to clear state below.
+      }
       setMongoUser(null);
       localStorage.removeItem('user');
     } finally {

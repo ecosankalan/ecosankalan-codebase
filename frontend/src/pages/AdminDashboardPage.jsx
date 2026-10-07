@@ -12,6 +12,10 @@ import {
   getChallengeLeaderboard,
   broadcastNotification,
   getNotifications,
+  getBinRequests,
+  approveBinRequest,
+  rejectBinRequest,
+  penalizeUser,
 } from '../services/api';
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -51,6 +55,17 @@ export default function AdminDashboardPage() {
   const [notifTitle, setNotifTitle] = useState('');
   const [notifBody, setNotifBody] = useState('');
   const [sendingNotif, setSendingNotif] = useState(false);
+
+  // Bin requests state
+  const [binRequests, setBinRequests] = useState([]);
+  const [binsLoading, setBinsLoading] = useState(false);
+  const [binStatusFilter, setBinStatusFilter] = useState('pending');
+  const [reviewingId, setReviewingId] = useState(null);
+  const [penaltyInputs, setPenaltyInputs] = useState({});
+  const [penaltyUserId, setPenaltyUserId] = useState('');
+  const [penaltyPoints, setPenaltyPoints] = useState('');
+  const [penaltyReason, setPenaltyReason] = useState('');
+  const [penalizing, setPenalizing] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -146,6 +161,7 @@ export default function AdminDashboardPage() {
       loadChallenges();
     }
     if (activeTab === 'notifications') loadNotifications();
+    if (activeTab === 'bins') loadBinRequests(binStatusFilter);
   }, [activeTab]);
 
   const handleCreateChallenge = async (e) => {
@@ -254,7 +270,95 @@ export default function AdminDashboardPage() {
     background: 'var(--surface)', color: 'var(--on-surface)',
   };
 
-  const TABS = ['stats', 'challenges', 'leaderboard', 'notifications'];
+  const TABS = ['stats', 'challenges', 'bins', 'leaderboard', 'notifications'];
+
+  const loadBinRequests = async (status = 'pending') => {
+    setBinsLoading(true);
+    try {
+      const { data } = await getBinRequests(status);
+      setBinRequests(data.requests || []);
+    } catch (err) {
+      setError(err.message || 'Failed to load bin requests');
+    } finally {
+      setBinsLoading(false);
+    }
+  };
+
+  const handleBinFilter = (status) => {
+    setBinStatusFilter(status);
+    loadBinRequests(status);
+  };
+
+  const handleApproveBin = async (id) => {
+    setReviewingId(id);
+    setError('');
+    try {
+      const { data } = await approveBinRequest(id);
+      setSuccessMsg(data.message || 'Bin approved.');
+      loadBinRequests(binStatusFilter);
+    } catch (err) {
+      setError(err.message || 'Failed to approve bin request');
+    } finally {
+      setReviewingId(null);
+    }
+  };
+
+  const handleRejectBin = async (id) => {
+    const reason = window.prompt('Rejection reason (optional):') || undefined;
+    setReviewingId(id);
+    setError('');
+    try {
+      await rejectBinRequest(id, reason);
+      setSuccessMsg('Bin request rejected.');
+      loadBinRequests(binStatusFilter);
+    } catch (err) {
+      setError(err.message || 'Failed to reject bin request');
+    } finally {
+      setReviewingId(null);
+    }
+  };
+
+  const handlePenalizeRequester = async (request) => {
+    const requesterId = request.requestedBy?._id || request.requestedBy;
+    const amount = Math.floor(Number(penaltyInputs[request._id] || 20));
+    if (!requesterId || !Number.isFinite(amount) || amount <= 0) {
+      setError('Enter a valid penalty amount.');
+      return;
+    }
+    if (!window.confirm(`Deduct ${amount} points from ${request.requestedBy?.name || 'this user'}?`)) return;
+    setReviewingId(request._id);
+    setError('');
+    try {
+      const { data } = await penalizeUser(requesterId, amount, 'fake bin report');
+      setSuccessMsg(data.message || 'Penalty applied.');
+      loadBinRequests(binStatusFilter);
+    } catch (err) {
+      setError(err.message || 'Failed to apply penalty');
+    } finally {
+      setReviewingId(null);
+    }
+  };
+
+  const handlePenalizeUser = async (e) => {
+    e.preventDefault();
+    if (!penaltyUserId.trim() || !penaltyPoints) {
+      setError('User ID and points are required for a penalty.');
+      return;
+    }
+    setPenalizing(true);
+    setError('');
+    try {
+      const { data } = await penalizeUser(penaltyUserId.trim(), Number(penaltyPoints), penaltyReason.trim() || undefined);
+      setSuccessMsg(data.message || 'Penalty applied.');
+      setPenaltyUserId('');
+      setPenaltyPoints('');
+      setPenaltyReason('');
+    } catch (err) {
+      setError(err.message || 'Failed to apply penalty');
+    } finally {
+      setPenalizing(false);
+    }
+  };
 
   return (
     <div style={{ background: 'var(--background)', minHeight: '100vh', paddingBottom: '80px' }}>
@@ -724,6 +828,151 @@ export default function AdminDashboardPage() {
                   </div>
                 ))
               )}
+            </div>
+
+          </div>
+        )}
+
+        {/* ── Bins Tab (user bin reports + penalties) ── */}
+        {activeTab === 'bins' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+            <div style={cardStyle}>
+              <h3 style={{ marginBottom: '0.5rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>add_location</span>
+                Bin Reports
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--outline)', marginBottom: '1rem' }}>
+                Review the live photo + location. Approving saves the bin to the map and awards +50 pts.
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                {['pending', 'approved', 'rejected'].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => handleBinFilter(s)}
+                    style={{
+                      padding: '0.4rem 0.9rem', borderRadius: '99px', border: 'none',
+                      background: binStatusFilter === s ? 'var(--primary)' : 'var(--surface-variant)',
+                      color: binStatusFilter === s ? 'var(--on-primary)' : 'var(--on-surface-variant)',
+                      textTransform: 'capitalize', cursor: 'pointer', fontSize: '0.8rem',
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+
+              {binsLoading ? (
+                <p><span className="material-symbols-outlined log-spin">progress_activity</span> Loading…</p>
+              ) : binRequests.length === 0 ? (
+                <p style={{ color: 'var(--outline)' }}>No {binStatusFilter} bin reports.</p>
+              ) : (
+                binRequests.map((r) => (
+                  <div key={r._id} style={{
+                    padding: '0.75rem', marginBottom: '0.75rem',
+                    background: 'var(--surface)', borderRadius: '12px',
+                    border: '1px solid var(--surface-variant)',
+                  }}>
+                    {r.photoUrl && (
+                      <img
+                        src={r.photoUrl} alt="Bin proof"
+                        style={{ width: '100%', borderRadius: '8px', maxHeight: '220px', objectFit: 'cover', marginBottom: '0.5rem' }}
+                      />
+                    )}
+                    <p style={{ fontWeight: 700, fontSize: '0.95rem', margin: '0 0 0.25rem' }}>{r.name}</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--on-surface-variant)', margin: '0 0 0.25rem' }}>{r.address}</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--outline)', margin: '0 0 0.25rem' }}>
+                      {(r.types || []).join(', ')} • {r.location?.coordinates?.[1]?.toFixed(5)}, {r.location?.coordinates?.[0]?.toFixed(5)}
+                    </p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--outline)', margin: '0 0 0.5rem' }}>
+                      by {r.requestedBy?.name || 'Unknown'} ({r.requestedBy?.email || '—'}) • {r.requestedBy?.ecoPoints ?? 0} pts • {new Date(r.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true })}
+                      {r.status !== 'pending' && <> • <strong>{r.status}</strong>{r.pointsAwarded ? ` (+${r.pointsAwarded})` : ''}{r.rejectReason ? ` — ${r.rejectReason}` : ''}</>}
+                    </p>
+                    {r.status === 'pending' && (
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <button
+                          onClick={() => handleApproveBin(r._id)}
+                          disabled={reviewingId === r._id}
+                          style={{ padding: '0.5rem 0.9rem', background: 'var(--primary)', color: 'var(--on-primary)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}
+                        >
+                          Approve +50
+                        </button>
+                        <button
+                          onClick={() => handleRejectBin(r._id)}
+                          disabled={reviewingId === r._id}
+                          style={{ padding: '0.5rem 0.9rem', background: 'var(--surface-variant)', color: 'var(--on-surface-variant)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                          Reject
+                        </button>
+                        <input
+                          type="number" min="1" max="500" placeholder="pts"
+                          value={penaltyInputs[r._id] ?? ''}
+                          onChange={(e) => setPenaltyInputs((prev) => ({ ...prev, [r._id]: e.target.value }))}
+                          style={{ width: '70px', padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--outline-variant)', background: 'var(--surface)', color: 'var(--on-surface)', fontSize: '0.8rem' }}
+                        />
+                        <button
+                          onClick={() => handlePenalizeRequester(r)}
+                          disabled={reviewingId === r._id}
+                          style={{ padding: '0.5rem 0.9rem', background: 'var(--error, #b71c1c)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                          Penalize
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Manual penalty */}
+            <div style={cardStyle}>
+              <h3 style={{ marginBottom: '0.5rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--error, #b71c1c)' }}>gavel</span>
+                Penalize User
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--outline)', marginBottom: '1rem' }}>
+                Deduct points for fake reports. Balances never go below 0.
+              </p>
+              <form onSubmit={handlePenalizeUser}>
+                <input
+                  placeholder="User ID"
+                  value={penaltyUserId}
+                  onChange={(e) => setPenaltyUserId(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
+                <input
+                  type="number" min="1" max="500"
+                  placeholder="Points to deduct (1–500)"
+                  value={penaltyPoints}
+                  onChange={(e) => setPenaltyPoints(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
+                <input
+                  placeholder="Reason (optional)"
+                  value={penaltyReason}
+                  onChange={(e) => setPenaltyReason(e.target.value)}
+                  maxLength={200}
+                  style={inputStyle}
+                />
+                <button
+                  type="submit"
+                  disabled={penalizing}
+                  style={{
+                    width: '100%', padding: '0.75rem',
+                    background: penalizing ? 'var(--surface-variant)' : 'var(--error, #b71c1c)',
+                    color: '#fff', border: 'none', borderRadius: '8px',
+                    cursor: penalizing ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  }}
+                >
+                  {penalizing
+                    ? <><span className="material-symbols-outlined log-spin">progress_activity</span> Applying…</>
+                    : <><span className="material-symbols-outlined">gavel</span> Apply Penalty</>
+                  }
+                </button>
+              </form>
             </div>
 
           </div>

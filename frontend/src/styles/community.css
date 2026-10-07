@@ -1023,3 +1023,180 @@
     padding: 0.75rem 0.75rem;
   }
 }
+
+/* ── Add Bin FAB + modal ─────────────────────────────────────────── */
+.community-fab-addbin {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  color: var(--on-primary);
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.community-fab-addbin:hover { transform: scale(1.05); }
+
+.addbin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.addbin-modal {
+  background: var(--surface-container-lowest, #fff);
+  border-radius: 1.25rem 1.25rem 0 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+}
+
+.addbin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.addbin-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.15rem;
+  margin: 0;
+}
+.addbin-close {
+  background: var(--surface-variant, #eee);
+  border: none;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.addbin-warning {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  background: #fff8e1;
+  color: #5d4037;
+  border: 1px solid #ffe082;
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+.addbin-warning p { margin: 0; }
+
+.addbin-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.addbin-type {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 99px;
+  border: 1px solid var(--outline-variant, #ccc);
+  background: transparent;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.addbin-type.active {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+
+.addbin-camera-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px dashed var(--outline-variant, #bbb);
+  border-radius: 0.75rem;
+  background: transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.addbin-photo-preview img {
+  width: 100%;
+  border-radius: 0.75rem;
+  max-height: 220px;
+  object-fit: cover;
+}
+.addbin-retake {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--surface-variant, #eee);
+  border: none;
+  border-radius: 99px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.addbin-loc-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.addbin-loc-status {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.6rem;
+  background: var(--surface-variant, #f0f0f0);
+}
+.addbin-loc-status.ok { color: var(--primary); }
+.addbin-loc-status.missing { color: var(--error, #b71c1c); }
+.addbin-loc-status .spinner { width: 1rem; height: 1rem; }
+.addbin-refresh {
+  background: var(--surface-variant, #eee);
+  border: none;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.addbin-success {
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+}
+.addbin-success .material-symbols-outlined { font-size: 3rem; color: var(--primary); }
+.addbin-success h3 { margin: 0.75rem 0 0.5rem; }
+.addbin-success p { color: var(--text-secondary, #555); margin-bottom: 1.25rem; }
+
+@media (min-width: 600px) {
+  .addbin-overlay { align-items: center; padding: 1rem; }
+  .addbin-modal { border-radius: 1.25rem; }
+}

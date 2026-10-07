@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Client, Account } from 'appwrite';
+import { syncUser } from '../services/api';
 
 const client = new Client()
   .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
@@ -32,7 +33,14 @@ export default function OAuthSuccessPage() {
     let mounted = true;
 
     account.createSession({ userId, secret })
-      .then(() => {
+      .then(async () => {
+        // Create the MongoDB user before landing on /dashboard,
+        // otherwise ProtectedRoute bounces back to /login.
+        try {
+          await syncUser();
+        } catch (err) {
+          console.warn('Failed to sync user with backend:', err?.message);
+        }
         if (mounted) navigate('/dashboard', { replace: true });
       })
       .catch((err) => {

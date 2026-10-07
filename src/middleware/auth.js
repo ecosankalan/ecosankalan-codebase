@@ -28,12 +28,15 @@ const User = require('../models/User');
  *   3. Create new MongoDB User
  */
 const findOrCreateMongoUser = async ({ appwriteUserId, email, name }) => {
+  // Normalize: the schema lowercases email on save, so queries must match.
+  const normalizedEmail = String(email || '').toLowerCase().trim();
+
   // 1. Try by appwriteUserId
   let user = await User.findOne({ appwriteUserId });
   if (user) return user;
 
   // 2. Try by email (link existing user)
-  user = await User.findOne({ email });
+  user = await User.findOne({ email: normalizedEmail });
   if (user) {
     user.appwriteUserId = appwriteUserId;
     if (name && !user.name) user.name = name;
@@ -41,15 +44,30 @@ const findOrCreateMongoUser = async ({ appwriteUserId, email, name }) => {
     return user;
   }
 
-  // 3. Create new user
-  user = await User.create({
-    appwriteUserId,
-    email,
-    name: name || email.split('@')[0],
-    phone: null,
-    role: 'user',
-    isVerified: true,
-  });
+  // 3. Create new user.
+  // NOTE: `phone` is intentionally omitted (not set to null). The unique
+  // sparse phone_1 index still enforces uniqueness on explicit nulls, so
+  // writing phone: null breaks the SECOND user sync with E11000.
+  try {
+    user = await User.create({
+      appwriteUserId,
+      email: normalizedEmail,
+      name: name || normalizedEmail.split('@')[0],
+      role: 'user',
+      isVerified: true,
+    });
+  } catch (err) {
+    // Concurrent-sync race: two /sync calls for the same new user can both
+    // pass the findOne checks above, then one insert wins. Re-fetch instead
+    // of failing the request with E11000.
+    if (err && err.code === 11000) {
+      user =
+        (await User.findOne({ appwriteUserId })) ||
+        (await User.findOne({ email: normalizedEmail }));
+      if (user) return user;
+    }
+    throw err;
+  }
 
   return user;
 };

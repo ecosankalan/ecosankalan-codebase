@@ -37,4 +37,26 @@ const uploadAiImages = (req, res, next) => {
   });
 };
 
-module.exports = { uploadAiImages };
+/**
+ * Single live-photo upload (bin requests). Same storage + mime rules as AI images.
+ * Field name: "photo". Max 1 file.
+ */
+const uploadSinglePhoto = (req, res, next) => {
+  upload.single('photo')(req, res, (err) => {
+    if (!err) return next();
+
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ success: false, message: 'Photo exceeds the upload size limit.' });
+      }
+      return res.status(400).json({ success: false, message: 'Photo upload failed.' });
+    }
+
+    return res.status(err.statusCode || 400).json({
+      success: false,
+      message: err.message || 'Photo upload failed.',
+    });
+  });
+};
+
+module.exports = { uploadAiImages, uploadSinglePhoto };

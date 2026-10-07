@@ -31,6 +31,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const wasteRoutes = require('./routes/waste');
 const binRoutes = require('./routes/bins');
+const binRequestRoutes = require('./routes/binRequests');
 const eventRoutes = require('./routes/events');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
@@ -146,6 +147,7 @@ app.use('/auth', authRoutes);                   // Alias (unversioned)
 app.use('/user', userRoutes);                   // Alias (unversioned)
 app.use('/api/v1/waste', wasteRoutes);          // Month 3
 app.use('/api/v1/bins', binRoutes);             // Month 4
+app.use('/api/v1/bin-requests', binRequestRoutes); // User bin reports + admin review
 app.use('/api/v1/events', eventRoutes);         // Month 4
 app.use('/api/v1/products', productRoutes);     // Month 5
 app.use('/api/v1/orders', orderRoutes);         // Month 5

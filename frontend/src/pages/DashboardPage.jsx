@@ -168,22 +168,18 @@ export default function DashboardPage() {
     };
   });
 
-  // Build activity feed from recent logs, with fallback if totally empty
-  const activityFeed = recentLogs.length > 0 
-    ? recentLogs.map((log) => ({
-        id: log._id,
-        icon: 'recycling',
-        iconColor: 'var(--primary)',
-        title: `${log.category} Waste Logged`,
-        meta: `${log.unit === 'g' ? (log.quantity / 1000).toFixed(2) : log.quantity.toFixed(1)} kg • ${new Date(log.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
-        points: `+${log.pointsEarned} pts`,
-        pointsType: 'positive',
-        status: log.pointsEarned > 0 ? 'Verified' : 'Pending',
-      }))
-    : [
-    { id: 1, icon: 'recycling', iconColor: 'var(--primary)', title: 'Plastic Bottles Recycled', meta: 'Central Hub • 2 hours ago', points: '+15 pts', pointsType: 'positive', status: 'Verified' },
-    { id: 2, icon: 'compost',   iconColor: 'var(--tertiary)', title: 'Organic Waste Logged', meta: 'Home • Yesterday', points: '+8 pts', pointsType: 'positive', status: 'Pending' },
-  ];
+  // Build activity feed from the user's own recent logs.
+  // No demo/fallback entries — a new account correctly shows an empty state.
+  const activityFeed = recentLogs.map((log) => ({
+    id: log._id,
+    icon: 'recycling',
+    iconColor: 'var(--primary)',
+    title: `${log.category} Waste Logged`,
+    meta: `${log.unit === 'g' ? (log.quantity / 1000).toFixed(2) : log.quantity.toFixed(1)} kg • ${new Date(log.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
+    points: `+${log.pointsEarned} pts`,
+    pointsType: 'positive',
+    status: log.pointsEarned > 0 ? 'Verified' : 'Pending',
+  }));
 
   return (
     <div className="dashboard-root">
@@ -285,7 +281,7 @@ export default function DashboardPage() {
                 <button className="view-all-btn" onClick={() => navigate('/waste-history')}>View All</button>
               </div>
               <div className="activity-list">
-                {activityFeed.map(item => (
+                {activityFeed.length > 0 ? activityFeed.map(item => (
                   <div className="activity-item" key={item.id}>
                     <div className="activity-left">
                       <div className="activity-icon-wrap">
@@ -301,7 +297,22 @@ export default function DashboardPage() {
                       <span className="activity-status">{item.status}</span>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="activity-item" style={{ cursor: 'default' }}>
+                    <div className="activity-left">
+                      <div className="activity-icon-wrap">
+                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", color: 'var(--outline)' }}>eco</span>
+                      </div>
+                      <div className="activity-info">
+                        <h4 className="activity-title">No activity yet</h4>
+                        <p className="activity-meta">Log your first waste entry to get started</p>
+                      </div>
+                    </div>
+                    <div className="activity-right">
+                      <button className="view-all-btn" onClick={() => navigate('/waste')}>Log waste</button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
