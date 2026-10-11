@@ -1,44 +1,142 @@
+/* ── EcoSankalan Loader — "floating leaf" (teal/aqua theme) ── */
 .ecosankalan-loader-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
+  padding: 4rem 1rem;
   color: var(--on-surface-variant);
   text-align: center;
+  gap: 1.25rem;
+  animation: loader-wrap-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes loader-wrap-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
 }
 
-.ecosankalan-loader-pulse {
-  width: 60px;
-  height: 60px;
-  background: var(--primary-container);
-  color: var(--on-primary-container);
-  border-radius: 50%;
+.ecosankalan-loader-stage {
+  position: relative;
+  width: 112px;
+  height: 112px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-.ecosankalan-loader-pulse span {
+/* Soft breathing halo */
+.ecosankalan-loader-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(170, 204, 0, 0.35) 0%, rgba(170, 204, 0, 0) 65%);
+  animation: loader-halo 2.4s ease-in-out infinite;
+}
+@keyframes loader-halo {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+/* Thin elegant ring (static) */
+.ecosankalan-loader-orbit {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(11, 107, 110, 0.16);
+  border-top-color: rgba(85, 166, 48, 0.7);
+  animation: loader-orbit-spin 2.2s linear infinite;
+}
+@keyframes loader-orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Aqua satellite riding the ring */
+.ecosankalan-loader-sat {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 50%;
+  background: #aacc00;
+  box-shadow: 0 0 10px rgba(170, 204, 0, 0.9), 0 0 22px rgba(170, 204, 0, 0.45);
+}
+
+/* Frosted core tile with floating leaf */
+.ecosankalan-loader-core {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 24px;
+  background: linear-gradient(140deg, #2b9348 0%, #007f5f 55%, #004634 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 34px rgba(0, 70, 52, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: loader-core-float 2.4s ease-in-out infinite;
+}
+@keyframes loader-core-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.03); }
+}
+.ecosankalan-loader-core .material-symbols-outlined {
   font-size: 2rem;
-  animation: spin 3s linear infinite;
+  color: #e7f4d2;
+  font-variation-settings: 'FILL' 1;
+  animation: loader-leaf-sway 2.4s ease-in-out infinite;
+}
+@keyframes loader-leaf-sway {
+  0%, 100% { transform: rotate(-6deg) scale(1); }
+  50% { transform: rotate(6deg) scale(1.08); }
 }
 
 .ecosankalan-loader-text {
-  font-size: 1rem;
-  font-weight: 500;
-  opacity: 0.9;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 0.8;
+  max-width: 32ch;
+  line-height: 1.5;
+}
+/* Animated ellipsis so the text feels alive */
+.ecosankalan-loader-text::after {
+  content: '';
+  animation: loader-dots 1.4s steps(4) infinite;
+}
+@keyframes loader-dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
 }
 
-@keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(27,109,36,0.4); }
-  70% { box-shadow: 0 0 0 15px rgba(27,109,36,0); }
-  100% { box-shadow: 0 0 0 0 rgba(27,109,36,0); }
+.ecosankalan-loader-bar {
+  width: 168px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(11, 107, 110, 0.12);
+  overflow: hidden;
+  position: relative;
+}
+.ecosankalan-loader-bar span {
+  display: block;
+  height: 100%;
+  width: 45%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #55a630, #aacc00);
+  box-shadow: 0 0 12px rgba(170, 204, 0, 0.7);
+  animation: loader-bar-glide 1.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes loader-bar-glide {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(280%); }
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@media (prefers-reduced-motion: reduce) {
+  .ecosankalan-loader-wrap, .ecosankalan-loader-halo, .ecosankalan-loader-orbit,
+  .ecosankalan-loader-core, .ecosankalan-loader-core .material-symbols-outlined,
+  .ecosankalan-loader-text::after, .ecosankalan-loader-bar span {
+    animation: none !important;
+  }
 }

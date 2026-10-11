@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import './design-system.css';
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -13,17 +14,19 @@
 }
 
 *:focus-visible {
-  outline: 2px solid var(--primary, #005127);
+  outline: 2px solid var(--primary, #007f5f);
   outline-offset: 2px;
 }
 
 input:focus, textarea:focus, select:focus {
-  outline: 2px solid var(--primary, #005127);
+  outline: 2px solid var(--primary, #007f5f);
   outline-offset: 1px;
 }
 
 html {
   overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -33,26 +36,40 @@ body {
   min-height: 100dvh;
   overflow-x: hidden;
   width: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-:root {
-  --primary:                   #005127;
-  --primary-container:         #1b6b3a;
-  --primary-fixed:             #a5f4b6;
-  --primary-fixed-dim:         #8ad89c;
-  --on-primary:                #ffffff;
-  --on-primary-container:      #9ae9ab;
-  --on-primary-fixed:          #00210c;
-  --on-primary-fixed-variant:  #005227;
+::selection { background: var(--eco-lime); color: var(--eco-primary-deep); }
 
-  --secondary:                 #1b6d24;
-  --secondary-container:       #a0f399;
-  --secondary-fixed:           #a3f69c;
-  --secondary-fixed-dim:       #88d982;
+/* Refined scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #b5cc9b; border-radius: 999px; border: 2px solid var(--background); }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+img { max-width: 100%; display: block; }
+a { color: var(--primary); }
+button { font-family: inherit; }
+
+:root {
+  --primary:                   #007f5f;
+  --primary-container:         #2b9348;
+  --primary-fixed:             #bfd200;
+  --primary-fixed-dim:         #aacc00;
+  --on-primary:                #ffffff;
+  --on-primary-container:      #eeef20;
+  --on-primary-fixed:          #03231a;
+  --on-primary-fixed-variant:  #007f5f;
+
+  --secondary:                 #2b9348;
+  --secondary-container:       #aacc00;
+  --secondary-fixed:           #bfd200;
+  --secondary-fixed-dim:       #aacc00;
   --on-secondary:              #ffffff;
-  --on-secondary-container:    #217128;
-  --on-secondary-fixed:        #002204;
-  --on-secondary-fixed-variant:#005312;
+  --on-secondary-container:    #004634;
+  --on-secondary-fixed:        #03231a;
+  --on-secondary-fixed-variant:#007f5f;
 
   --tertiary:                  #782c39;
   --tertiary-container:        #964350;
@@ -63,28 +80,28 @@ body {
   --on-tertiary-fixed:         #3f0111;
   --on-tertiary-fixed-variant: #792d3a;
 
-  --surface:                   #f8faf8;
-  --surface-dim:               #d8dad9;
-  --surface-bright:            #f8faf8;
-  --surface-variant:           #e1e3e1;
+  --surface:                   #f4f8f1;
+  --surface-dim:               #cfdcc8;
+  --surface-bright:            #f8faf3;
+  --surface-variant:           #ddeceb;
   --surface-container-lowest:  #ffffff;
-  --surface-container-low:     #f2f4f2;
-  --surface-container:         #eceeec;
-  --surface-container-high:    #e6e9e7;
-  --surface-container-highest: #e1e3e1;
-  --surface-tint:              #1c6c3b;
+  --surface-container-low:     #f1f6ec;
+  --surface-container:         #e9f1e2;
+  --surface-container-high:    #e2ebdb;
+  --surface-container-highest: #dbe5d3;
+  --surface-tint:              #2b9348;
 
-  --on-surface:                #191c1b;
-  --on-surface-variant:        #404940;
-  --inverse-surface:           #2e3130;
-  --inverse-on-surface:        #eff1ef;
-  --inverse-primary:           #8ad89c;
+  --on-surface:                #0f1c13;
+  --on-surface-variant:        #3c4f3e;
+  --inverse-surface:           #1d2b1e;
+  --inverse-on-surface:        #e9f2e2;
+  --inverse-primary:           #aacc00;
 
-  --outline:                   #707a6f;
-  --outline-variant:           #bfc9bd;
+  --outline:                   #55705c;
+  --outline-variant:           #d9e6cf;
 
-  --background:                #f8faf8;
-  --on-background:             #191c1b;
+  --background:                #f4f8f1;
+  --on-background:             #0f1c13;
 
   --error:                     #ba1a1a;
   --error-container:           #ffdad6;
@@ -93,6 +110,8 @@ body {
 
   --font-headline: 'Plus Jakarta Sans', sans-serif;
   --font-body:     'Inter', sans-serif;
+
+  --border-radius-lg: 1.25rem;
 }
 
 .material-symbols-outlined {
@@ -108,17 +127,29 @@ body {
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
+  user-select: none;
 }
 
 /* ── Footer ───────────────────────────────────────────────────────── */
 .app-footer {
   text-align: center;
-  padding: 1.5rem 1rem;
+  padding: 2.5rem 1rem 7rem;
   margin-top: 1rem;
 }
+@media (min-width: 1024px) { .app-footer { padding-bottom: 2.5rem; } }
 .app-footer-text {
   font-size: 0.8rem;
+  font-weight: 600;
   color: var(--on-surface-variant);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.app-footer-text::before {
+  content: 'eco';
+  font-family: 'Material Symbols Outlined';
+  color: var(--primary);
+  font-size: 1rem;
 }
 .app-footer-sub {
   font-size: 0.75rem;
@@ -126,23 +157,54 @@ body {
   margin-top: 0.25rem;
 }
 
-/* ── StatCard ─────────────────────────────────────────────────────── */
+/* ── StatCard (Metrics pattern: icon tile + label + value + delta) ── */
 .stat-card {
   border-radius: var(--border-radius-lg, 0.75rem);
   padding: 1.25rem;
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: 0.85rem;
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  box-shadow: var(--eco-shadow-xs);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s cubic-bezier(0.22,1,0.36,1), border-color 0.2s;
+  position: relative;
+  overflow: hidden;
 }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #aacc00, #55a630);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--eco-shadow-md); border-color: rgba(0, 70, 52, 0.28); }
+.stat-card:hover::before { opacity: 1; }
 .stat-card--default {
-  background: var(--surface-container-low);
-  border: 1px solid rgba(191,201,189,0.15);
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
 }
 .stat-card--green {
-  background: var(--primary-fixed);
-  color: var(--on-primary-fixed);
+  background: linear-gradient(135deg, #2b9348 0%, var(--primary) 70%);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
 }
-.stat-card-icon { font-size: 1.5rem !important; }
+.stat-card-icon {
+  font-size: 1.35rem !important;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(140deg, #eef4e2, #e7f4d2);
+  border: 1px solid rgba(0, 70, 52, 0.14);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stat-card--green .stat-card-icon { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.25); color: #eeef20; }
 .stat-card-label {
   font-size: 0.65rem;
   font-weight: 700;
@@ -151,16 +213,33 @@ body {
   color: var(--outline);
   margin: 0 0 0.25rem;
 }
-.stat-card--green .stat-card-label { color: inherit; opacity: 0.7; }
+.stat-card--green .stat-card-label { color: var(--eco-lime); opacity: 0.9; }
 .stat-card-row { display: flex; align-items: baseline; gap: 0.5rem; }
 .stat-card-value {
   font-family: var(--font-headline);
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--on-surface);
 }
-.stat-card--green .stat-card-value { color: inherit; }
+.stat-card--green .stat-card-value { color: #fff; }
 .stat-card-sub { font-size: 0.8rem; color: var(--outline); }
+.stat-card--green .stat-card-sub { color: rgba(255,255,255,0.75); }
+/* Delta pill (Untitled UI metric delta) — opt-in: <span class="stat-delta up">+12%</span> */
+.stat-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.stat-delta.up { background: #e7f4d2; color: #007f5f; border: 1px solid #bfd200; }
+.stat-delta.down { background: #fdecec; color: #ba1a1a; border: 1px solid #fecaca; }
+.stat-delta.flat { background: var(--surface-container); color: var(--outline); border: 1px solid var(--outline-variant); }
 
 /* ── Global: Spin animation for loading states ───────────────────── */
 @keyframes spin {
@@ -210,7 +289,7 @@ body {
 .vr-alert.success {
   background: #f0fff4;
   border: 1px solid #a3d9b4;
-  color: var(--primary, #005127);
+  color: var(--primary, #007f5f);
 }
 
 /* ── Empty state ─────────────────────────────────────────────────── */
@@ -241,7 +320,7 @@ body {
   background: #f0fff4;
   border: 1px solid #a3d9b4;
   border-radius: 12px;
-  color: var(--primary, #005127);
+  color: var(--primary, #007f5f);
   font-size: 0.875rem;
   margin-bottom: 0.75rem;
 }
@@ -264,16 +343,18 @@ body {
   width: 100%;
   padding: 0.875rem;
   text-align: center;
-  background: var(--surface-container);
+  background: var(--surface-container-lowest);
   border: 1px solid var(--outline-variant);
   border-radius: 12px;
   font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   margin-top: 0.75rem;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.2s;
+  color: var(--primary);
 }
-.wh-load-more:hover { background: var(--surface-container-high); }
-.wh-load-more:disabled { opacity: 0.6; cursor: not-allowed; }
+.wh-load-more:hover { background: #e9f2dc; transform: translateY(-1px); }
+.wh-load-more:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .wh-error {
   display: flex;

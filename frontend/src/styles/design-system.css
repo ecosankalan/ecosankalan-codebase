@@ -1,0 +1,505 @@
+/* ═══════════════════════════════════════════════════════════════
+   design-system.css — EcoSankalan "Indite" Design System
+   Single source of truth for the UI/UX redesign (branch: indite-ui-ux-redesign)
+   Every page inherits this. Page CSS only adds layout, never redefines atoms.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand ─────────────────────────────────────────────────── */
+  --eco-primary:            #007f5f;
+  --eco-primary-deep:       #004634;
+  --eco-primary-soft:       #2b9348;
+  --eco-lime:               #aacc00;
+  --eco-lime-soft:          #e7f4d2;
+  --eco-mint:               #bfd200;
+  --eco-ink:                #0f1c13;
+  --eco-ink-soft:           #3c4f3e;
+  --eco-muted:              #64797a;
+  --eco-line:               #d9e6cf;
+  --eco-bg:                 #f4f8f1;
+  --eco-card:               #ffffff;
+  --eco-amber:              #b45309;
+  --eco-amber-bg:            #fef3c7;
+  --eco-sky:                #0369a1;
+  --eco-sky-bg:              #e9f2da;
+  --eco-danger:             #ba1a1a;
+  --eco-danger-bg:          #fdecec;
+
+  /* ── Elevation ─────────────────────────────────────────────── */
+  --eco-shadow-xs:  0 1px 2px rgba(15, 28, 19, 0.06);
+  --eco-shadow-sm:  0 2px 8px rgba(15, 28, 19, 0.07);
+  --eco-shadow-md:  0 8px 24px rgba(15, 28, 19, 0.10);
+  --eco-shadow-lg:  0 18px 50px rgba(0, 70, 52, 0.16);
+  --eco-shadow-glow: 0 8px 30px rgba(0, 70, 52, 0.28);
+
+  /* ── Shape & motion ────────────────────────────────────────── */
+  --eco-r-sm: 10px;
+  --eco-r-md: 16px;
+  --eco-r-lg: 24px;
+  --eco-r-xl: 32px;
+  --eco-r-full: 999px;
+  --eco-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --eco-t-fast: 0.15s var(--eco-ease);
+  --eco-t-med: 0.3s var(--eco-ease);
+
+  /* ── Type scale ────────────────────────────────────────────── */
+  --eco-f-display: clamp(2rem, 4.5vw, 3.25rem);
+  --eco-f-h1: clamp(1.5rem, 3vw, 2.125rem);
+  --eco-f-h2: 1.25rem;
+  --eco-f-body: 0.95rem;
+  --eco-f-small: 0.82rem;
+  --eco-f-micro: 0.7rem;
+
+  /* ── Layout ────────────────────────────────────────────────── */
+  --eco-page-max: 1280px;
+  --eco-nav-h: 68px;
+}
+
+/* ── Page scaffold: every protected page should wrap in .eco-page ── */
+.eco-page {
+  min-height: 100dvh;
+  background:
+    radial-gradient(900px 320px at 85% -80px, rgba(170, 204, 0, 0.22), transparent 60%),
+    radial-gradient(700px 300px at -10% 10%, rgba(212, 215, 0, 0.18), transparent 55%),
+    var(--eco-bg);
+  animation: eco-page-in 0.5s var(--eco-ease) both;
+}
+.eco-shell {
+  max-width: var(--eco-page-max);
+  margin: 0 auto;
+  padding: 1.75rem 1.25rem 8.5rem;
+}
+@media (min-width: 1024px) {
+  .eco-shell { padding: 2.5rem 2rem 4rem; }
+}
+@keyframes eco-page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Section headings ────────────────────────────────────────── */
+.eco-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--eco-f-micro);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--eco-primary);
+  background: var(--eco-lime-soft);
+  border: 1px solid rgba(0, 70, 52, 0.14);
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--eco-r-full);
+}
+.eco-h1 {
+  font-family: var(--font-headline);
+  font-size: var(--eco-f-h1);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--eco-ink);
+  margin: 0.7rem 0 0.35rem;
+}
+.eco-sub {
+  color: var(--eco-muted);
+  font-size: var(--eco-f-body);
+  line-height: 1.6;
+  max-width: 62ch;
+}
+
+/* ── Cards ───────────────────────────────────────────────────── */
+.eco-card {
+  background: var(--eco-card);
+  border: 1px solid var(--eco-line);
+  border-radius: var(--eco-r-lg);
+  box-shadow: var(--eco-shadow-sm);
+  transition: transform var(--eco-t-med), box-shadow var(--eco-t-med), border-color var(--eco-t-fast);
+}
+.eco-card--lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--eco-shadow-md);
+  border-color: rgba(0, 70, 52, 0.25);
+}
+.eco-card-pad { padding: 1.25rem; }
+@media (min-width: 768px) { .eco-card-pad { padding: 1.6rem; } }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.eco-btn {
+  --btn-bg: var(--eco-primary);
+  --btn-fg: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  padding: 0.7rem 1.35rem;
+  border-radius: var(--eco-r-md);
+  border: 1px solid transparent;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: var(--eco-shadow-sm);
+  transition: transform var(--eco-t-fast), box-shadow var(--eco-t-fast), background var(--eco-t-fast), filter var(--eco-t-fast);
+}
+.eco-btn:hover { transform: translateY(-1px); box-shadow: var(--eco-shadow-md); filter: brightness(1.04); }
+.eco-btn:active { transform: translateY(0) scale(0.98); }
+.eco-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.eco-btn .material-symbols-outlined { font-size: 1.15rem; }
+.eco-btn--primary { --btn-bg: linear-gradient(135deg, #2b9348 0%, var(--eco-primary) 60%, var(--eco-primary-deep) 100%); }
+.eco-btn--lime { --btn-bg: var(--eco-lime); --btn-fg: var(--eco-primary-deep); border-color: rgba(0,70,52,.2); }
+.eco-btn--secondary { --btn-bg: #fff; --btn-fg: var(--eco-primary); border-color: rgba(0,70,52,.35); box-shadow: none; }
+.eco-btn--secondary:hover { background: #eef4e2; }
+.eco-btn--ghost { --btn-bg: transparent; --btn-fg: var(--eco-primary); box-shadow: none; border-color: transparent; }
+.eco-btn--ghost:hover { background: rgba(0,70,52,.07); box-shadow: none; }
+.eco-btn--danger { --btn-bg: var(--eco-danger); }
+.eco-btn--block { width: 100%; }
+.eco-btn--sm { min-height: 38px; padding: 0.5rem 0.95rem; font-size: 0.84rem; border-radius: 12px; }
+
+/* Icon-only button */
+.eco-icon-btn {
+  width: 42px; height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--eco-line);
+  background: #fff;
+  color: var(--eco-ink);
+  cursor: pointer;
+  transition: background var(--eco-t-fast), transform var(--eco-t-fast), border-color var(--eco-t-fast);
+}
+.eco-icon-btn:hover { background: #e9f2dc; border-color: rgba(0,70,52,.3); transform: translateY(-1px); }
+
+/* ── Inputs ──────────────────────────────────────────────────── */
+.eco-field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+.eco-label { font-size: var(--eco-f-small); font-weight: 700; color: var(--eco-ink); }
+.eco-input, .eco-select, .eco-textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  border-radius: var(--eco-r-md);
+  border: 1.5px solid var(--eco-line);
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--eco-ink);
+  outline: none;
+  transition: border-color var(--eco-t-fast), box-shadow var(--eco-t-fast);
+}
+.eco-input::placeholder, .eco-textarea::placeholder { color: #9aa39a; }
+.eco-input:focus, .eco-select:focus, .eco-textarea:focus {
+  border-color: var(--eco-primary);
+  box-shadow: 0 0 0 4px rgba(0, 70, 52, 0.12);
+}
+.eco-hint { font-size: 0.78rem; color: var(--eco-muted); }
+.eco-error-text { font-size: 0.8rem; color: var(--eco-danger); font-weight: 600; }
+
+/* ── Chips / badges ──────────────────────────────────────────── */
+.eco-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--eco-r-full);
+  font-size: 0.76rem; font-weight: 700;
+  border: 1px solid var(--eco-line);
+  background: #fff; color: var(--eco-ink-soft);
+  cursor: pointer;
+  transition: all var(--eco-t-fast);
+  white-space: nowrap;
+}
+.eco-chip .material-symbols-outlined { font-size: 1rem; }
+.eco-chip:hover { border-color: rgba(0,70,52,.4); transform: translateY(-1px); }
+.eco-chip--active { background: var(--eco-primary); border-color: var(--eco-primary); color: #fff; box-shadow: var(--eco-shadow-sm); }
+.eco-chip--lime { background: var(--eco-lime-soft); border-color: rgba(0,70,52,.2); color: var(--eco-primary-deep); }
+.eco-chip--amber { background: var(--eco-amber-bg); border-color: #f5d78e; color: var(--eco-amber); }
+.eco-chip--sky { background: var(--eco-sky-bg); border-color: #bae6fd; color: var(--eco-sky); }
+
+.eco-badge-dot {
+  min-width: 20px; height: 20px; padding: 0 6px;
+  border-radius: var(--eco-r-full);
+  background: #ef4444; color: #fff;
+  font-size: 11px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: var(--eco-shadow-xs);
+}
+
+/* ── Alerts / empty states ───────────────────────────────────── */
+.eco-alert {
+  display: flex; align-items: flex-start; gap: 0.65rem;
+  padding: 0.9rem 1.05rem;
+  border-radius: var(--eco-r-md);
+  font-size: 0.88rem; line-height: 1.55;
+  border: 1px solid;
+}
+.eco-alert .material-symbols-outlined { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
+.eco-alert--success { background: #f0fdf4; border-color: #bbf7d0; color: #14532d; }
+.eco-alert--error { background: var(--eco-danger-bg); border-color: #fecaca; color: #7f1d1d; }
+.eco-alert--info { background: var(--eco-sky-bg); border-color: #bae6fd; color: #0c4a6e; }
+.eco-alert--warn { background: #fffbeb; border-color: #fde68a; color: #78350f; }
+
+.eco-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  border: 1.5px dashed var(--eco-line);
+  border-radius: var(--eco-r-lg);
+  background:
+    radial-gradient(300px 120px at 50% 0%, rgba(170, 204, 0, 0.1), transparent 70%),
+    rgba(255,255,255,.6);
+  color: var(--eco-muted);
+}
+.eco-empty .material-symbols-outlined {
+  font-size: 2.75rem;
+  color: var(--eco-primary);
+  opacity: .8;
+  background: linear-gradient(140deg, #eef4e2, #e7f4d2);
+  border: 1px solid rgba(0, 70, 52, 0.14);
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.4rem;
+}
+.eco-empty h3 { font-family: var(--font-headline); color: var(--eco-ink); margin: 0.8rem 0 0.3rem; }
+.eco-empty p { font-size: var(--eco-f-body); max-width: 40ch; margin: 0 auto 1.1rem; line-height: 1.6; }
+
+/* ── Dividers, skeletons ─────────────────────────────────────── */
+.eco-divider { height: 1px; background: var(--eco-line); margin: 1rem 0; border: 0; }
+.eco-skel {
+  border-radius: 12px;
+  background: linear-gradient(90deg, #e8ede8 25%, #f4f7f3 50%, #e8ede8 75%);
+  background-size: 200% 100%;
+  animation: eco-shimmer 1.4s infinite;
+  min-height: 18px;
+}
+@keyframes eco-shimmer { to { background-position: -200% 0; } }
+
+/* ── Grids ───────────────────────────────────────────────────── */
+.eco-grid { display: grid; gap: 1rem; }
+.eco-grid--2 { grid-template-columns: 1fr; }
+.eco-grid--3 { grid-template-columns: 1fr; }
+.eco-grid--4 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 768px) {
+  .eco-grid--2 { grid-template-columns: repeat(2, 1fr); }
+  .eco-grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .eco-grid--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.eco-modal-backdrop {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(15, 28, 19, 0.5);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: eco-fade 0.25s ease both;
+}
+@media (min-width: 640px) { .eco-modal-backdrop { align-items: center; padding: 1.5rem; } }
+.eco-modal {
+  width: 100%; max-width: 520px;
+  background: #fff;
+  border-radius: 28px 28px 0 0;
+  padding: 1.5rem;
+  animation: eco-sheet-up 0.35s var(--eco-ease) both;
+  max-height: 92dvh; overflow-y: auto;
+}
+@media (min-width: 640px) { .eco-modal { border-radius: var(--eco-r-xl); } }
+@keyframes eco-sheet-up { from { opacity: 0; transform: translateY(28px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes eco-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Tables (admin) ──────────────────────────────────────────── */
+.eco-table-wrap { overflow-x: auto; border-radius: var(--eco-r-md); border: 1px solid var(--eco-line); background: #fff; }
+.eco-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; min-width: 640px; }
+.eco-table th {
+  text-align: left; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--eco-muted); background: #f2f5f1; padding: 0.75rem 1rem; white-space: nowrap;
+}
+.eco-table td { padding: 0.8rem 1rem; border-top: 1px solid #eef2ed; color: var(--eco-ink); }
+.eco-table tr:hover td { background: #f7faf6; }
+
+/* ── Progress ────────────────────────────────────────────────── */
+.eco-progress { height: 8px; border-radius: var(--eco-r-full); background: #e6ece5; overflow: hidden; }
+.eco-progress > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #55a630, var(--eco-primary)); transition: width 0.6s var(--eco-ease); }
+
+/* ── Toast polish (react-hot-toast) ──────────────────────────── */
+.go2484888252 { font-family: var(--font-body) !important; }
+
+/* ── Focus visibility (a11y) ─────────────────────────────────── */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid rgba(0, 70, 52, 0.45);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .eco-page, .eco-modal, .eco-card { animation: none !important; transition: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INDITE CROSS-PAGE POLISH — lifts existing page CSS without
+   rewriting markup. Safe overrides only (shadow, radius, motion).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Auth cards: deeper, softer, premium */
+.login-card {
+  border: 1px solid rgba(0, 70, 52, 0.12) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 24px 70px rgba(0, 70, 52, 0.16) !important;
+  animation: eco-page-in 0.55s var(--eco-ease) both;
+}
+.brand-panel {
+  background:
+    radial-gradient(500px 260px at 110% -40px, rgba(170, 204, 0, 0.35), transparent 60%),
+    radial-gradient(400px 300px at -20% 110%, rgba(170, 204, 0, 0.18), transparent 55%),
+    linear-gradient(150deg, #2b9348 0%, var(--primary) 55%, #004634 100%) !important;
+}
+.submit-btn {
+  background: linear-gradient(135deg, #2b9348 0%, var(--primary) 60%, #004634 100%) !important;
+  border-radius: 14px !important;
+  min-height: 50px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Dashboard: entrance choreography + hero depth */
+.dashboard-main > * { animation: eco-rise 0.6s var(--eco-ease) both; }
+.dashboard-main > *:nth-child(2) { animation-delay: 0.06s; }
+.dashboard-main > *:nth-child(3) { animation-delay: 0.12s; }
+.dashboard-main > *:nth-child(4) { animation-delay: 0.18s; }
+.dashboard-main > *:nth-child(5) { animation-delay: 0.24s; }
+@keyframes eco-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.hero-immersive {
+  border: 1px solid rgba(170, 204, 0, 0.22) !important;
+  box-shadow: 0 20px 55px rgba(3, 45, 30, 0.35) !important;
+}
+.activity-item, .wc-preview-card, .challenge-card {
+  transition: transform 0.3s var(--eco-ease), box-shadow 0.3s var(--eco-ease) !important;
+}
+.activity-item:hover, .wc-preview-card:hover { transform: translateY(-2px); box-shadow: var(--eco-shadow-md) !important; }
+
+/* Generic cards across pages: unify hover lift */
+.shop-product-card, .voucher-card, .vr-voucher-card, .learn-card,
+.quiz-card, .challenge-list-card, .event-card, .impact-card {
+  transition: transform 0.3s var(--eco-ease), box-shadow 0.3s var(--eco-ease) !important;
+}
+.shop-product-card:hover, .voucher-card:hover, .vr-voucher-card:hover,
+.learn-card:hover, .quiz-card:hover, .event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--eco-shadow-md) !important;
+}
+
+/* Primary CTA buttons across pages: gradient + press feel */
+.challenge-btn, .ed-rsvp-btn, .scan-confirm-btn, .quiz-start-btn,
+.shop-buy-btn, .voucher-unlock-btn, .wc-see-all-btn {
+  background: linear-gradient(135deg, #2b9348 0%, var(--primary) 60%, #004634 100%) !important;
+  color: #fff !important;
+  border-radius: 14px !important;
+  font-weight: 800 !important;
+  box-shadow: var(--eco-shadow-sm) !important;
+  transition: transform 0.15s var(--eco-ease), box-shadow 0.15s var(--eco-ease), filter 0.15s !important;
+}
+.challenge-btn:hover, .ed-rsvp-btn:hover, .scan-confirm-btn:hover,
+.quiz-start-btn:hover, .shop-buy-btn:hover, .voucher-unlock-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.challenge-btn:active, .ed-rsvp-btn:active, .scan-confirm-btn:active,
+.quiz-start-btn:active, .shop-buy-btn:active, .voucher-unlock-btn:active { transform: scale(0.98); }
+
+/* Map page: theme the route line + pins to brand */
+.leaflet-container { border-radius: 20px; }
+.route-info-card, .route-info {
+  border-radius: 18px !important;
+  box-shadow: var(--eco-shadow-md) !important;
+  border: 1px solid var(--eco-line) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   APP-WIDE MOTION SYSTEM — teal/aqua theme
+   Utilities: .anim-fade-up .anim-pop .anim-float .anim-delay-1..5
+   Cards, buttons, inputs and page sections inherit motion below.
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes eco-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes eco-pop {
+  0% { opacity: 0; transform: scale(0.92); }
+  60% { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes eco-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes eco-pulse-aqua {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(170, 204, 0, 0.45); }
+  50% { box-shadow: 0 0 0 8px rgba(170, 204, 0, 0); }
+}
+.anim-fade-up { animation: eco-fade-up 0.55s var(--eco-ease) both; }
+.anim-pop { animation: eco-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.anim-float { animation: eco-float 4s ease-in-out infinite; }
+.anim-delay-1 { animation-delay: 0.06s; }
+.anim-delay-2 { animation-delay: 0.12s; }
+.anim-delay-3 { animation-delay: 0.18s; }
+.anim-delay-4 { animation-delay: 0.24s; }
+.anim-delay-5 { animation-delay: 0.3s; }
+
+/* Page sections cascade in everywhere .eco-page / .dashboard-main is used */
+.eco-page > *, .dashboard-main > * { animation: eco-fade-up 0.55s var(--eco-ease) both; }
+.eco-page > *:nth-child(2), .dashboard-main > *:nth-child(2) { animation-delay: 0.06s; }
+.eco-page > *:nth-child(3), .dashboard-main > *:nth-child(3) { animation-delay: 0.12s; }
+.eco-page > *:nth-child(4), .dashboard-main > *:nth-child(4) { animation-delay: 0.18s; }
+.eco-page > *:nth-child(5), .dashboard-main > *:nth-child(5) { animation-delay: 0.24s; }
+
+/* Buttons: aqua press + glow */
+.eco-btn:active, .submit-btn:active, .challenge-btn:active { transform: scale(0.97); }
+.eco-btn--primary:focus-visible, .submit-btn:focus-visible {
+  animation: eco-pulse-aqua 1.6s ease-out infinite;
+}
+
+/* Cards: lift + aqua border on hover, pop on mount */
+.eco-card, .stat-card, .activity-item, .wc-preview-card, .challenge-card,
+.shop-product-card, .voucher-card, .event-card, .impact-card, .learn-card, .quiz-card {
+  animation: eco-fade-up 0.5s var(--eco-ease) both;
+}
+
+/* Score / badge numbers: subtle pop so Eco Score + stats feel alive */
+.hi-score-val, .hi-stat-val, .stat-card-value, .eco-badge-dot {
+  animation: eco-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Fact strip / alerts slide */
+.daily-fact-strip, .eco-alert, .vr-alert { animation: eco-fade-up 0.5s var(--eco-ease) both; }
+
+/* Progress bars + fills: smooth width tween + traveling aqua shine */
+.eco-progress > span, .challenge-progress-fill, .wc-preview-fill, .wc-preview-bar > div {
+  transition: width 0.7s var(--eco-ease);
+  position: relative;
+  overflow: hidden;
+}
+.eco-progress > span::after, .challenge-progress-fill::after, .wc-preview-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: eco-bar-shine 2.8s ease-in-out infinite;
+}
+@keyframes eco-bar-shine {
+  0%, 60% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-immersive::after, .hero-immersive, .hi-score-ring::before,
+  .dock, .dock-scan-circle, .dock-scan-circle::after,
+  .anim-float, .eco-page > *, .dashboard-main > * {
+    animation: none !important;
+  }
+}

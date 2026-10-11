@@ -1,104 +1,145 @@
-/* ── Bottom Navigation ────────────────────────────────────────────── */
+/* ── Dock — magnifying bottom navigation (green-ramp theme) ── */
 
-/* Outer bar — always fixed at bottom, full viewport width, always visible */
-.bottom-nav {
+.dock {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;           /* explicit width so it's never clipped */
+  bottom: max(0.9rem, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 50;
-  background: rgba(248, 250, 248, 0.95);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(191, 201, 189, 0.25);
-  /* No transform, no transition, no animation — always visible */
+  width: max-content;
+  max-width: calc(100vw - 1.8rem);
+  background: rgba(6, 32, 22, 0.9);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid rgba(170, 204, 0, 0.24);
+  border-radius: 28px;
+  box-shadow: 0 18px 50px rgba(3, 35, 26, 0.5), 0 0 30px rgba(85, 166, 48, 0.14);
+  animation: dock-slide-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes dock-slide-up {
+  from { opacity: 0; transform: translate(-50%, 26px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
 }
 
-/* Inner row — full width on mobile, constrained on desktop */
-.bottom-nav-inner {
-  width: 100%;
-  padding: 0.5rem 0.5rem 1rem;
+.dock-inner {
   display: flex;
-  align-items: center;
-  justify-content: space-around;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.55rem 0.8rem;
 }
 
-/* On large screens constrain to match page content width */
-@media (min-width: 1024px) {
-  .bottom-nav-inner {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0.75rem 1.5rem 1.25rem;
-  }
-}
-
-/* Each nav item */
-.bottom-nav-item {
-  flex: 1;
+/* Each dock item — transform driven by cursor magnification (inline style) */
+.dock-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
+  justify-content: flex-end;
+  gap: 0.15rem;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.25rem 0;
-  min-width: 0;
+  padding: 0.45rem 0.55rem;
+  min-width: 3.4rem;
+  border-radius: 18px;
+  transform-origin: bottom center;
+  transition: background 0.2s;
 }
+.dock-item:hover { background: rgba(255, 255, 255, 0.07); }
+.dock-item:focus-visible { outline: 2px solid #aacc00; outline-offset: 2px; }
 
-/* Icon container — no background pill, just color change on active */
-.bottom-nav-icon-wrap {
-  width: 2rem;
+.dock-icon-wrap {
+  width: 2.4rem;
   height: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--on-surface-variant);
-  transition: color 0.15s;
+  color: rgba(255, 255, 255, 0.62);
+  transition: background 0.25s, color 0.25s, width 0.25s, box-shadow 0.25s;
+  border-radius: 999px;
 }
-.bottom-nav-icon-wrap .material-symbols-outlined {
-  font-size: 1.5rem;
+.dock-icon-wrap .material-symbols-outlined { font-size: 1.45rem; }
+.dock-item.active .dock-icon-wrap {
+  background: linear-gradient(135deg, #bfd200, #aacc00);
+  color: #0c2b12;
+  width: 3.2rem;
+  box-shadow: 0 4px 16px rgba(170, 204, 0, 0.4);
+  animation: dock-pill-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.bottom-nav-icon-wrap.active {
-  color: var(--primary);
+@keyframes dock-pill-pop {
+  0% { transform: scale(0.7); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
 }
 
-/* Label */
-.bottom-nav-label {
+.dock-label {
   font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: var(--on-surface-variant);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
-.bottom-nav-item.active .bottom-nav-label {
-  font-weight: 700;
-  color: var(--primary);
-}
+.dock-item.active .dock-label { font-weight: 800; color: #eeef20; }
 
-/* ── FAB ──────────────────────────────────────────────────────────── */
-.fab {
-  position: fixed;
-  bottom: 5rem;
-  right: 1.25rem;
-  z-index: 60;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
-  color: var(--on-primary);
+/* ── Center scan orb ── */
+.dock-scan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  background: none;
   border: none;
   cursor: pointer;
+  padding: 0 0.35rem;
+  transform-origin: bottom center;
+}
+.dock-scan:focus-visible { outline: 2px solid #aacc00; outline-offset: 4px; border-radius: 16px; }
+.dock-scan-circle {
+  position: relative;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin-top: -1.7rem;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #aacc00 0%, #55a630 55%, #007f5f 100%);
+  border: 3px solid rgba(238, 239, 32, 0.45);
+  color: #0c2b12;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 81, 39, 0.35);
-  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 10px 28px rgba(0, 70, 52, 0.55), 0 0 22px rgba(170, 204, 0, 0.4);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: dock-scan-glow 2.6s ease-in-out infinite;
 }
-.fab:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 24px rgba(0, 81, 39, 0.45);
+.dock-scan-circle::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 24px;
+  border: 2px solid rgba(170, 204, 0, 0.55);
+  animation: dock-scan-ping 2.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
 }
-.fab .material-symbols-outlined { font-size: 1.75rem; }
+@keyframes dock-scan-glow {
+  0%, 100% { box-shadow: 0 10px 28px rgba(0, 70, 52, 0.55), 0 0 18px rgba(170, 204, 0, 0.35); }
+  50% { box-shadow: 0 10px 32px rgba(0, 70, 52, 0.6), 0 0 30px rgba(170, 204, 0, 0.55); }
+}
+@keyframes dock-scan-ping {
+  0% { transform: scale(1); opacity: 0.8; }
+  80%, 100% { transform: scale(1.35); opacity: 0; }
+}
+.dock-scan:hover .dock-scan-circle { transform: scale(1.07) rotate(-3deg); }
+.dock-scan:active .dock-scan-circle { transform: scale(0.95); }
+.dock-scan-circle .material-symbols-outlined { font-size: 1.6rem; font-variation-settings: 'FILL' 1; }
+.dock-scan-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #eeef20;
+  letter-spacing: 0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock, .dock-item.active .dock-icon-wrap, .dock-scan-circle, .dock-scan-circle::after {
+    animation: none !important;
+  }
+}

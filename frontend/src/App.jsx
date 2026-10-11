@@ -1,9 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppwriteProvider } from '@appwrite.io/react';
 import { Toaster } from 'react-hot-toast';
+import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import CommandMenu from './components/common/CommandMenu';
 import useListener from './hooks/useListener';
 import { NotificationProvider } from "./context/NotificationContext";
 
@@ -62,6 +64,12 @@ const AdminRoute = ({ children }) => {
   if (user.role !== 'admin') return <Navigate to="/dashboard" replace />;
   return children;
 };
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' }); }, [pathname]);
+  return null;
+}
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -124,8 +132,28 @@ export default function App() {
             <AuthProvider>
               <StatsProvider>
                 <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                  <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+                  <ScrollToTop />
+                  <Toaster
+                    position="top-center"
+                    gutter={10}
+                    toastOptions={{
+                      duration: 3500,
+                      style: {
+                        borderRadius: '16px',
+                        background: '#101815',
+                        color: '#fff',
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: '0.87rem',
+                        fontWeight: 600,
+                        padding: '12px 16px',
+                        boxShadow: '0 12px 32px rgba(10,20,14,.35)',
+                        border: '1px solid rgba(170,204,0,.25)',
+                      },
+                      success: { iconTheme: { primary: '#aacc00', secondary: '#007f5f' } },
+                    }}
+                  />
                   <AppRoutes />
+                  <CommandMenu />
                 </BrowserRouter>
               </StatsProvider>
             </AuthProvider>

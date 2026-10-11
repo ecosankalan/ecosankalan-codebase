@@ -1,76 +1,94 @@
+import { useRef, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/bottomnav.css';
 
-const NAV_ITEMS = [
+/* Dock items — Scan rides center, larger, like a macOS dock magnifier */
+const ITEMS = [
   { label: 'Home',    icon: 'home',         route: '/dashboard' },
   { label: 'Map',     icon: 'map',          route: '/community' },
-  { label: 'Learn',   icon: 'school',       route: '/learn'     },
-  { label: 'Shop',    icon: 'shopping_bag', route: '/shop'      },
-  { label: 'Profile', icon: 'person',       route: '/profile'   },
+  { label: 'Scan',    icon: 'photo_camera', route: '/waste', center: true },
+  { label: 'Learn',   icon: 'school',       route: '/learn' },
+  { label: 'Profile', icon: 'person',       route: '/profile' },
 ];
 
-export default function BottomNav() {
-  const navigate     = useNavigate();
-  const { pathname } = useLocation();
+/* Gaussian falloff — icons swell near the cursor, settle at the edges */
+const magnification = (distance) => 1 + 0.42 * Math.exp(-((distance / 90) ** 2));
 
-  const isMapPage = pathname === '/community';
+export default function BottomNav() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const innerRef = useRef(null);
+  const [focus, setFocus] = useState(null); // { x, width } in px, or null
+  const reduceMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  const onMove = useCallback((e) => {
+    if (reduceMotion || !innerRef.current) return;
+    const r = innerRef.current.getBoundingClientRect();
+    setFocus({ x: e.clientX - r.left, width: r.width });
+  }, [reduceMotion]);
+
+  const onLeave = useCallback(() => setFocus(null), []);
+
+  const scaleFor = (index) => {
+    if (!focus) return 1;
+    const center = ((index + 0.5) / ITEMS.length) * focus.width;
+    return magnification(Math.abs(focus.x - center));
+  };
 
   return (
-    <>
-      {/* FAB — floating action button for quick AI waste scan (hidden on map page) */}
-      {!isMapPage && (
-        <button
-          className="fab"
-          onClick={() => navigate('/waste')}
-          aria-label="AI Scan Waste"
-          style={{
-            background: 'var(--primary)',
-            color: 'var(--on-primary)',
-            boxShadow: '0 4px 12px rgba(0, 81, 39, 0.4)',
-            transform: 'translateY(-20px)',
-            width: '64px',
-            height: '64px',
-            borderRadius: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '2px'
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.75rem' }}>photo_camera</span>
-        </button>
-      )}
-
-      {/* Bottom nav bar — always visible, full width */}
-      <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
-        <div className="bottom-nav-inner">
-          {NAV_ITEMS.map(({ label, icon, route }) => {
-            const active = pathname === route;
+    <nav className="dock" role="navigation" aria-label="Main navigation">
+      <div
+        className="dock-inner"
+        ref={innerRef}
+        onMouseMove={onMove}
+        onMouseLeave={onLeave}
+      >
+        {ITEMS.map((item, i) => {
+          const active = pathname === item.route ||
+            (item.route === '/dashboard' && pathname === '/');
+          const scale = scaleFor(i);
+          if (item.center) {
             return (
               <button
-                key={label}
-                className={`bottom-nav-item${active ? ' active' : ''}`}
-                onClick={() => navigate(route)}
-                aria-label={label}
-                aria-current={active ? 'page' : undefined}
+                key={item.label}
+                className="dock-scan"
+                onClick={() => navigate(item.route)}
+                aria-label="Scan or log waste"
+                style={focus ? { transform: `scale(${scale})` } : undefined}
               >
-                <div className={`bottom-nav-icon-wrap${active ? ' active' : ''}`}>
-                  <span
-                    className="material-symbols-outlined"
-                    style={{
-                      fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0",
-                    }}
-                  >
-                    {icon}
+                <span className="dock-scan-circle">
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
+                    {item.icon}
                   </span>
-                </div>
-                <span className="bottom-nav-label">{label}</span>
+                </span>
+                <span className="dock-scan-label">{item.label}</span>
               </button>
             );
-          })}
-        </div>
-      </nav>
-    </>
+          }
+          return (
+            <button
+              key={item.label}
+              className={`dock-item${active ? ' active' : ''}`}
+              onClick={() => navigate(item.route)}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+              style={focus ? { transform: `scale(${scale}) translateY(${(scale - 1) * -14}px)` } : undefined}
+            >
+              <span className="dock-icon-wrap">
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
+                >
+                  {item.icon}
+                </span>
+              </span>
+              <span className="dock-label">{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
