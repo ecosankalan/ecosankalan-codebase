@@ -96,34 +96,59 @@ export async function getRoute(start, end, profile = PROFILES.DRIVING, opts = {}
 
   const url = `${ORS_BASE}/${profile}`;
 
-  // Timeout so a slow ORS graph never hangs the UI forever (25s default).
-  const timeoutMs = opts.timeoutMs ?? 25000;
-  const timerCtrl = new AbortController();
-  const timer = setTimeout(() => timerCtrl.abort(new Error('Route request timed out — please retry')), timeoutMs);
-  const signal = opts.signal
-    ? AbortSignal.any([opts.signal, timerCtrl.signal])
-    : timerCtrl.signal;
+  // Lean payload: we only draw the line, so skip turn-by-turn steps.
+  // This cuts most of the transfer/parse time on slow free-tier responses.
+  const body = JSON.stringify({ coordinates: coords, instructions: false });
+
+  // Timeout so a slow ORS graph never hangs the UI forever (35s default),
+  // plus one automatic retry — free-tier responses routinely stall once
+  // and succeed on the immediate second attempt.
+  const timeoutMs = opts.timeoutMs ?? 35000;
+  const maxAttempts = opts.retry === false ? 1 : 2;
 
   let res;
-  try {
-    res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: apiKey,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({ coordinates: coords }),
-      signal,
-    });
-  } catch (err) {
-    clearTimeout(timer);
-    if (err?.name === 'AbortError' || err?.name === 'TimeoutError') {
-      throw new Error(opts.signal?.aborted ? 'Route request cancelled' : 'Route is taking too long — please retry');
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (opts.signal?.aborted) {
+      throw new Error('Route request cancelled');
     }
-    throw err;
+    const timerCtrl = new AbortController();
+    const timer = setTimeout(() => timerCtrl.abort(), timeoutMs);
+    const signal = opts.signal
+      ? AbortSignal.any([opts.signal, timerCtrl.signal])
+      : timerCtrl.signal;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: apiKey,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body,
+        signal,
+      });
+      clearTimeout(timer);
+      break;
+    } catch (err) {
+      clearTimeout(timer);
+      if (opts.signal?.aborted) {
+        throw new Error('Route request cancelled');
+      }
+      // Retry timeouts and transient network failures once; other errors
+      // (bad request, auth, quota) would just fail again — surface them.
+      const retryable = err?.name === 'AbortError' || err?.name === 'TimeoutError' || err?.name === 'TypeError';
+      if (!retryable || attempt >= maxAttempts) {
+        if (err?.name === 'AbortError' || err?.name === 'TimeoutError') {
+          throw new Error('Route is taking too long — please retry');
+        }
+        throw err;
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
   }
-  clearTimeout(timer);
+  if (!res) {
+    throw new Error('Route is taking too long — please retry');
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
