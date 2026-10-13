@@ -1,21 +1,44 @@
-/* ── Skeleton Shimmer ─────────────────────────────────────────────── */
+/* ── Skeleton Shimmer (teal/aqua theme) ─────────────────────────── */
 
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+@keyframes skeleton-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes skeleton-tip-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
 
+/* Light shimmer for cards on light backgrounds */
 .skel {
   background: linear-gradient(
     90deg,
-    var(--surface-container) 25%,
-    var(--surface-container-low) 50%,
-    var(--surface-container) 75%
+    #FBE6C2 25%,
+    #f2f8f7 50%,
+    #FBE6C2 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite, skeleton-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  flex-shrink: 0;
+}
+
+/* Frosted-glass shimmer for blocks sitting on the dark teal hero */
+.skel-dark {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.08) 25%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.08) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   flex-shrink: 0;
 }
+.skel-ring { border-radius: 50%; }
 
 .skel-line  { border-radius: 9999px; }
 .skel-pill  { border-radius: 9999px; }
@@ -23,8 +46,85 @@
 
 /* Page wrapper pointer-events off during loading */
 .skeleton-page { pointer-events: none; }
+.skeleton-page > * { animation: skeleton-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.skeleton-page > *:nth-child(2) { animation-delay: 0.06s; }
+.skeleton-page > *:nth-child(3) { animation-delay: 0.12s; }
+.skeleton-page > *:nth-child(4) { animation-delay: 0.18s; }
 
-/* ── AI Scan loading overlay hint ─────────────────────────────────── */
+/* ── Branded loading header ───────────────────────────────────── */
+.skeleton-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.4rem 0.2rem;
+}
+.skeleton-leaf-core {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(140deg, #2A7C13 0%, #2A7C13 55%, #1C5410 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 10px 26px rgba(42, 124, 19, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: skeleton-core-float 2.2s ease-in-out infinite;
+}
+.skeleton-leaf-core .material-symbols-outlined {
+  color: #EAF6DC;
+  font-size: 1.7rem;
+  font-variation-settings: 'FILL' 1;
+}
+@keyframes skeleton-core-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.skeleton-brand-text { flex: 1; display: flex; flex-direction: column; gap: 0.55rem; }
+.skeleton-tip {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin: 0;
+  animation: skeleton-tip-in 0.4s ease both;
+}
+.skeleton-progress {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(42, 124, 19, 0.12);
+  overflow: hidden;
+}
+.skeleton-progress span {
+  display: block;
+  height: 100%;
+  width: 45%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2A7C13, #76C457);
+  box-shadow: 0 0 12px rgba(118, 196, 87, 0.7);
+  animation: loader-bar-glide 1.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes loader-bar-glide {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(280%); }
+}
+
+/* ── Hero skeleton: reuse real hero gradient so it blends in ───── */
+.skeleton-hero {
+  pointer-events: none;
+  min-height: 340px;
+}
+.skeleton-stat-card {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(118, 196, 87, 0.16) !important;
+  animation: skeleton-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.skeleton-fact-strip { pointer-events: none; }
+.skeleton-challenge-ph {
+  width: 100%;
+  height: 260px;
+  border-radius: 1.5rem;
+}
+
+/* ── Legacy AI-scan hint (kept for scan pages) ──────────────────── */
 .skeleton-scan-hint {
   display: flex;
   flex-direction: column;
@@ -40,30 +140,39 @@
 .skeleton-scan-pulse {
   width: 56px;
   height: 56px;
-  border-radius: 50%;
-  background: var(--primary);
+  border-radius: 20px;
+  background: linear-gradient(140deg, #2A7C13, #1C5410);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #EAF6DC;
   position: relative;
   animation: scan-pulse 1.8s ease-in-out infinite;
+  box-shadow: 0 10px 26px rgba(42, 124, 19, 0.3);
 }
 
 .skeleton-scan-pulse::before {
   content: '';
   position: absolute;
   inset: -8px;
-  border-radius: 50%;
-  background: rgba(0, 81, 39, 0.15);
-  animation: scan-ring 1.8s ease-in-out infinite;
+  border-radius: 26px;
+  border: 2px solid rgba(118, 196, 87, 0.4);
+  animation: scan-ring 1.8s ease-out infinite;
 }
 
 @keyframes scan-pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
-  50%       { transform: scale(1.05); opacity: 0.85; }
+  50%       { transform: scale(1.05); opacity: 0.9; }
 }
 @keyframes scan-ring {
-  0%   { transform: scale(1); opacity: 0.6; }
-  100% { transform: scale(1.7); opacity: 0; }
+  0%   { transform: scale(0.95); opacity: 0.7; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skel, .skel-dark, .skeleton-page > *,
+  .skeleton-leaf-core, .skeleton-tip, .skeleton-progress span,
+  .skeleton-scan-pulse, .skeleton-scan-pulse::before {
+    animation: none !important;
+  }
 }

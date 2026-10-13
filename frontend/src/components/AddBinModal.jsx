@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { submitBinRequest } from '../services/api';
 
-const BIN_TYPES = [
-  { key: 'plastic', icon: 'water_bottle', label: 'Plastic' },
-  { key: 'organic', icon: 'compost', label: 'Organic' },
-  { key: 'eWaste', icon: 'devices', label: 'E-Waste' },
-  { key: 'metal', icon: 'construction', label: 'Metal' },
-  { key: 'paper', icon: 'newspaper', label: 'Paper' },
-  { key: 'general', icon: 'delete', label: 'General' },
+const BIN_TYPE_KEYS = [
+  { key: 'plastic', icon: 'water_bottle' },
+  { key: 'organic', icon: 'compost' },
+  { key: 'eWaste', icon: 'devices' },
+  { key: 'metal', icon: 'construction' },
+  { key: 'paper', icon: 'newspaper' },
+  { key: 'general', icon: 'delete' },
 ];
 
 /**
@@ -20,6 +21,7 @@ const BIN_TYPES = [
  *    acquired on open and must succeed before submit is enabled.
  */
 export default function AddBinModal({ onClose, onSubmitted }) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [types, setTypes] = useState([]);
@@ -34,7 +36,7 @@ export default function AddBinModal({ onClose, onSubmitted }) {
 
   const fetchLiveLocation = () => {
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported on this device.');
+      setError(t('addbin.errNoGeo'));
       return;
     }
     setLocating(true);
@@ -50,9 +52,9 @@ export default function AddBinModal({ onClose, onSubmitted }) {
       },
       (err) => {
         setLocating(false);
-        if (err.code === 1) setError('Location access denied. Enable it to report a bin.');
-        else if (err.code === 2) setError('Location unavailable. Try again.');
-        else setError('Location request timed out. Try again.');
+        if (err.code === 1) setError(t('addbin.errDenied'));
+        else if (err.code === 2) setError(t('addbin.errUnavailable'));
+        else setError(t('addbin.errTimeout'));
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 } // fresh fix only
     );
@@ -69,7 +71,7 @@ export default function AddBinModal({ onClose, onSubmitted }) {
     setError('');
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setError('Please capture a photo using your camera.');
+      setError(t('addbin.errPhotoType'));
       return;
     }
     setPhoto(file);
@@ -82,11 +84,11 @@ export default function AddBinModal({ onClose, onSubmitted }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim())       { setError('Please give the bin a name.'); return; }
-    if (!address.trim())    { setError('Please add a nearby landmark/address.'); return; }
-    if (types.length === 0) { setError('Select at least one bin type.'); return; }
-    if (!photo)             { setError('A live camera photo is required.'); return; }
-    if (!location)          { setError('Live location is required. Tap "Refresh location".'); return; }
+    if (!name.trim())       { setError(t('addbin.errName')); return; }
+    if (!address.trim())    { setError(t('addbin.errAddress')); return; }
+    if (types.length === 0) { setError(t('addbin.errTypes')); return; }
+    if (!photo)             { setError(t('addbin.errPhoto')); return; }
+    if (!location)          { setError(t('addbin.errLocation')); return; }
 
     setSubmitting(true);
     setError('');
@@ -103,7 +105,7 @@ export default function AddBinModal({ onClose, onSubmitted }) {
       setSuccess(true);
       onSubmitted?.();
     } catch (err) {
-      setError(err.message || 'Failed to submit. Please try again.');
+      setError(err.message || t('addbin.errSubmit'));
     } finally {
       setSubmitting(false);
     }
@@ -115,9 +117,9 @@ export default function AddBinModal({ onClose, onSubmitted }) {
         <div className="addbin-header">
           <h2>
             <span className="material-symbols-outlined">add_location</span>
-            Report a Bin
+            {t('addbin.title')}
           </h2>
-          <button type="button" className="addbin-close" onClick={onClose} aria-label="Close">
+          <button type="button" className="addbin-close" onClick={onClose} aria-label={t('addbin.close')}>
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
@@ -125,61 +127,61 @@ export default function AddBinModal({ onClose, onSubmitted }) {
         {/* Light warning */}
         <div className="addbin-warning">
           <span className="material-symbols-outlined">warning</span>
-          <p>Only report bins that really exist. False or duplicate reports can cost you points.</p>
+          <p>{t('addbin.warning')}</p>
         </div>
 
         {success ? (
           <div className="addbin-success">
             <span className="material-symbols-outlined">check_circle</span>
-            <h3>Report submitted!</h3>
-            <p>An admin will review your photo and location. You earn <strong>+50 pts</strong> once approved.</p>
-            <button type="button" className="submit-btn" onClick={onClose}>Done</button>
+            <h3>{t('addbin.successTitle')}</h3>
+            <p>{t('addbin.successBody')}</p>
+            <button type="button" className="submit-btn" onClick={onClose}>{t('addbin.done')}</button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
             {error && <div className="error-banner">{error}</div>}
 
             <div className="field-group">
-              <label htmlFor="addbin-name">Bin name</label>
+              <label htmlFor="addbin-name">{t('addbin.nameLabel')}</label>
               <div className="input-wrap">
                 <span className="material-symbols-outlined input-icon">label</span>
                 <input
-                  id="addbin-name" type="text" placeholder="e.g. Market Road Bin"
+                  id="addbin-name" type="text" placeholder={t('addbin.namePh')}
                   value={name} onChange={(e) => setName(e.target.value)}
                 />
               </div>
             </div>
 
             <div className="field-group">
-              <label htmlFor="addbin-address">Nearby landmark / address</label>
+              <label htmlFor="addbin-address">{t('addbin.addressLabel')}</label>
               <div className="input-wrap">
                 <span className="material-symbols-outlined input-icon">location_on</span>
                 <input
-                  id="addbin-address" type="text" placeholder="e.g. Near Gate 2, MG Road"
+                  id="addbin-address" type="text" placeholder={t('addbin.addressPh')}
                   value={address} onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
             </div>
 
             <div className="field-group">
-              <label>Bin types</label>
+              <label>{t('addbin.typesLabel')}</label>
               <div className="addbin-types">
-                {BIN_TYPES.map((t) => (
+                {BIN_TYPE_KEYS.map((bt) => (
                   <button
-                    key={t.key}
+                    key={bt.key}
                     type="button"
-                    className={`addbin-type${types.includes(t.key) ? ' active' : ''}`}
-                    onClick={() => toggleType(t.key)}
+                    className={`addbin-type${types.includes(bt.key) ? ' active' : ''}`}
+                    onClick={() => toggleType(bt.key)}
                   >
-                    <span className="material-symbols-outlined">{t.icon}</span>
-                    {t.label}
+                    <span className="material-symbols-outlined">{bt.icon}</span>
+                    {t(`addbin.type_${bt.key}`)}
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="field-group">
-              <label>Live photo (camera only)</label>
+              <label>{t('addbin.photoLabel')}</label>
               <input
                 ref={fileRef}
                 type="file"
@@ -190,24 +192,24 @@ export default function AddBinModal({ onClose, onSubmitted }) {
               />
               {photoPreview ? (
                 <div className="addbin-photo-preview">
-                  <img src={photoPreview} alt="Bin preview" />
+                  <img src={photoPreview} alt={t('addbin.photoAlt')} />
                   <button type="button" className="addbin-retake" onClick={() => fileRef.current?.click()}>
-                    <span className="material-symbols-outlined">photo_camera</span> Retake
+                    <span className="material-symbols-outlined">photo_camera</span> {t('addbin.retake')}
                   </button>
                 </div>
               ) : (
                 <button type="button" className="addbin-camera-btn" onClick={() => fileRef.current?.click()}>
                   <span className="material-symbols-outlined">photo_camera</span>
-                  Take a live photo
+                  {t('addbin.takePhoto')}
                 </button>
               )}
             </div>
 
             <div className="field-group">
-              <label>Live location (required)</label>
+              <label>{t('addbin.locLabel')}</label>
               <div className="addbin-loc-row">
                 {locating ? (
-                  <span className="addbin-loc-status"><span className="spinner" /> Fetching live location…</span>
+                  <span className="addbin-loc-status"><span className="spinner" /> {t('addbin.fetching')}</span>
                 ) : location ? (
                   <span className="addbin-loc-status ok">
                     <span className="material-symbols-outlined">check_circle</span>
@@ -217,10 +219,10 @@ export default function AddBinModal({ onClose, onSubmitted }) {
                 ) : (
                   <span className="addbin-loc-status missing">
                     <span className="material-symbols-outlined">location_off</span>
-                    No location yet
+                    {t('addbin.noLoc')}
                   </span>
                 )}
-                <button type="button" className="addbin-refresh" onClick={fetchLiveLocation} disabled={locating}>
+                <button type="button" className="addbin-refresh" onClick={fetchLiveLocation} disabled={locating} aria-label={t('addbin.refreshLoc')}>
                   <span className="material-symbols-outlined">refresh</span>
                 </button>
               </div>
@@ -229,7 +231,7 @@ export default function AddBinModal({ onClose, onSubmitted }) {
             <button type="submit" className="submit-btn" disabled={submitting || locating}>
               {submitting
                 ? <span className="spinner" />
-                : <> Submit for review <span className="material-symbols-outlined">arrow_forward</span> </>
+                : <> {t('addbin.submit')} <span className="material-symbols-outlined">arrow_forward</span> </>
               }
             </button>
           </form>

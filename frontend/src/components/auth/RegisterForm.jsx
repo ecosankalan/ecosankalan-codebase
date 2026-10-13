@@ -15,12 +15,14 @@
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { OAuthProvider, Account, ID } from 'appwrite';
 import appwriteClient from '../../lib/appwrite';
 import OAuthReturnHint, { markOAuthPending } from './OAuthReturnHint';
 
 export default function RegisterForm() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', password: '', confirmPassword: '',
@@ -44,7 +46,7 @@ export default function RegisterForm() {
         failure: `${window.location.origin}/auth/failure`,
       });
     } catch (err) {
-      setError(err.message || 'Google signup failed. Please try again.');
+      setError(err.message || t('auth.googleSignupFailed'));
       setLoading(false);
     }
   };
@@ -52,12 +54,12 @@ export default function RegisterForm() {
   const getFriendlyError = (err) => {
     const msg = (err?.message || '').toLowerCase();
     if (msg.includes('already') && msg.includes('user'))
-      return 'An account with this email already exists. Please sign in.';
+      return t('auth.errExists');
     if (msg.includes('password') && msg.includes('too'))
-      return 'Password must be at least 8 characters.';
+      return t('auth.errPassShort');
     if (msg.includes('email') && msg.includes('invalid'))
-      return 'Please enter a valid email address.';
-    return err?.message || 'Registration failed. Please try again.';
+      return t('auth.invalidEmail');
+    return err?.message || t('auth.registerFailed');
   };
 
   const handleChange = (e) => {
@@ -68,15 +70,15 @@ export default function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.password) {
-      setError('Please fill in all fields.');
+      setError(t('auth.fillAll'));
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('auth.resetMismatch'));
       return;
     }
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setError(t('auth.errPassShort'));
       return;
     }
     setLoading(true);
@@ -132,17 +134,17 @@ export default function RegisterForm() {
           <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--primary)' }}>
             mark_email_read
           </span>
-          <h3 style={{ margin: '1rem 0 0.5rem' }}>Check your email</h3>
+          <h3 style={{ margin: '1rem 0 0.5rem' }}>{t('auth.checkEmail')}</h3>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            We sent a verification link to <strong>{verifyEmail}</strong>.
-            <br />Click the link to verify your account.
-            <br />If you don't see the email, check your spam folder.
+            {t('auth.verifyLinkSentA')} <strong>{verifyEmail}</strong>.
+            <br />{t('auth.verifyLinkSentB')}
+            <br />{t('auth.verifyLinkSentC')}
           </p>
           <button
             className="submit-btn"
             onClick={() => navigate('/login')}
           >
-            Go to Sign In <span className="material-symbols-outlined">arrow_forward</span>
+            {t('auth.goToSignIn')} <span className="material-symbols-outlined">arrow_forward</span>
           </button>
         </div>
       </div>
@@ -170,13 +172,13 @@ export default function RegisterForm() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          Sign in with Google
+          {t('auth.googleSignIn')}
         </button>
       </div>
 
       <div className="divider">
         <div className="divider-line" />
-        <span className="divider-text">Or with email</span>
+        <span className="divider-text">{t('auth.orEmail')}</span>
         <div className="divider-line" />
       </div>
 
@@ -185,12 +187,12 @@ export default function RegisterForm() {
 
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <div className="field-group">
-          <label htmlFor="reg-name">Full Name</label>
+          <label htmlFor="reg-name">{t('auth.fullName')}</label>
           <div className="input-wrap">
             <span className="material-symbols-outlined input-icon">person</span>
             <input
               id="reg-name" name="name" type="text"
-              placeholder="Vipin Gupta"
+              placeholder={t('auth.namePh')}
               value={formData.name} onChange={handleChange}
               autoComplete="name"
             />
@@ -198,12 +200,12 @@ export default function RegisterForm() {
         </div>
 
         <div className="field-group">
-          <label htmlFor="reg-email">Email Address</label>
+          <label htmlFor="reg-email">{t('auth.emailLabel')}</label>
           <div className="input-wrap">
             <span className="material-symbols-outlined input-icon">mail</span>
             <input
               id="reg-email" name="email" type="email"
-              placeholder="name@impact.com"
+              placeholder={t('auth.emailPh')}
               value={formData.email} onChange={handleChange}
               autoComplete="email"
             />
@@ -211,12 +213,12 @@ export default function RegisterForm() {
         </div>
 
         <div className="field-group">
-          <label htmlFor="reg-phone">Phone Number (optional)</label>
+          <label htmlFor="reg-phone">{t('auth.phoneOptional')}</label>
           <div className="input-wrap">
             <span className="material-symbols-outlined input-icon">phone</span>
             <input
               id="reg-phone" name="phone" type="tel"
-              placeholder="9876543210"
+              placeholder={t('auth.phonePh')}
               value={formData.phone} onChange={handleChange}
               autoComplete="tel"
             />
@@ -224,12 +226,12 @@ export default function RegisterForm() {
         </div>
 
         <div className="field-group">
-          <label htmlFor="reg-password">Password</label>
+          <label htmlFor="reg-password">{t('auth.passwordLabel')}</label>
           <div className="input-wrap">
             <span className="material-symbols-outlined input-icon">lock</span>
             <input
               id="reg-password" name="password" type="password"
-              placeholder="Min. 8 characters"
+              placeholder={t('auth.passPh')}
               value={formData.password} onChange={handleChange}
               autoComplete="new-password"
             />
@@ -237,12 +239,12 @@ export default function RegisterForm() {
         </div>
 
         <div className="field-group">
-          <label htmlFor="reg-confirm">Confirm Password</label>
+          <label htmlFor="reg-confirm">{t('auth.confirmPassword')}</label>
           <div className="input-wrap">
             <span className="material-symbols-outlined input-icon">lock_reset</span>
             <input
               id="reg-confirm" name="confirmPassword" type="password"
-              placeholder="Re-enter password"
+              placeholder={t('auth.confirmPh')}
               value={formData.confirmPassword} onChange={handleChange}
               autoComplete="new-password"
             />
@@ -252,7 +254,7 @@ export default function RegisterForm() {
         <button type="submit" className="submit-btn" disabled={loading}>
           {loading
             ? <span className="spinner" />
-            : <> Create Account <span className="material-symbols-outlined">arrow_forward</span> </>
+            : <> {t('auth.createAccountBtn')} <span className="material-symbols-outlined">arrow_forward</span> </>
           }
         </button>
       </form>

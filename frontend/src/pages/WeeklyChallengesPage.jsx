@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import Loader from '../components/common/Loader';
 import { getActiveChallenges, joinChallenge } from '../services/api';
 import '../styles/weekly-challenges.css';
 
-const FILTER_TABS = ['All', 'In Progress', 'Not Started', 'Completed'];
+const FILTER_TAB_KEYS = ['All', 'In Progress', 'Not Started', 'Completed'];
 
 // Status badge mapping per taskTemplate characteristics
 const ICON_MAP = {
@@ -53,9 +54,23 @@ const timeLeft = (deadline) => {
   return `${h}h`;
 };
 
+const TAB_LABEL_KEY = {
+  'All': 'challenges.tabAll',
+  'In Progress': 'challenges.tabInProgress',
+  'Not Started': 'challenges.tabNotStarted',
+  'Completed': 'challenges.tabCompleted',
+};
+
+const STATUS_LABEL_KEY = {
+  'In Progress': 'challenges.tabInProgress',
+  'Not Started': 'challenges.tabNotStarted',
+  'Completed': 'challenges.tabCompleted',
+};
+
 export default function WeeklyChallengesPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [tab, setTab] = useState('All');
   const [actionError, setActionError] = useState('');
 
@@ -68,7 +83,7 @@ export default function WeeklyChallengesPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const error = actionError || (queryError ? (queryError.message || 'Failed to load challenges') : '');
+  const error = actionError || (queryError ? (queryError.message || t('challenges.loadFailed')) : '');
 
   const handleJoin = async (challengeId) => {
     try {
@@ -76,7 +91,7 @@ export default function WeeklyChallengesPage() {
       await joinChallenge(challengeId);
       queryClient.invalidateQueries({ queryKey: ['challenges', 'active'] });
     } catch (err) {
-      setActionError(err.message || 'Failed to join challenge');
+      setActionError(err.message || t('challenges.joinFailed'));
     }
   };
 
@@ -98,43 +113,43 @@ export default function WeeklyChallengesPage() {
 
       <main className="wc-main">
         <div className="wc-header">
-          <button className="wc-back-btn" onClick={() => navigate('/dashboard')}>
+          <button className="wc-back-btn" onClick={() => navigate('/dashboard')} aria-label={t('challenges.back')}>
             <span className="material-symbols-outlined">arrow_back</span>
-         </button>
+          </button>
           <div>
-            <span className="wc-eyebrow">Eco Challenges</span>
-            <h1 className="wc-title">Active Challenges</h1>
-            <p className="wc-subtitle">Submit daily proof, climb the leaderboard, earn points</p>
-         </div>
-       </div>
+            <span className="wc-eyebrow">{t('challenges.eyebrow')}</span>
+            <h1 className="wc-title">{t('challenges.title')}</h1>
+            <p className="wc-subtitle">{t('challenges.subtitle')}</p>
+          </div>
+        </div>
 
         <div className="wc-tabs">
-          {FILTER_TABS.map((t) => (
+          {FILTER_TAB_KEYS.map((tk) => (
             <button
-              key={t}
-              className={`wc-tab${tab === t ? ' active' : ''}`}
-              onClick={() => setTab(t)}
+              key={tk}
+              className={`wc-tab${tab === tk ? ' active' : ''}`}
+              onClick={() => setTab(tk)}
             >
-              {t}
-           </button>
+              {t(TAB_LABEL_KEY[tk])}
+            </button>
           ))}
-       </div>
+        </div>
 
-        {loading && <Loader text="Loading challenges…" />}
+        {loading && <Loader text={t('challenges.loading')} />}
 
         {error && (
           <div className="wc-empty">
             <span className="material-symbols-outlined wc-empty-icon" style={{ color: 'var(--error)' }}>error</span>
             <p>{error}</p>
-         </div>
+          </div>
         )}
 
         <div className="wc-grid">
           {!loading && visible.length === 0 && (
             <div className="wc-empty">
               <span className="material-symbols-outlined wc-empty-icon">inbox</span>
-              <p>No challenges in this category yet</p>
-           </div>
+              <p>{t('challenges.emptyCategory')}</p>
+            </div>
           )}
 
           {visible.map((ch) => {
@@ -152,37 +167,37 @@ export default function WeeklyChallengesPage() {
                 <div className="wc-card-top-row">
                   <div className="wc-card-icon-wrap" style={{ background: iconMeta.bg, color: iconMeta.color }}>
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{iconMeta.icon}</span>
-                 </div>
+                  </div>
 
                   <div className="wc-card-meta">
                     {ch._timeLeft && (
                       <div className="wc-badge timer">
                         <span className="material-symbols-outlined wc-badge-icon" style={{ color: 'var(--tertiary)' }}>timer</span>
-                        <span>Ends in: {ch._timeLeft}</span>
-                     </div>
+                        <span>{t('challenges.endsIn', { time: ch._timeLeft })}</span>
+                      </div>
                     )}
                     <div className="wc-badge neutral">
                       <span className="material-symbols-outlined wc-badge-icon">calendar_today</span>
-                      <span>{totalDays} day{totalDays === 1 ? '' : 's'}</span>
-                   </div>
-                 </div>
-               </div>
+                      <span>{t('challenges.days', { count: totalDays })}</span>
+                    </div>
+                  </div>
+                </div>
 
                 <h3 className="wc-card-title">{ch.title}</h3>
                 <p className="wc-card-desc">
-                  {ch.taskTemplate?.description || ch.description || `Submit daily proof for ${totalDays} days.`}
-               </p>
+                  {ch.taskTemplate?.description || ch.description || t('challenges.fallbackDesc', { count: totalDays })}
+                </p>
 
                 {/* Day dots strip */}
                 {ch.joined && (
-                  <div className="wc-dots" aria-label={`${submittedCount} of ${totalDays} days completed`}>
+                  <div className="wc-dots" aria-label={t('challenges.daysCompletedAria', { submitted: submittedCount, total: totalDays })}>
                     {ch._dayDots.map((d) => (
                       <span
                         key={d.dayIndex}
                         className={`wc-dot${d.submitted ? ' done' : ''}${ch.dayIndexToday === d.dayIndex ? ' today' : ''}`}
                       />
                     ))}
-                 </div>
+                  </div>
                 )}
 
                 {/* Footer: status + CTA */}
@@ -191,43 +206,43 @@ export default function WeeklyChallengesPage() {
                     {ch.joined ? (
                       <span className={`wc-status-pill ${isCompleted ? 'complete' : ch._status === 'In Progress' ? 'inprogress' : 'nostart'}`}>
                         {isCompleted && <span className="material-symbols-outlined" style={{ fontSize: '0.85rem' }}>check_circle</span>}
-                        {ch._status}
-                        {ch.userProgress?.totalPoints > 0 && <span> · {ch.userProgress.totalPoints} pts</span>}
+                        {t(STATUS_LABEL_KEY[ch._status])}
+                        {ch.userProgress?.totalPoints > 0 && <span> · {t('challenges.pts', { count: ch.userProgress.totalPoints })}</span>}
                       </span>
                     ) : (
-                      <span className="wc-status-pill nostart">Not joined</span>
+                      <span className="wc-status-pill nostart">{t('challenges.notJoined')}</span>
                     )}
-                 </div>
+                  </div>
 
                   {isCompleted ? (
                     <div className="wc-completed-label">
                       <span className="material-symbols-outlined">check_circle</span>
-                      Completed
-                   </div>
+                      {t('challenges.completed')}
+                    </div>
                   ) : !ch.joined ? (
                     <button
                       className="wc-btn start"
                       onClick={() => handleJoin(ch._id)}
                       style={{ background: 'var(--tertiary)', color: 'var(--on-tertiary)' }}
                     >
-                      Join
-                   </button>
+                      {t('challenges.join')}
+                    </button>
                   ) : (
                     <button
                       className="wc-btn continue"
                       onClick={() => navigate(`/challenge/${ch._id}`)}
                     >
-                      {submittedCount > 0 ? 'Continue' : 'Start'}
-                   </button>
+                      {submittedCount > 0 ? t('challenges.continue') : t('challenges.start')}
+                    </button>
                   )}
-               </div>
-             </article>
+                </div>
+              </article>
             );
           })}
-       </div>
-     </main>
+        </div>
+      </main>
 
       <BottomNav />
-   </div>
+    </div>
   );
 }

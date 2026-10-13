@@ -1,29 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const TUTORIAL_STEPS = [
-  {
-    title: "Welcome to EcoSankalan!",
-    content: "Your journey towards a greener future starts here. Let's take a quick tour of how you can make an impact.",
-    icon: "eco"
-  },
-  {
-    title: "Log Your Waste",
-    content: "Tap the big green Camera icon at the bottom anytime to scan and log your recyclable waste using AI.",
-    icon: "photo_camera"
-  },
-  {
-    title: "Earn & Redeem",
-    content: "Every log earns you EcoPoints. Head over to the Shop to redeem them for exciting vouchers from our partners!",
-    icon: "shopping_bag"
-  },
-  {
-    title: "Join the Community",
-    content: "Check the Map to find nearby bins and RSVP to local cleanup events with fellow eco-warriors.",
-    icon: "map"
-  }
-];
+const STEP_KEYS = [0, 1, 2, 3];
+const STEP_ICONS = ['eco', 'photo_camera', 'shopping_bag', 'map'];
 
 export default function TutorialOverlay() {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [step, setStep] = useState(0);
 
@@ -44,7 +26,7 @@ export default function TutorialOverlay() {
   if (!isVisible) return null;
 
   const handleNext = () => {
-    if (step < TUTORIAL_STEPS.length - 1) {
+    if (step < STEP_KEYS.length - 1) {
       setStep(s => s + 1);
     } else {
       localStorage.setItem('tutorialSeen', 'true');
@@ -56,8 +38,6 @@ export default function TutorialOverlay() {
     localStorage.setItem('tutorialSeen', 'true');
     setIsVisible(false);
   };
-
-  const currentInfo = TUTORIAL_STEPS[step];
 
   return (
     <div style={{
@@ -84,7 +64,7 @@ export default function TutorialOverlay() {
         <style>{`
           @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         `}</style>
-        
+
         <div style={{
           width: '64px', height: '64px',
           background: 'var(--primary-container)',
@@ -94,17 +74,17 @@ export default function TutorialOverlay() {
           margin: '0 auto 1.5rem',
           fontSize: '2rem'
         }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '2rem' }}>{currentInfo.icon}</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '2rem' }}>{STEP_ICONS[step]}</span>
         </div>
-        
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'var(--on-surface)' }}>{currentInfo.title}</h2>
+
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'var(--on-surface)' }}>{t(`tutorial.step${step + 1}Title`)}</h2>
         <p style={{ color: 'var(--outline)', lineHeight: 1.5, marginBottom: '2rem', minHeight: '60px' }}>
-          {currentInfo.content}
+          {t(`tutorial.step${step + 1}Body`)}
         </p>
 
         {/* Progress dots */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
-          {TUTORIAL_STEPS.map((_, i) => (
+          {STEP_KEYS.map((_, i) => (
             <div key={i} style={{
               width: i === step ? '24px' : '8px',
               height: '8px',
@@ -116,17 +96,17 @@ export default function TutorialOverlay() {
         </div>
 
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button 
+          <button
             onClick={handleSkip}
             style={{ flex: 1, padding: '0.875rem', background: 'transparent', color: 'var(--outline)', border: 'none', fontWeight: 'bold' }}
           >
-            Skip
+            {t('tutorial.skip')}
           </button>
-          <button 
+          <button
             onClick={handleNext}
             style={{ flex: 2, padding: '0.875rem', background: 'var(--primary)', color: 'var(--on-primary)', border: 'none', borderRadius: '12px', fontWeight: 'bold' }}
           >
-            {step === TUTORIAL_STEPS.length - 1 ? "Let's Go!" : "Next"}
+            {step === STEP_KEYS.length - 1 ? t('tutorial.letsGo') : t('tutorial.next')}
           </button>
         </div>
       </div>

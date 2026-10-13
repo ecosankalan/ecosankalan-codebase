@@ -95,7 +95,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(160,243,153,0.3);
+  background: rgba(118,196,87,0.3);
   color: var(--on-secondary-container);
   padding: 0.3rem 0.85rem;
   border-radius: 9999px;
@@ -272,7 +272,7 @@
   position: absolute;
   bottom: -2.5rem; left: -2.5rem;
   width: 8rem; height: 8rem;
-  background: rgba(0,81,39,0.1);
+  background: rgba(42,124,19,0.1);
   border-radius: 50%;
   filter: blur(32px);
   pointer-events: none;

@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import '../styles/learn.css';
-
-const FILTER_CATEGORIES = ['All', 'Upcycling', 'Plastic', 'Organic', 'E-waste', 'Metal', 'Paper'];
 
 // Regular video content (non-upcycling)
 const VIDEOS = [
@@ -55,7 +54,21 @@ const UPCYCLING_TUTORIALS = [
 
 export default function LearnPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState('All');
+
+  const FILTER_CATEGORIES = [
+    { key: 'All', label: t('learn.all') },
+    { key: 'Upcycling', label: t('learn.catUpcycling') },
+    { key: 'Plastic', label: t('learn.catPlastic') },
+    { key: 'Organic', label: t('learn.catOrganic') },
+    { key: 'E-waste', label: t('learn.catEwaste') },
+    { key: 'Metal', label: t('learn.catMetal') },
+    { key: 'Paper', label: t('learn.catPaper') },
+  ];
+
+  const catLabel = (cat) => FILTER_CATEGORIES.find((c) => c.key === cat)?.label || cat;
+  const diffLabel = (d) => d === 'Easy' ? t('learn.easy') : d === 'Medium' ? t('learn.medium') : d;
 
   const isUpcycling = activeCategory === 'Upcycling';
 
@@ -95,31 +108,31 @@ export default function LearnPage() {
       <main className="learn-main">
 
         <section className="learn-header">
-          <h2>Learn Waste Disposal</h2>
-          <p>Watch, learn, and test your knowledge</p>
+          <h2>{t('learn.title')}</h2>
+          <p>{t('learn.subtitle')}</p>
         </section>
 
         <section>
           <div className="learn-quiz-card">
             <div className="learn-quiz-left">
               <div>
-                <h3>Take a Quick Quiz</h3>
-                <p>Test what you've learned and earn eco points</p>
+                <h3>{t('learn.quizTitle')}</h3>
+                <p>{t('learn.quizSub')}</p>
               </div>
               <div className="learn-quiz-badges">
-                <span className="learn-quiz-badge">4 Quizzes Available</span>
-                <span className="learn-quiz-badge">5 Questions Each</span>
+                <span className="learn-quiz-badge">{t('learn.quizzesAvailable')}</span>
+                <span className="learn-quiz-badge">{t('learn.questionsEach')}</span>
               </div>
-              <button type="button" className="learn-quiz-btn" onClick={() => navigate('/quiz')}>Start Quiz</button>
+              <button type="button" className="learn-quiz-btn" onClick={() => navigate('/quiz')}>{t('learn.startQuiz')}</button>
             </div>
             <div className="learn-quiz-divider" />
             <div className="learn-quiz-right">
-              <span className="learn-quiz-reward-label">Reward</span>
-              <span className="learn-quiz-points">+50 Points</span>
+              <span className="learn-quiz-reward-label">{t('learn.reward')}</span>
+              <span className="learn-quiz-points">{t('learn.points')}</span>
               <div className="learn-quiz-badge-icon">
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
               </div>
-              <span className="learn-quiz-badge-name">Quiz Starter</span>
+              <span className="learn-quiz-badge-name">{t('learn.badgeName')}</span>
             </div>
           </div>
         </section>
@@ -129,12 +142,12 @@ export default function LearnPage() {
           <div className="learn-filter-scroll">
             {FILTER_CATEGORIES.map(cat => (
               <button
-                key={cat}
+                key={cat.key}
                 type="button"
-                className={`learn-filter-pill${activeCategory === cat ? ' active' : ''}`}
-                onClick={() => setActiveCategory(cat)}
+                className={`learn-filter-pill${activeCategory === cat.key ? ' active' : ''}`}
+                onClick={() => setActiveCategory(cat.key)}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -148,7 +161,7 @@ export default function LearnPage() {
               <div className="learn-upcycle-featured-overlay" />
               <div className="learn-upcycle-featured-content">
                 <div className="learn-upcycle-badges-row">
-                  <span className="learn-upcycle-premium-badge">{UPCYCLING_FEATURED.badge}</span>
+                  <span className="learn-upcycle-premium-badge">{t('learn.premiumGuide')}</span>
                   <span className="learn-upcycle-duration">
                     <span className="material-symbols-outlined">schedule</span>
                     {UPCYCLING_FEATURED.duration}
@@ -159,7 +172,7 @@ export default function LearnPage() {
                   <div className="learn-upcycle-play-btn">
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
                   </div>
-                  <span className="learn-upcycle-start-label">Start Learning</span>
+                  <span className="learn-upcycle-start-label">{t('learn.startLearning')}</span>
                 </div>
               </div>
             </div>
@@ -170,7 +183,7 @@ export default function LearnPage() {
         {showUpcyclingSection && (
           <section className="learn-upcycle-list-section">
             <h4 className="learn-upcycle-list-title">
-              {isUpcycling ? 'All Tutorials' : `Upcycling — ${activeCategory}`}
+              {isUpcycling ? t('learn.allTutorials') : t('learn.upcyclingFor', { cat: catLabel(activeCategory) })}
             </h4>
             <div className="learn-upcycle-list">
               {filteredTutorials.map(t => (
@@ -181,9 +194,9 @@ export default function LearnPage() {
                     </div>
                     <div className="learn-upcycle-card-info">
                       <div className="learn-upcycle-meta-row">
-                        <span className={`learn-upcycle-diff ${t.diffClass}`}>{t.difficulty}</span>
+                        <span className={`learn-upcycle-diff ${t.diffClass}`}>{diffLabel(t.difficulty)}</span>
                         <span className="learn-upcycle-time">{t.time}</span>
-                        <span className="learn-upcycle-cat-tag">{t.category}</span>
+                        <span className="learn-upcycle-cat-tag">{catLabel(t.category)}</span>
                       </div>
                       <h5 className="learn-upcycle-card-title">{t.title}</h5>
                     </div>
@@ -192,17 +205,17 @@ export default function LearnPage() {
                     {t.type === 'YouTube' ? (
                       <button type="button" className="learn-upcycle-watch-btn" onClick={(e) => handleOpenExternal(e, t.url)}>
                         <span className="material-symbols-outlined">smart_display</span>
-                        Watch Video
+                        {t('learn.watchVideo')}
                       </button>
                     ) : (
                       <button type="button" className="learn-upcycle-read-btn" onClick={(e) => handleOpenExternal(e, t.url)}>
                         <span className="material-symbols-outlined">menu_book</span>
-                        Read Guide
+                        {t('learn.readGuide')}
                       </button>
                     )}
                     <button type="button" className="learn-upcycle-read-btn" onClick={(e) => handleOpenExternal(e, t.url)}>
                       <span className="material-symbols-outlined">open_in_new</span>
-                      Open
+                      {t('learn.open')}
                     </button>
                   </div>
                 </div>
@@ -232,7 +245,7 @@ export default function LearnPage() {
                 </div>
                 <div className="learn-video-meta">
                   <div className="learn-video-tags">
-                    <span className="learn-video-category">{video.category}</span>
+                    <span className="learn-video-category">{catLabel(video.category)}</span>
                     <span className="learn-video-source">
                       <span className="material-symbols-outlined">smart_display</span>
                       YouTube
@@ -249,8 +262,8 @@ export default function LearnPage() {
         {!isUpcycling && filteredVideos.length === 0 && filteredTutorials.length === 0 && (
           <div className="learn-empty-state">
             <span className="material-symbols-outlined learn-empty-icon">search_off</span>
-            <p>No content found for "{activeCategory}" yet.</p>
-            <button type="button" className="learn-filter-pill active" onClick={() => setActiveCategory('All')}>Show All</button>
+            <p>{t('learn.emptyFor', { cat: catLabel(activeCategory) })}</p>
+            <button type="button" className="learn-filter-pill active" onClick={() => setActiveCategory('All')}>{t('learn.showAll')}</button>
           </div>
         )}
 

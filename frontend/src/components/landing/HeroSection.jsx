@@ -1,117 +1,144 @@
 import { useNavigate } from 'react-router-dom';
-
-const AVATARS = [
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuBJf7igs8EyImUIN7kCfcX_cKuRw66Hfr14B5RnEUhz1EBmEdJ3RfSMU_U3GYeHKszubQ6B-cD1kvPM6q6ZyQHvvR1SQqkwY7MZ7RcezlcFmICBSVqat03szwj7yON6RsyU1k6LSr2uNZw_YXPXM1s2M8ynoetiRrqW_HQirZG8R-wOOQ1ZHW5dXDLpZPUIugqlstvtZYbNHSLgqEWWOXuF27CijG_ZpXl1BLU9dtjKuwmDrnBxPTj7ZSUDrLg1qG3U4oIskMWXcIv9',
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuAcYHlEdzHGX8bdjFVl5IszIwIbwDBf5iMpfanpWLXXTcB54krexFaG-wuSYF0bwAMW_42PRREvp8aOAgLfCIlhBseQYir4NVc7g5YIZVMwnpuR2Eoff_Xkemkl_bQIOYK6eSHCxir4kzDSQM5WahRbOdGUf9NT4LhwXUNWASpx7TJ_i6qAK4EYfNLnbNvq-hleDdKytsFMTTjLBQzOsiDfcKLWS-yLnLtFMZj5ynyWca3UdU3ePGNygLWMm5fZRPnmuyX8u702E1wG',
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuDbM7yI7DzNeBNdUa4tAdfafaGKwzpQIhu893utcVZYzEMld11uqotGMWXC-JPfwCp5nggJZ-G-KdYjrmdEorbCqczdzbP6QOGHzYZwyznHybgaxEHaYBfs5-7F1OgFVwxJ64Rp8A_NGpX1jq9SwWyXQ9tyXOhGiGykAc0dDnvNzqOmZe7CEnUmbf99RDffvyuuQkgq5SgFY4RHQqHeHC_E7_bz3qUMVwiaD-05LREejYhk8corXRk_chPrXEpBTgruIesji8DiL-mf',
-];
-
-const HERO_MOCKUP = '/phone_landing.png';
+import { useTranslation } from 'react-i18next';
+import usePlatformStats, { formatCompact } from '../../hooks/usePlatformStats';
 
 export default function HeroSection() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { stats, live } = usePlatformStats();
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Ring fill derived from the REAL warrior count (visual only, capped).
+  const ringFill = 213.6 - (213.6 * Math.min(0.92, 0.25 + (stats?.ecoWarriors || 0) / 120));
+
   return (
     <section className="lp-hero" aria-labelledby="hero-headline">
+      {/* ambient background */}
       <div className="lp-hero-bg" aria-hidden="true">
-        <div className="lp-hero-blob lp-hero-blob--1" />
-        <div className="lp-hero-blob lp-hero-blob--2" />
+        <span className="lp-orb lp-orb--green" />
+        <span className="lp-orb lp-orb--sand" />
+        <span className="lp-orb lp-orb--cream" />
+        <span className="lp-grain" />
+        <img src="/logo.png" alt="" className="lp-hero-leaf lp-hero-leaf-img lp-hero-leaf--1" aria-hidden="true" />
+        <img src="/logo.png" alt="" className="lp-hero-leaf lp-hero-leaf-img lp-hero-leaf--2" aria-hidden="true" />
+        <img src="/logo.png" alt="" className="lp-hero-leaf lp-hero-leaf-img lp-hero-leaf--3" aria-hidden="true" />
       </div>
 
-      <div className="lp-container">
-        <div className="lp-hero-grid">
-          <div className="lp-reveal">
-            <h1 id="hero-headline" className="lp-hero-headline">
-              Build Sustainable Habits, One <em>Waste Log</em> At A Time.
-            </h1>
-            <p className="lp-hero-sub">
-              AI-powered waste management, eco-learning, community challenges,
-              rewards, and real-world environmental impact — all in one platform.
+      <div className="lp-container lp-hero-grid">
+        {/* copy */}
+        <div className="lp-hero-copy lp-reveal">
+          <p className="lp-pill">
+            <span className={`lp-live-dot${live ? ' lp-live-dot--live' : ''}`} aria-hidden="true" />
+            {live ? t('landing.liveFrom') : t('landing.joinMovement')}
+            <span className="lp-pill-sep" aria-hidden="true">•</span>
+            <strong>{formatCompact(stats?.binsMapped)}</strong>&nbsp;{t('landing.binsMapped')}
+          </p>
+
+          <h1 id="hero-headline" className="lp-display">
+            <span className="lp-line"><span>{t('landing.heroTitleA')}</span></span>
+            <span className="lp-line"><em>{t('landing.heroTitleB')}</em></span>
+          </h1>
+
+          <p className="lp-lead">{t('landing.heroSub')}</p>
+
+          <div className="lp-hero-ctas">
+            <button className="lp-btn lp-btn--primary lp-magnet" onClick={() => navigate('/register')}>
+              {t('landing.ctaStart')}
+              <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </button>
+            <button className="lp-btn lp-btn--ghost lp-magnet" onClick={() => scrollTo('impact')}>
+              <span className="material-symbols-outlined" aria-hidden="true">play_circle</span>
+              {t('landing.ctaImpact')}
+            </button>
+          </div>
+
+          <dl className="lp-hero-stats" aria-label="Live platform statistics">
+            <div className="lp-hero-stat">
+              <dt>{t('landing.statBins')}</dt>
+              <dd>{formatCompact(stats?.binsMapped)}</dd>
+            </div>
+            <div className="lp-hero-stat">
+              <dt>{t('landing.statWaste')}</dt>
+              <dd>{formatCompact(stats?.wasteKg)}<span>kg</span></dd>
+            </div>
+            <div className="lp-hero-stat">
+              <dt>{t('landing.statCo2')}</dt>
+              <dd>{formatCompact(stats?.co2SavedKg)}<span>kg</span></dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* visual */}
+        <div className="lp-hero-visual lp-reveal lp-delay-2">
+          <div className="lp-preview" role="img" aria-label="Preview of the EcoSankalan dashboard">
+            <div className="lp-preview-glow" aria-hidden="true" />
+            <div className="lp-preview-head">
+              <div>
+                <p className="lp-preview-eyebrow">{t('landing.previewWelcome')}</p>
+                <p className="lp-preview-title">{t('landing.previewWarrior')}</p>
+              </div>
+              <div className="lp-preview-ring">
+                <svg viewBox="0 0 80 80" aria-hidden="true">
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(42,124,19,.15)" strokeWidth="8" />
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="#76C457" strokeWidth="8"
+                    strokeDasharray="213.6" strokeDashoffset={ringFill} strokeLinecap="round"
+                    transform="rotate(-90 40 40)" className="lp-preview-ring-fill" />
+                </svg>
+                <div className="lp-preview-ring-center">
+                  <strong>{formatCompact(stats?.ecoWarriors)}</strong>
+                  <span>{t('landing.previewWarriors')}</span>
+                </div>
+              </div>
+            </div>
+            <div className="lp-preview-tiles">
+              <div className="lp-preview-tile">
+                <span className="material-symbols-outlined" aria-hidden="true">savings</span>
+                <strong>{formatCompact(stats?.totalPoints)}</strong>
+                <span>{t('landing.previewPoints')}</span>
+              </div>
+              <div className="lp-preview-tile">
+                <span className="material-symbols-outlined" aria-hidden="true">cloud_done</span>
+                <strong>{formatCompact(stats?.co2SavedKg)} kg</strong>
+                <span>{t('landing.statCo2')}</span>
+              </div>
+              <div className="lp-preview-tile">
+                <span className="material-symbols-outlined" aria-hidden="true">delete_sweep</span>
+                <strong>{formatCompact(stats?.wasteKg)} kg</strong>
+                <span>{t('landing.previewLogged')}</span>
+              </div>
+            </div>
+            <div className="lp-preview-bar"><div className="lp-preview-bar-fill" /></div>
+            <p className="lp-preview-foot">
+              <span className={`lp-live-dot${live ? ' lp-live-dot--live' : ''}`} aria-hidden="true" />
+              {live ? t('landing.previewSynced') : t('landing.joinMovement')}
             </p>
-
-            <div className="lp-hero-ctas">
-              <button
-                className="lp-btn-hero-primary"
-                onClick={() => navigate('/register')}
-                aria-label="Start your eco journey — create an account"
-              >
-                Start Your Eco Journey
-                <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-              </button>
-              <button
-                className="lp-btn-hero-secondary"
-                onClick={() => scrollTo('process')}
-                aria-label="Watch demo — learn how it works"
-              >
-                Watch Demo
-              </button>
-            </div>
-
-            <div className="lp-hero-social">
-              <div className="lp-avatars" role="img" aria-label="Profile photos of community members">
-                {AVATARS.map((src) => (
-                  <img
-                    key={src}
-                    src={src}
-                    alt=""
-                    className="lp-avatar"
-                    loading="lazy"
-                    width={48}
-                    height={48}
-                  />
-                ))}
-              </div>
-              <p className="lp-social-text">
-                Joined by <strong>12,000+</strong>
-                <br />eco-warriors this month
-              </p>
-            </div>
           </div>
 
-          <div className="lp-hero-visual lp-reveal lp-delay-2">
-            <div className="lp-hero-mockup-wrap">
-              <img
-                src={HERO_MOCKUP}
-                alt="EcoSankalan app dashboard showing sustainability metrics"
-                className="lp-hero-mockup"
-                loading="eager"
-                width={480}
-                height={600}
-              />
-            </div>
-
-            <div className="lp-float-card lp-glass lp-float-card--points" aria-hidden="true">
-              <div className="lp-float-icon-box">
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  military_tech
-                </span>
-              </div>
-              <div>
-                <p className="lp-float-label">Daily Points</p>
-                <p className="lp-float-value">+1,240</p>
-              </div>
-            </div>
-
-            <div className="lp-float-card lp-glass lp-float-card--streak" aria-hidden="true">
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: 28, color: '#ba1a1a' }}
-              >
-                local_fire_department
-              </span>
-              <div>
-                <p className="lp-float-label">Current Streak</p>
-                <p className="lp-float-value lp-float-value--dark">14 Days</p>
-              </div>
+          <div className="lp-float-card lp-float-card--a" aria-hidden="true">
+            <span className="material-symbols-outlined">military_tech</span>
+            <div>
+              <p>{t('landing.previewCommunityLogs')}</p>
+              <strong>+{formatCompact(stats?.wasteLogs)}</strong>
             </div>
           </div>
+          <div className="lp-float-card lp-float-card--b" aria-hidden="true">
+            <span className="material-symbols-outlined">local_fire_department</span>
+            <div>
+              <p>{t('landing.statBins')}</p>
+              <strong>{formatCompact(stats?.binsMapped)}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* marquee */}
+      <div className="lp-marquee" aria-hidden="true">
+        <div className="lp-marquee-track">
+          <span>{t('landing.marquee')}</span>
+          <span>{t('landing.marquee')}</span>
         </div>
       </div>
     </section>

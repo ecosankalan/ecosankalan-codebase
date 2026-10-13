@@ -102,7 +102,7 @@
 .quiz-progress-bar-track {
   height: 0.625rem;
   width: 100%;
-  background: rgba(160,243,153,0.25);
+  background: rgba(118,196,87,0.25);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -165,7 +165,7 @@
   width: 100%;
 }
 .quiz-option:hover:not(:disabled) {
-  border-color: rgba(0,81,39,0.35);
+  border-color: rgba(42,124,19,0.35);
   background: var(--surface-container-low);
 }
 .quiz-option:active:not(:disabled) { transform: scale(0.99); }
@@ -215,7 +215,7 @@
 
 /* Correct state (shown after answering) */
 .quiz-option.correct {
-  background: rgba(160,243,153,0.25);
+  background: rgba(118,196,87,0.25);
   border-color: var(--secondary);
   border-width: 2px;
   opacity: 0.85;
@@ -371,7 +371,7 @@
   height: 9rem;
 }
 .result-donut-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.result-donut-bg { color: rgba(160,243,153,0.25); }
+.result-donut-bg { color: rgba(118,196,87,0.25); }
 .result-donut-fill { color: var(--secondary); transition: stroke-dashoffset 0.6s ease; }
 .result-donut-label {
   position: absolute;
@@ -414,7 +414,7 @@
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
   border-radius: 1.25rem;
   padding: 1.75rem 1.5rem;
-  box-shadow: 0 8px 24px rgba(0,81,39,0.15);
+  box-shadow: 0 8px 24px rgba(42,124,19,0.15);
   color: var(--on-primary);
   display: flex;
   flex-direction: column;
@@ -510,7 +510,7 @@
   justify-content: center;
   gap: 0.6rem;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,81,39,0.15);
+  box-shadow: 0 6px 18px rgba(42,124,19,0.15);
   transition: transform 0.1s;
 }
 .result-primary-btn:active { transform: scale(0.98); }
@@ -590,7 +590,7 @@
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 5rem;
-  background: rgba(0,81,39,0.05);
+  background: rgba(42,124,19,0.05);
   clip-path: polygon(0 0, 100% 0, 100% 70%, 0% 100%);
   pointer-events: none;
 }
@@ -650,7 +650,7 @@
 .badge-icon-dashed {
   position: absolute;
   inset: 0;
-  border: 2px dashed rgba(0,81,39,0.2);
+  border: 2px dashed rgba(42,124,19,0.2);
   border-radius: 50%;
   transform: scale(1.1);
 }
@@ -668,7 +668,7 @@
   height: 100%;
   border-radius: 50%;
   background: var(--surface-container-lowest);
-  border: 3px solid rgba(0,81,39,0.08);
+  border: 3px solid rgba(42,124,19,0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -802,7 +802,7 @@
 }
 .quiz-select-card:hover {
   border-color: var(--primary);
-  box-shadow: 0 4px 16px rgba(0,81,39,0.1);
+  box-shadow: 0 4px 16px rgba(42,124,19,0.1);
 }
 .quiz-select-icon-wrap {
   width: 3.5rem;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/common/Navbar';
@@ -33,14 +34,23 @@ const FALLBACK_PRODUCTS = [
     imageUrl: 'https://images.unsplash.com/photo-1585250462002-302a6cecd552?q=80&w=600&auto=format&fit=crop' },
 ];
 
-const FILTER_CHIPS = ['All', 'Home', 'Kitchen', 'Reusable', 'Zero Waste', 'Electronics'];
+const FILTER_CHIPS = [
+  { key: 'all', labelKey: 'shop.filterAll' },
+  { key: 'home', labelKey: 'shop.filterHome' },
+  { key: 'kitchen', labelKey: 'shop.filterKitchen' },
+  { key: 'reusable', labelKey: 'shop.filterReusable' },
+  { key: 'zeroWaste', labelKey: 'shop.filterZeroWaste' },
+  { key: 'electronics', labelKey: 'shop.filterElectronics' },
+];
 
 export default function ShopPage() {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === 'hi' ? 'hi-IN' : 'en-IN';
   const navigate = useNavigate();
 
   const [myVouchers,    setMyVouchers]    = useState([]);
   const [userPoints,    setUserPoints]    = useState(0);
-  const [activeChip,    setActiveChip]    = useState('All');
+  const [activeChip,    setActiveChip]    = useState('all');
   const [searchQuery,   setSearchQuery]   = useState('');
   const [revealedCodes, setRevealedCodes] = useState({});
 
@@ -94,7 +104,7 @@ export default function ShopPage() {
   };
 
   const filtered = products.filter(p => {
-    const matchesChip = activeChip === 'All' || (p.category || '').toLowerCase() === activeChip.toLowerCase();
+    const matchesChip = activeChip === 'all' || (p.category || '').toLowerCase() === activeChip.toLowerCase();
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesChip && matchesSearch;
   });
@@ -107,7 +117,7 @@ export default function ShopPage() {
   const formatExpiry = (dateStr) => {
     if (!dateStr) return '';
     const d = new Date(dateStr);
-    return `Valid until ${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`;
+    return t('shop.validUntil', { date: d.toLocaleDateString(locale, { day: 'numeric', month: 'short' }) });
   };
 
   const activeVouchers = myVouchers.filter(v => !v.expiresAt || new Date(v.expiresAt) > new Date());
@@ -125,7 +135,7 @@ export default function ShopPage() {
           <span className="material-symbols-outlined shop-search-icon">search</span>
           <input 
             className="shop-search-input" 
-            placeholder="Search eco products..." 
+            placeholder={t('shop.searchPlaceholder')}
             type="text" 
             value={searchQuery}
             readOnly
@@ -136,8 +146,8 @@ export default function ShopPage() {
         {/* Hero */}
         <section className="shop-hero">
           <div className="shop-hero-left">
-            <h1 className="shop-hero-title">Curated for the <span className="shop-hero-accent">Conscious</span></h1>
-            <p className="shop-hero-desc">Redeem your hard-earned eco-points for premium sustainable essentials. High impact, zero waste, delivered to your doorstep.</p>
+            <h1 className="shop-hero-title">{t('shop.heroTitleA')} <span className="shop-hero-accent">{t('shop.heroTitleB')}</span></h1>
+            <p className="shop-hero-desc">{t('shop.heroDesc')}</p>
           </div>
 
           <div className="shop-balance-card">
@@ -145,8 +155,8 @@ export default function ShopPage() {
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
             </div>
             <div>
-              <span className="shop-balance-label">Your Balance</span>
-              <span className="shop-balance-amount">{loading ? '…' : userPoints.toLocaleString('en-IN')} EP</span>
+              <span className="shop-balance-label">{t('shop.balanceLabel')}</span>
+              <span className="shop-balance-amount">{loading ? '…' : t('shop.balanceAmount', { n: userPoints.toLocaleString(locale) })}</span>
             </div>
           </div>
         </section>
@@ -155,8 +165,8 @@ export default function ShopPage() {
         {activeVouchers.length > 0 && (
           <section className="shop-section">
             <div className="shop-section-header">
-              <h2 className="shop-section-title">My Vouchers</h2>
-              <button className="shop-view-all" onClick={() => navigate('/vouchers')}>View All</button>
+              <h2 className="shop-section-title">{t('shop.myVouchers')}</h2>
+              <button className="shop-view-all" onClick={() => navigate('/vouchers')}>{t('shop.viewAll')}</button>
             </div>
             <div className="shop-vouchers-list">
               {activeVouchers.slice(0, 3).map(v => (
@@ -170,7 +180,7 @@ export default function ShopPage() {
                   <div className="shop-voucher-dash" />
                   <div className="shop-voucher-right">
                     <div>
-                      <h3 className="shop-voucher-discount">{v.discountLabel || 'Voucher'}</h3>
+                      <h3 className="shop-voucher-discount">{v.discountLabel || t('shop.voucherFallback')}</h3>
                       <p className="shop-voucher-valid">{formatExpiry(v.expiresAt)}</p>
                     </div>
                     <div className="shop-voucher-code-row">
@@ -192,14 +202,14 @@ export default function ShopPage() {
         <div className="shop-chips-wrap">
           <div className="shop-chips-scroll">
             {FILTER_CHIPS.map(chip => (
-              <button key={chip} className={`shop-chip${activeChip === chip ? ' active' : ''}`} onClick={() => setActiveChip(chip)}>{chip}</button>
+              <button key={chip.key} className={`shop-chip${activeChip === chip.key ? ' active' : ''}`} onClick={() => setActiveChip(chip.key)}>{t(chip.labelKey)}</button>
             ))}
           </div>
         </div>
 
         {/* Featured Partners */}
         <section className="shop-section">
-          <h3 className="shop-section-title" style={{ marginBottom: '1rem' }}>Featured Partners</h3>
+          <h3 className="shop-section-title" style={{ marginBottom: '1rem' }}>{t('shop.featuredPartners')}</h3>
           <div className="shop-partners-scroll">
             {PARTNERS.map(p => (
               <div className="shop-partner-tile" key={p.name}>
@@ -213,17 +223,17 @@ export default function ShopPage() {
         {/* Product Grid */}
         <section className="shop-section">
           <div className="shop-section-header">
-            <h3 className="shop-section-title">Sustainable Picks</h3>
+            <h3 className="shop-section-title">{t('shop.sustainablePicks')}</h3>
             <button 
               className="shop-view-all" 
               onClick={() => navigate('/shop/search')}
             >
-              See All
+              {t('shop.seeAll')}
             </button>
           </div>
 
           {productsLoading ? (
-            <Loader text="Loading catalog..." />
+            <Loader text={t('shop.loadingCatalog')} />
           ) : (
             <div className="shop-grid">
               {filtered.map(product => (
@@ -239,10 +249,10 @@ export default function ShopPage() {
                     <h4 className="shop-card-name">{product.name}</h4>
                     <div className="shop-card-pts-row">
                       <span className="material-symbols-outlined shop-star-icon" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
-                      <span className="shop-card-pts">{product.ecoPointsCost || product.points} pts</span>
+                      <span className="shop-card-pts">{t('shop.pointsUnit', { n: product.ecoPointsCost || product.points })}</span>
                     </div>
                     <button className="shop-buy-btn" onClick={e => handleBuyOnPartner(e, product)}>
-                      Buy on Partner
+                      {t('shop.buyOnPartner')}
                     </button>
                   </div>
                 </div>

@@ -9,6 +9,7 @@
  *   - Appwrite session exists but no MongoDB user → backend /sync failing.
  */
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth as useAppwriteAuth } from '@appwrite.io/react';
 import { useAuth as useAppAuth } from '../../context/AuthContext';
 
@@ -35,6 +36,7 @@ const clearFlag = () => {
 export default function OAuthReturnHint() {
   const { user: appwriteUser, isLoading: appwriteLoading } = useAppwriteAuth();
   const { user: mongoUser, isLoading: authLoading } = useAppAuth();
+  const { t } = useTranslation();
   const [hint, setHint] = useState(null); // null | 'session' | 'backend'
 
   useEffect(() => {
@@ -66,16 +68,9 @@ export default function OAuthReturnHint() {
   return (
     <div className="error-banner">
       {hint === 'session' ? (
-        <>
-          Google sign-in didn&apos;t complete in this browser. Allow third-party
-          cookies for this site (Incognito/private windows block them by default),
-          then try again.
-        </>
+        <>{t('auth.oauthHintSession')}</>
       ) : (
-        <>
-          Connected to Google, but the app backend isn&apos;t responding
-          ({apiUrl}). Start it and refresh, or check the console for the sync error.
-        </>
+        <>{t('auth.oauthHintBackend', { apiUrl })}</>
       )}
       <div style={{ marginTop: '0.5rem' }}>
         <button
@@ -83,7 +78,7 @@ export default function OAuthReturnHint() {
           className="resend-btn"
           onClick={() => { clearFlag(); setHint(null); }}
         >
-          Dismiss — I&apos;ll try again
+          {t('auth.oauthDismiss')}
         </button>
       </div>
     </div>

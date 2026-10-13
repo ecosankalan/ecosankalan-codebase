@@ -1,6 +1,6 @@
 # Contributing to EcoSankalan
 
-> Internal guide for the EcoSankalan team — NSUT CPVS-STP 2025-26(E)
+> Internal guide for the EcoSankalan team
 
 ---
 

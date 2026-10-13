@@ -6,9 +6,11 @@
  * and shows error messages if routing fails.
  */
 
+import { useTranslation } from 'react-i18next';
 import { formatDistance, formatDuration } from '../services/routing';
 
 export default function RouteInfo({ route, loading, error, onClose }) {
+  const { t } = useTranslation();
   if (!route && !loading && !error) return null;
 
   return (
@@ -18,7 +20,7 @@ export default function RouteInfo({ route, loading, error, onClose }) {
           <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', animation: 'spin 1s linear infinite' }}>
             progress_activity
           </span>
-          <span>Calculating route...</span>
+          <span>{t('route.calculating')}</span>
         </div>
       )}
 
@@ -35,7 +37,7 @@ export default function RouteInfo({ route, loading, error, onClose }) {
             <div className="route-info-stat">
               <span className="material-symbols-outlined route-info-icon">straighten</span>
               <div className="route-info-stat-text">
-                <span className="route-info-label">Distance</span>
+                <span className="route-info-label">{t('route.distance')}</span>
                 <span className="route-info-value">{formatDistance(route.distance)}</span>
               </div>
             </div>
@@ -43,12 +45,12 @@ export default function RouteInfo({ route, loading, error, onClose }) {
             <div className="route-info-stat">
               <span className="material-symbols-outlined route-info-icon">schedule</span>
               <div className="route-info-stat-text">
-                <span className="route-info-label">ETA</span>
+                <span className="route-info-label">{t('route.eta')}</span>
                 <span className="route-info-value">{formatDuration(route.duration)}</span>
               </div>
             </div>
           </div>
-          <button className="route-info-close" onClick={onClose} aria-label="Close route">
+          <button className="route-info-close" onClick={onClose} aria-label={t('route.close')}>
             <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>close</span>
           </button>
         </>

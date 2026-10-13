@@ -6,6 +6,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Client, Account } from 'appwrite';
 import '../styles/login.css';
 import '../styles/auth-extra.css';
@@ -19,6 +20,7 @@ const account = new Account(client);
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -47,15 +49,15 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userId || !secret) {
-      setError('Invalid reset link. Please request a new one.');
+      setError(t('auth.resetInvalidLink'));
       return;
     }
     if (!has8 || !hasUpper || !hasSymbol) {
-      setError('Password does not meet the requirements.');
+      setError(t('auth.resetWeak'));
       return;
     }
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setError(t('auth.resetMismatch'));
       return;
     }
     setLoading(true);
@@ -64,7 +66,7 @@ export default function ResetPasswordPage() {
       await account.updateRecovery(userId, secret, password);
       setSuccess(true);
     } catch (err) {
-      setError(err?.message || 'Reset failed. The link may have expired. Please request a new one.');
+      setError(err?.message || t('auth.resetFailed'));
     } finally {
       setLoading(false);
     }
@@ -82,8 +84,8 @@ export default function ResetPasswordPage() {
               <span className="material-symbols-outlined">error</span>
             </div>
             <div className="auth-text-center">
-              <h1>Invalid Link</h1>
-              <p>This password reset link is invalid or missing required parameters.</p>
+              <h1>{t('auth.invalidLinkTitle')}</h1>
+              <p>{t('auth.invalidLinkSub')}</p>
             </div>
           </div>
           <button
@@ -91,7 +93,7 @@ export default function ResetPasswordPage() {
             style={{ marginTop: '1.5rem' }}
             onClick={() => navigate('/forgot-password')}
           >
-            Request New Link <span className="material-symbols-outlined">arrow_forward</span>
+            {t('auth.requestNewLink')} <span className="material-symbols-outlined">arrow_forward</span>
           </button>
         </main>
       </div>
@@ -110,8 +112,8 @@ export default function ResetPasswordPage() {
               <span className="material-symbols-outlined">check_circle</span>
             </div>
             <div className="auth-text-center">
-              <h1>Password Reset!</h1>
-              <p>Your password has been updated successfully. You can now sign in with your new password.</p>
+              <h1>{t('auth.resetDoneTitle')}</h1>
+              <p>{t('auth.resetDoneSub')}</p>
             </div>
           </div>
           <button
@@ -119,7 +121,7 @@ export default function ResetPasswordPage() {
             style={{ marginTop: '1.5rem' }}
             onClick={() => navigate('/login')}
           >
-            Go to Sign In <span className="material-symbols-outlined">arrow_forward</span>
+            {t('auth.goToSignIn')} <span className="material-symbols-outlined">arrow_forward</span>
           </button>
         </main>
       </div>
@@ -138,8 +140,8 @@ export default function ResetPasswordPage() {
             <span className="material-symbols-outlined">lock_reset</span>
           </div>
           <div className="auth-text-center">
-            <h1>Reset Password</h1>
-            <p>Enter your new password below.</p>
+            <h1>{t('auth.resetTitle')}</h1>
+            <p>{t('auth.resetSub')}</p>
           </div>
         </div>
 
@@ -150,7 +152,7 @@ export default function ResetPasswordPage() {
 
             {/* New password */}
             <div className="field-group">
-              <label htmlFor="rp-password">New Password</label>
+              <label htmlFor="rp-password">{t('auth.newPassword')}</label>
               <div className="input-wrap">
                 <span className="material-symbols-outlined input-icon">lock</span>
                 <input
@@ -165,7 +167,7 @@ export default function ResetPasswordPage() {
                   type="button"
                   className="toggle-pass"
                   onClick={() => setShowPass(p => !p)}
-                  aria-label="Toggle password visibility"
+                  aria-label={t('auth.togglePass')}
                 >
                   <span className="material-symbols-outlined">
                     {showPass ? 'visibility_off' : 'visibility'}
@@ -173,15 +175,15 @@ export default function ResetPasswordPage() {
                 </button>
               </div>
               <div className="reset-strength-hints">
-                <StrengthHint met={has8} label="8+ characters" />
-                <StrengthHint met={hasUpper} label="1 Uppercase" />
-                <StrengthHint met={hasSymbol} label="1 Symbol" />
+                <StrengthHint met={has8} label={t('auth.hint8')} />
+                <StrengthHint met={hasUpper} label={t('auth.hintUpper')} />
+                <StrengthHint met={hasSymbol} label={t('auth.hintSymbol')} />
               </div>
             </div>
 
             {/* Confirm password */}
             <div className="field-group">
-              <label htmlFor="rp-confirm">Confirm Password</label>
+              <label htmlFor="rp-confirm">{t('auth.confirmPassword')}</label>
               <div className="input-wrap">
                 <span className="material-symbols-outlined input-icon">lock_clock</span>
                 <input
@@ -196,7 +198,7 @@ export default function ResetPasswordPage() {
                   type="button"
                   className="toggle-pass"
                   onClick={() => setShowConfirm(p => !p)}
-                  aria-label="Toggle confirm password visibility"
+                  aria-label={t('auth.toggleConfirmPass')}
                 >
                   <span className="material-symbols-outlined">
                     {showConfirm ? 'visibility_off' : 'visibility'}
@@ -208,7 +210,7 @@ export default function ResetPasswordPage() {
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading
                 ? <span className="spinner" />
-                : <>Reset Password <span className="material-symbols-outlined">arrow_forward</span></>
+                : <>{t('auth.resetBtn')} <span className="material-symbols-outlined">arrow_forward</span></>
               }
             </button>
           </form>
@@ -217,7 +219,7 @@ export default function ResetPasswordPage() {
         {/* Back to login */}
         <button className="auth-footer-link" onClick={() => navigate('/login')}>
           <span className="material-symbols-outlined">arrow_back</span>
-          Back to Login
+          {t('auth.backToLogin')}
         </button>
       </main>
     </div>

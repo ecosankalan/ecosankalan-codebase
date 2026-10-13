@@ -189,7 +189,7 @@
   align-items: center;
   transition: background 0.15s;
 }
-.vr-copy-btn:hover { background: rgba(0,81,39,0.08); }
+.vr-copy-btn:hover { background: rgba(42,124,19,0.08); }
 .vr-copy-btn .material-symbols-outlined { font-size: 1.1rem !important; }
 
 /* ── Reward Chips ─────────────────────────────────────────────────── */

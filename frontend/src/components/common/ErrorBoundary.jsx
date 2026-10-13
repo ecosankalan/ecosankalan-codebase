@@ -30,12 +30,12 @@ export default class ErrorBoundary extends React.Component {
             padding: '2.5rem 2rem',
             textAlign: 'center',
             border: '1px solid #d9e6cf',
-            boxShadow: '0 18px 50px rgba(0,70,52,.12)',
+            boxShadow: '0 18px 50px rgba(42,124,19,.12)',
           }}>
             <div style={{
               width: '64px', height: '64px', margin: '0 auto 1.25rem',
               borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'linear-gradient(135deg,#2b9348,#004634)', color: '#aacc00', fontSize: '2rem',
+              background: 'linear-gradient(135deg,#2A7C13,#1C5410)', color: '#76C457', fontSize: '2rem',
             }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2rem' }}>eco</span>
             </div>
@@ -51,13 +51,13 @@ export default class ErrorBoundary extends React.Component {
             <div style={{ display: 'flex', gap: '.6rem', justifyContent: 'center' }}>
               <button
                 onClick={() => window.location.reload()}
-                style={{ background: '#007f5f', color: '#fff', border: 0, borderRadius: '14px', padding: '.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}
+                style={{ background: '#2A7C13', color: '#fff', border: 0, borderRadius: '14px', padding: '.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}
               >
                 Reload app
               </button>
               <button
                 onClick={() => { this.setState({ hasError: false, error: null }); window.location.href = '/'; }}
-                style={{ background: '#fff', color: '#007f5f', border: '1.5px solid rgba(0,70,52,.3)', borderRadius: '14px', padding: '.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}
+                style={{ background: '#fff', color: '#2A7C13', border: '1.5px solid rgba(42,124,19,.3)', borderRadius: '14px', padding: '.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}
               >
                 Go home
               </button>

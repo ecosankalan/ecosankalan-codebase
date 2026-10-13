@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useNotifications } from "../../context/NotificationContext";
 import "../../styles/NotificationDropdown.css";
 
@@ -11,6 +12,7 @@ export default function NotificationDropdown({ onClose }) {
   } = useNotifications();
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const dropdownRef = useRef(null);
 
   // Close on outside click
@@ -67,14 +69,14 @@ export default function NotificationDropdown({ onClose }) {
 
       <div className="notification-header">
 
-        <h3>Notifications</h3>
+        <h3>{t('notif.title')}</h3>
 
         {notifications.length > 0 && (
           <button
             className="mark-all-btn"
             onClick={markAllAsRead}
           >
-            Mark all as read
+            {t('notif.markAll')}
           </button>
         )}
 
@@ -83,7 +85,7 @@ export default function NotificationDropdown({ onClose }) {
       {notifications.length === 0 ? (
 
         <div className="notification-empty">
-          No notifications yet.
+          {t('notif.empty')}
         </div>
 
       ) : (
@@ -111,7 +113,7 @@ export default function NotificationDropdown({ onClose }) {
             </div>
 
             <div className="notification-time">
-              {formatTime(notification.receivedAt)}
+              {formatTime(notification.receivedAt, t)}
             </div>
 
           </div>
@@ -124,18 +126,18 @@ export default function NotificationDropdown({ onClose }) {
   );
 }
 
-function formatTime(date) {
+function formatTime(date, t) {
 
   const diff =
     Math.floor((Date.now() - new Date(date)) / 1000);
 
-  if (diff < 60) return "Just now";
+  if (diff < 60) return t('notif.justNow');
 
   if (diff < 3600)
-    return `${Math.floor(diff / 60)} min ago`;
+    return t('notif.minAgo', { count: Math.floor(diff / 60) });
 
   if (diff < 86400)
-    return `${Math.floor(diff / 3600)} hr ago`;
+    return t('notif.hrAgo', { count: Math.floor(diff / 3600) });
 
-  return `${Math.floor(diff / 86400)} day ago`;
+  return t('notif.dayAgo', { count: Math.floor(diff / 86400) });
 }

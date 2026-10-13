@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { getWasteStats, getWasteHistory, updateProfile, uploadAvatar, getProfile } from '../services/api';
 import Navbar from '../components/common/Navbar';
@@ -7,8 +8,8 @@ import BottomNav from '../components/common/BottomNav';
 import '../styles/profile.css';
 import { useStats } from '../context/StatsContext';
 
-const formatDisplayName = (name) => {
-  if (!name || typeof name !== 'string') return 'Eco Warrior';
+const formatDisplayName = (name, fallback = 'Eco Warrior') => {
+  if (!name || typeof name !== 'string') return fallback;
   return name
     .trim()
     .split(/\s+/)
@@ -17,10 +18,10 @@ const formatDisplayName = (name) => {
 };
 
 const QUIZ_META = {
-  'quiz-plastic': { title: 'Plastic Waste',   icon: 'inventory_2',  badge: 'Plastic Expert',     color: '#1b6b3a' },
-  'quiz-organic': { title: 'Organic Waste',   icon: 'compost',      badge: 'Compost Champion',   color: '#005127' },
-  'quiz-ewaste':  { title: 'E-Waste & Metal', icon: 'devices_other',badge: 'Tech Recycler',      color: '#782c39' },
-  'quiz-paper':   { title: 'Paper & Other',   icon: 'description',  badge: 'Paper Sage',         color: '#1b6b3a' },
+  'quiz-plastic': { titleKey: 'quizPlastic', icon: 'inventory_2',  badgeKey: 'badgePlastic', color: '#2A7C13' },
+  'quiz-organic': { titleKey: 'quizOrganic', icon: 'compost',      badgeKey: 'badgeOrganic', color: '#2A7C13' },
+  'quiz-ewaste':  { titleKey: 'quizEwaste',  icon: 'devices_other',badgeKey: 'badgeEwaste',  color: '#7A5B12' },
+  'quiz-paper':   { titleKey: 'quizPaper',   icon: 'description',  badgeKey: 'badgePaper',   color: '#2A7C13' },
 };
 
 function getQuizResults() {
@@ -29,6 +30,7 @@ function getQuizResults() {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, logout, updateUser } = useAuth();
   const { statsData } = useStats();
   const stats = statsData.all; // All-time stats
@@ -102,7 +104,7 @@ export default function ProfilePage() {
     .filter(([_, kg]) => kg > 0)
     .slice(0, 3); // Top 3
 
-  const colors = ['#1b6d24', '#005127', '#782c39']; // primary, secondary, tertiary
+  const colors = ['#2A7C13', '#2A7C13', '#7A5B12']; // primary, secondary, tertiary
   let dashOffset = 0;
   const slices = topCategories.map(([key, kg], i) => {
     const pct = Math.round((kg / totalKg) * 100);
@@ -124,15 +126,15 @@ export default function ProfilePage() {
   const isSoilMaster = organicKg >= 50;
 
   const ACHIEVEMENTS = [
-    { icon: 'verified',       bg: isFirstLog ? 'bg-secondary-fixed' : 'bg-surface-container',   fill: isFirstLog,  title: 'First Log',    sub: isFirstLog ? 'Started the journey' : 'Locked: Log any waste',     locked: !isFirstLog },
-    { icon: 'fitness_center', bg: is10Kg ? 'bg-primary-fixed' : 'bg-surface-container',         fill: is10Kg,      title: '10kg Club',    sub: is10Kg ? 'Significant impact' : 'Locked: Recycle 10kg total',       locked: !is10Kg },
-    { icon: 'compost',        bg: isSoilMaster ? 'bg-secondary-fixed' : 'bg-surface-container', fill: isSoilMaster, title: 'Soil Master',  sub: isSoilMaster ? 'Master of compost' : `Locked: ${Math.round(50 - organicKg)}kg organic needed`,  locked: !isSoilMaster  },
-    { icon: 'communities',    bg: 'bg-surface-container',                                       fill: false,       title: 'Ambassador',   sub: 'Locked: Invite 5 friends', locked: true  },
+    { icon: 'verified',       bg: isFirstLog ? 'bg-secondary-fixed' : 'bg-surface-container',   fill: isFirstLog,  title: t('profilePage.firstLog'),   sub: isFirstLog ? t('profilePage.firstLogDone') : t('profilePage.firstLogLocked'),     locked: !isFirstLog },
+    { icon: 'fitness_center', bg: is10Kg ? 'bg-primary-fixed' : 'bg-surface-container',         fill: is10Kg,      title: t('profilePage.club10'),     sub: is10Kg ? t('profilePage.club10Done') : t('profilePage.club10Locked'),                 locked: !is10Kg },
+    { icon: 'compost',        bg: isSoilMaster ? 'bg-secondary-fixed' : 'bg-surface-container', fill: isSoilMaster, title: t('profilePage.soilMaster'), sub: isSoilMaster ? t('profilePage.soilMasterDone') : t('profilePage.soilMasterLocked', { kg: Math.round(50 - organicKg) }), locked: !isSoilMaster  },
+    { icon: 'communities',    bg: 'bg-surface-container',                                       fill: false,       title: t('profilePage.ambassador'), sub: t('profilePage.ambassadorLocked'), locked: true  },
   ];
 
   const SETTINGS = [
-    ...(user?.role === 'admin' ? [{ icon: 'admin_panel_settings', label: 'Admin Dashboard', action: () => navigate('/admin') }] : []),
-    { icon: 'lock',                 label: 'Privacy',       action: () => setActiveModal('privacy') },
+    ...(user?.role === 'admin' ? [{ icon: 'admin_panel_settings', label: t('profilePage.adminDashboard'), action: () => navigate('/admin') }] : []),
+    { icon: 'lock',                 label: t('profilePage.privacy'),       action: () => setActiveModal('privacy') },
   ];
 
   return (
@@ -157,7 +159,7 @@ export default function ProfilePage() {
             </div>
             <div className="profile-hero-info">
               <div className="profile-hero-name-row">
-                <h2 className="profile-hero-name">{formatDisplayName(user?.name)}</h2>
+                <h2 className="profile-hero-name">{formatDisplayName(user?.name, t('profilePage.warrior'))}</h2>
               </div>
               <div className="profile-hero-location">
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>email</span>
@@ -167,7 +169,7 @@ export default function ProfilePage() {
             </div>
             <button className="profile-edit-btn" onClick={() => setActiveModal('edit')}>
               <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>edit</span>
-              Edit Profile
+              {t('profilePage.editProfile')}
             </button>
           </div>
         </section>
@@ -177,23 +179,23 @@ export default function ProfilePage() {
           <div className="profile-stats-grid">
             <div className="profile-stat-card white">
               <span className="material-symbols-outlined profile-stat-icon primary">analytics</span>
-              <div><p className="profile-stat-label">Total Logs</p><h3 className="profile-stat-val">{totalLogs.toLocaleString()}</h3></div>
+              <div><p className="profile-stat-label">{t('profilePage.totalLogs')}</p><h3 className="profile-stat-val">{totalLogs.toLocaleString()}</h3></div>
             </div>
             <div className="profile-stat-card green">
               <span className="material-symbols-outlined profile-stat-icon">eco</span>
-              <div><p className="profile-stat-label muted">CO₂ Saved</p><h3 className="profile-stat-val">{stats?.totalCo2Saved || 0} kg</h3></div>
+              <div><p className="profile-stat-label muted">{t('profilePage.co2Saved')}</p><h3 className="profile-stat-val">{stats?.totalCo2Saved || 0} kg</h3></div>
             </div>
             <div className="profile-stat-card white">
               <span className="material-symbols-outlined profile-stat-icon secondary">toll</span>
-              <div><p className="profile-stat-label">Points</p><h3 className="profile-stat-val">{(user?.ecoPoints || 0).toLocaleString()}</h3></div>
+              <div><p className="profile-stat-label">{t('profilePage.points')}</p><h3 className="profile-stat-val">{(user?.ecoPoints || 0).toLocaleString()}</h3></div>
             </div>
             <div className="profile-stat-card red">
               <span className="material-symbols-outlined profile-stat-icon">quiz</span>
-              <div><p className="profile-stat-label muted">Quizzes Done</p><h3 className="profile-stat-val">{completedQuizzes}/4</h3></div>
+              <div><p className="profile-stat-label muted">{t('profilePage.quizzesDone')}</p><h3 className="profile-stat-val">{completedQuizzes}/4</h3></div>
             </div>
           </div>
           <div className="profile-donut-card">
-            <h4 className="profile-donut-title">Waste Breakdown</h4>
+            <h4 className="profile-donut-title">{t('profilePage.wasteBreakdown')}</h4>
             <div className="profile-donut-wrap">
               <svg className="profile-donut-svg" viewBox="0 0 36 36">
                 <circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#eceeec" strokeWidth="4" />
@@ -221,7 +223,7 @@ export default function ProfilePage() {
                 </div>
               )) : (
                 <div className="profile-legend-item">
-                  <span style={{ color: 'var(--outline)' }}>No waste logged yet</span>
+                  <span style={{ color: 'var(--outline)' }}>{t('profilePage.noWaste')}</span>
                 </div>
               )}
             </div>
@@ -231,8 +233,8 @@ export default function ProfilePage() {
         {/* ── Quiz Progress Section ── */}
         <section className="profile-section">
           <div className="profile-section-header-row">
-            <h4 className="profile-section-title">Quiz Progress</h4>
-            <button type="button" className="profile-quiz-all-btn" onClick={() => navigate('/quiz')}>Take Quiz</button>
+            <h4 className="profile-section-title">{t('profilePage.quizProgress')}</h4>
+            <button type="button" className="profile-quiz-all-btn" onClick={() => navigate('/quiz')}>{t('profilePage.takeQuiz')}</button>
           </div>
           <div className="profile-quiz-grid">
             {Object.entries(QUIZ_META).map(([id, meta]) => {
@@ -246,23 +248,23 @@ export default function ProfilePage() {
                     <span className="material-symbols-outlined" style={{ color: meta.color, fontVariationSettings: "'FILL' 1" }}>{meta.icon}</span>
                   </div>
                   <div className="profile-quiz-info">
-                    <h5 className="profile-quiz-name">{meta.title}</h5>
+                    <h5 className="profile-quiz-name">{t(`profilePage.${meta.titleKey}`)}</h5>
                     {done ? (
                       <>
                         <div className="profile-quiz-bar-wrap">
                           <div className="profile-quiz-bar"><div className="profile-quiz-fill" style={{ width: `${pct}%`, background: meta.color }} /></div>
                           <span className="profile-quiz-pct">{pct}%</span>
                         </div>
-                        <span className="profile-quiz-score">{result.score}/{result.total} correct</span>
+                        <span className="profile-quiz-score">{result.score}/{result.total} {t('profilePage.correct')}</span>
                         {badgeEarned && (
                           <span className="profile-quiz-badge-earned">
                             <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                            {meta.badge}
+                            {t(`profilePage.${meta.badgeKey}`)}
                           </span>
                         )}
                       </>
                     ) : (
-                      <span className="profile-quiz-not-done">Not attempted yet</span>
+                      <span className="profile-quiz-not-done">{t('profilePage.notAttempted')}</span>
                     )}
                   </div>
                   <span className="material-symbols-outlined" style={{ color: 'var(--on-surface-variant)', fontSize: '1.25rem' }}>
@@ -276,7 +278,7 @@ export default function ProfilePage() {
 
         {/* Achievements */}
         <section className="profile-section">
-          <h4 className="profile-section-title">Achievements</h4>
+          <h4 className="profile-section-title">{t('profilePage.achievements')}</h4>
           <div className="profile-achievements-grid">
             {ACHIEVEMENTS.map(a => (
               <div key={a.title} className={`profile-achievement-card${a.locked ? ' locked' : ''}`}>
@@ -295,7 +297,7 @@ export default function ProfilePage() {
         {/* Settings */}
         <section className="profile-settings-card">
           <div className="profile-settings-header">
-            <h4 className="profile-settings-title">Preferences &amp; Settings</h4>
+            <h4 className="profile-settings-title">{t('profilePage.preferences')}</h4>
           </div>
           <div className="profile-settings-list">
             {SETTINGS.map(s => (
@@ -310,7 +312,7 @@ export default function ProfilePage() {
             <button className="profile-settings-row danger" onClick={handleLogout}>
               <div className="profile-settings-left">
                 <span className="material-symbols-outlined" style={{ color: 'var(--error)' }}>logout</span>
-                <span className="profile-settings-label danger">Logout</span>
+                <span className="profile-settings-label danger">{t('profilePage.logout')}</span>
               </div>
             </button>
           </div>
@@ -325,14 +327,14 @@ export default function ProfilePage() {
             
             {activeModal === 'edit' && (
               <>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>Edit Profile</h3>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>{t('profilePage.editProfile')}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div className="input-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <div style={{ width: '5rem', height: '5rem', borderRadius: '50%', overflow: 'hidden', background: 'var(--surface-container-highest)', border: '2px solid var(--primary)' }}>
                       <img src={editPic || "https://lh3.googleusercontent.com/aida-public/AB6AXuCumhJLdM5zItnZGoQ9wC0uGI0AHo-Ho56Zvuk0ZsYMY_ZpAshgZtlV-xwAaiOPIO1cS4eIgYWuRrpt0kBibxsP7oBMt1gmkYA62-H-YlKm3I5BOjnOjOZan5n5qiP1D11LqF3SqRuDZEVqz4WJB-cN4zmIBXZTbIJK_E28F_YA8Lu6UFsEBumE0ktFV0vLzheyCIcvofLPMITIgS9D6FTIy6VydfSY8kFzcS9FIarwx7zv6f1CVrMmn7kviwNEpdaNQxf81xvbsPQS"} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                     <label style={{ fontSize: '0.8rem', color: 'white', fontWeight: '600', cursor: 'pointer', background: 'var(--primary-container)', padding: '0.4rem 0.8rem', borderRadius: '1rem' }}>
-                      Change Picture
+                      {t('profilePage.changePicture')}
                       <input 
                         type="file" 
                         accept="image/*" 
@@ -350,7 +352,7 @@ export default function ProfilePage() {
                     </label>
                   </div>
                   <div className="input-group">
-                    <label style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)', marginBottom: '0.5rem', display: 'block' }}>Full Name</label>
+                    <label style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)', marginBottom: '0.5rem', display: 'block' }}>{t('profilePage.fullName')}</label>
                     <input 
                       type="text" 
                       value={editName} 
@@ -359,12 +361,12 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="input-group">
-                    <label style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)', marginBottom: '0.5rem', display: 'block' }}>Email (Uneditable)</label>
+                    <label style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)', marginBottom: '0.5rem', display: 'block' }}>{t('profilePage.emailLocked')}</label>
                     <input type="text" value={user?.email || ''} disabled style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--outline-variant)', background: 'var(--surface-container-low)', color: 'var(--outline)' }} />
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                    <button onClick={() => setActiveModal(null)} style={{ flex: 1, padding: '0.75rem', borderRadius: '100px', border: 'none', background: 'var(--surface-container)', color: 'var(--on-surface)', fontWeight: 500 }}>Cancel</button>
-                    <button onClick={handleSaveProfile} disabled={isSaving} style={{ flex: 1, padding: '0.75rem', borderRadius: '100px', border: 'none', background: 'var(--primary)', color: 'var(--on-primary)', fontWeight: 500 }}>{isSaving ? 'Saving...' : 'Save'}</button>
+                    <button onClick={() => setActiveModal(null)} style={{ flex: 1, padding: '0.75rem', borderRadius: '100px', border: 'none', background: 'var(--surface-container)', color: 'var(--on-surface)', fontWeight: 500 }}>{t('profilePage.cancel')}</button>
+                    <button onClick={handleSaveProfile} disabled={isSaving} style={{ flex: 1, padding: '0.75rem', borderRadius: '100px', border: 'none', background: 'var(--primary)', color: 'var(--on-primary)', fontWeight: 500 }}>{isSaving ? t('profilePage.saving') : t('profilePage.save')}</button>
                   </div>
                 </div>
               </>
@@ -373,24 +375,24 @@ export default function ProfilePage() {
             {activeModal === 'privacy' && (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Privacy Settings</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t('profilePage.privacyTitle')}</h3>
                   <button onClick={() => setActiveModal(null)} style={{ background: 'transparent', border: 'none', color: 'var(--on-surface-variant)' }}><span className="material-symbols-outlined">close</span></button>
                 </div>
                 <div style={{ padding: '1rem', background: 'var(--surface-container-low)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>shield</span>
                     <div>
-                      <h5 style={{ margin: '0 0 0.25rem 0' }}>DPDP Act 2023 Compliant</h5>
-                      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>Your personal data is encrypted and securely stored.</p>
+                      <h5 style={{ margin: '0 0 0.25rem 0' }}>{t('profilePage.dpdpTitle')}</h5>
+                      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>{t('profilePage.dpdpSub')}</p>
                     </div>
                   </div>
                   <hr style={{ border: 'none', borderTop: '1px solid var(--outline-variant)' }} />
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Make Profile Public</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{t('profilePage.makePublic')}</span>
                     <input type="checkbox" defaultChecked={false} style={{ accentColor: 'var(--primary)' }} />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Share Analytics Anonymously</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{t('profilePage.shareAnalytics')}</span>
                     <input type="checkbox" defaultChecked={true} style={{ accentColor: 'var(--primary)' }} />
                   </div>
                 </div>

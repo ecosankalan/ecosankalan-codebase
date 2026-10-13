@@ -1,61 +1,61 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/common/Navbar';
 
 export default function PrivacyPolicyPage() {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === 'hi' ? 'hi-IN' : 'en-IN';
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl pt-24">
         <div className="bg-white rounded-xl shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Privacy Policy</h1>
-          <p className="text-sm text-gray-500 mb-8">Last Updated: {new Date().toLocaleDateString()}</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">{t('misc.privacyTitle')}</h1>
+          <p className="text-sm text-gray-500 mb-8">{t('misc.privacyUpdated', { date: new Date().toLocaleDateString(locale) })}</p>
 
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">1. Introduction</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">{t('misc.privacyS1T')}</h2>
             <p className="text-gray-600 mb-4">
-              Welcome to EcoSankalan. We are committed to protecting your personal information and your right to privacy. 
-              This Privacy Policy applies to all information collected through our application.
+              {t('misc.privacyS1D')}
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">2. Information We Collect</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">{t('misc.privacyS2T')}</h2>
             <p className="text-gray-600 mb-4">
-              We collect personal information that you voluntarily provide to us when you register on the App.
-              This may include:
+              {t('misc.privacyS2D')}
             </p>
             <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-4">
-              <li>Names, email addresses, and contact information.</li>
-              <li>Authentication data (such as Google Login information).</li>
-              <li>Location data (to provide mapping features for waste tracking).</li>
-              <li>Images uploaded for waste logging or profile pictures.</li>
+              <li>{t('misc.privacyS2L1')}</li>
+              <li>{t('misc.privacyS2L2')}</li>
+              <li>{t('misc.privacyS2L3')}</li>
+              <li>{t('misc.privacyS2L4')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">3. How We Use Your Information</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">{t('misc.privacyS3T')}</h2>
             <p className="text-gray-600 mb-4">
-              We use personal information collected via our App for a variety of business purposes described below:
+              {t('misc.privacyS3D')}
             </p>
             <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-4">
-              <li>To facilitate account creation and logon process.</li>
-              <li>To post community updates and track eco-friendly progress.</li>
-              <li>To calculate and award points/vouchers for sustainable actions.</li>
+              <li>{t('misc.privacyS3L1')}</li>
+              <li>{t('misc.privacyS3L2')}</li>
+              <li>{t('misc.privacyS3L3')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">4. Data Security</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">{t('misc.privacyS4T')}</h2>
             <p className="text-gray-600 mb-4">
-              We have implemented appropriate technical and organizational security measures designed to protect the security 
-              of any personal information we process. Your data is encrypted in transit and securely stored.
+              {t('misc.privacyS4D')}
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">5. Contact Us</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">{t('misc.privacyS5T')}</h2>
             <p className="text-gray-600 mb-4">
-              If you have questions or comments about this notice, you may email us at ecosankalan@gmail.com.
+              {t('misc.privacyS5D')}
             </p>
           </section>
         </div>

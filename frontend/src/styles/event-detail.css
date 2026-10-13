@@ -233,7 +233,7 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: rgba(0,81,39,0.08);
+  background: rgba(42,124,19,0.08);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -348,7 +348,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 16px rgba(0,81,39,0.2);
+  box-shadow: 0 4px 16px rgba(42,124,19,0.2);
   transition: background 0.15s, transform 0.15s;
 }
 .ed-rsvp-btn:hover  { background: var(--primary-container); }
@@ -367,7 +367,7 @@
   flex-shrink: 0;
   transition: background 0.15s, transform 0.15s;
 }
-.ed-cal-btn:hover  { background: rgba(0,81,39,0.05); }
+.ed-cal-btn:hover  { background: rgba(42,124,19,0.05); }
 .ed-cal-btn:active { transform: scale(0.93); }
 .ed-cal-btn .material-symbols-outlined { font-size: 1.4rem !important; }
 

@@ -5,23 +5,28 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Brand ─────────────────────────────────────────────────── */
-  --eco-primary:            #007f5f;
-  --eco-primary-deep:       #004634;
-  --eco-primary-soft:       #2b9348;
-  --eco-lime:               #aacc00;
-  --eco-lime-soft:          #e7f4d2;
-  --eco-mint:               #bfd200;
-  --eco-ink:                #0f1c13;
-  --eco-ink-soft:           #3c4f3e;
-  --eco-muted:              #64797a;
-  --eco-line:               #d9e6cf;
-  --eco-bg:                 #f4f8f1;
-  --eco-card:               #ffffff;
-  --eco-amber:              #b45309;
-  --eco-amber-bg:            #fef3c7;
-  --eco-sky:                #0369a1;
-  --eco-sky-bg:              #e9f2da;
+  /* ── Brand ── EcoSankalan "Leaf Harvest" theme ──────────────
+     Primary   #2A7C13  deep leaf green  (actions, text accents)
+     Fresh     #76C457  young leaf green (highlights, gradients)
+     Cream     #FFF8CF  warm paper       (page background)
+     Sand      #FBE6C2  harvest sand     (soft surfaces, borders)
+  ───────────────────────────────────────────────────────────── */
+  --eco-primary:            #2A7C13;
+  --eco-primary-deep:       #1C5410;
+  --eco-primary-soft:       #76C457;
+  --eco-lime:               #76C457;
+  --eco-lime-soft:          #FBE6C2;
+  --eco-mint:               #76C457;
+  --eco-ink:                #20301A;
+  --eco-ink-soft:           #4A5D3F;
+  --eco-muted:              #6B7A5E;
+  --eco-line:               #EBD3A6;
+  --eco-bg:                 #FFF8CF;
+  --eco-card:               #FFFDF2;
+  --eco-amber:              #9A6206;
+  --eco-amber-bg:            #FBE6C2;
+  --eco-sky:                #2A7C13;
+  --eco-sky-bg:              #EAF6DC;
   --eco-danger:             #ba1a1a;
   --eco-danger-bg:          #fdecec;
 
@@ -29,8 +34,8 @@
   --eco-shadow-xs:  0 1px 2px rgba(15, 28, 19, 0.06);
   --eco-shadow-sm:  0 2px 8px rgba(15, 28, 19, 0.07);
   --eco-shadow-md:  0 8px 24px rgba(15, 28, 19, 0.10);
-  --eco-shadow-lg:  0 18px 50px rgba(0, 70, 52, 0.16);
-  --eco-shadow-glow: 0 8px 30px rgba(0, 70, 52, 0.28);
+  --eco-shadow-lg:  0 18px 50px rgba(42, 124, 19, 0.16);
+  --eco-shadow-glow: 0 8px 30px rgba(42, 124, 19, 0.28);
 
   /* ── Shape & motion ────────────────────────────────────────── */
   --eco-r-sm: 10px;
@@ -59,7 +64,7 @@
 .eco-page {
   min-height: 100dvh;
   background:
-    radial-gradient(900px 320px at 85% -80px, rgba(170, 204, 0, 0.22), transparent 60%),
+    radial-gradient(900px 320px at 85% -80px, rgba(118, 196, 87, 0.22), transparent 60%),
     radial-gradient(700px 300px at -10% 10%, rgba(212, 215, 0, 0.18), transparent 55%),
     var(--eco-bg);
   animation: eco-page-in 0.5s var(--eco-ease) both;
@@ -88,7 +93,7 @@
   text-transform: uppercase;
   color: var(--eco-primary);
   background: var(--eco-lime-soft);
-  border: 1px solid rgba(0, 70, 52, 0.14);
+  border: 1px solid rgba(42, 124, 19, 0.14);
   padding: 0.3rem 0.7rem;
   border-radius: var(--eco-r-full);
 }
@@ -118,7 +123,7 @@
 .eco-card--lift:hover {
   transform: translateY(-3px);
   box-shadow: var(--eco-shadow-md);
-  border-color: rgba(0, 70, 52, 0.25);
+  border-color: rgba(42, 124, 19, 0.25);
 }
 .eco-card-pad { padding: 1.25rem; }
 @media (min-width: 768px) { .eco-card-pad { padding: 1.6rem; } }
@@ -151,12 +156,12 @@
 .eco-btn:active { transform: translateY(0) scale(0.98); }
 .eco-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 .eco-btn .material-symbols-outlined { font-size: 1.15rem; }
-.eco-btn--primary { --btn-bg: linear-gradient(135deg, #2b9348 0%, var(--eco-primary) 60%, var(--eco-primary-deep) 100%); }
-.eco-btn--lime { --btn-bg: var(--eco-lime); --btn-fg: var(--eco-primary-deep); border-color: rgba(0,70,52,.2); }
-.eco-btn--secondary { --btn-bg: #fff; --btn-fg: var(--eco-primary); border-color: rgba(0,70,52,.35); box-shadow: none; }
+.eco-btn--primary { --btn-bg: linear-gradient(135deg, #2A7C13 0%, var(--eco-primary) 60%, var(--eco-primary-deep) 100%); }
+.eco-btn--lime { --btn-bg: var(--eco-lime); --btn-fg: var(--eco-primary-deep); border-color: rgba(42,124,19,.2); }
+.eco-btn--secondary { --btn-bg: #fff; --btn-fg: var(--eco-primary); border-color: rgba(42,124,19,.35); box-shadow: none; }
 .eco-btn--secondary:hover { background: #eef4e2; }
 .eco-btn--ghost { --btn-bg: transparent; --btn-fg: var(--eco-primary); box-shadow: none; border-color: transparent; }
-.eco-btn--ghost:hover { background: rgba(0,70,52,.07); box-shadow: none; }
+.eco-btn--ghost:hover { background: rgba(42,124,19,.07); box-shadow: none; }
 .eco-btn--danger { --btn-bg: var(--eco-danger); }
 .eco-btn--block { width: 100%; }
 .eco-btn--sm { min-height: 38px; padding: 0.5rem 0.95rem; font-size: 0.84rem; border-radius: 12px; }
@@ -172,7 +177,7 @@
   cursor: pointer;
   transition: background var(--eco-t-fast), transform var(--eco-t-fast), border-color var(--eco-t-fast);
 }
-.eco-icon-btn:hover { background: #e9f2dc; border-color: rgba(0,70,52,.3); transform: translateY(-1px); }
+.eco-icon-btn:hover { background: #FBE6C2; border-color: rgba(42,124,19,.3); transform: translateY(-1px); }
 
 /* ── Inputs ──────────────────────────────────────────────────── */
 .eco-field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
@@ -193,7 +198,7 @@
 .eco-input::placeholder, .eco-textarea::placeholder { color: #9aa39a; }
 .eco-input:focus, .eco-select:focus, .eco-textarea:focus {
   border-color: var(--eco-primary);
-  box-shadow: 0 0 0 4px rgba(0, 70, 52, 0.12);
+  box-shadow: 0 0 0 4px rgba(42, 124, 19, 0.12);
 }
 .eco-hint { font-size: 0.78rem; color: var(--eco-muted); }
 .eco-error-text { font-size: 0.8rem; color: var(--eco-danger); font-weight: 600; }
@@ -211,9 +216,9 @@
   white-space: nowrap;
 }
 .eco-chip .material-symbols-outlined { font-size: 1rem; }
-.eco-chip:hover { border-color: rgba(0,70,52,.4); transform: translateY(-1px); }
+.eco-chip:hover { border-color: rgba(42,124,19,.4); transform: translateY(-1px); }
 .eco-chip--active { background: var(--eco-primary); border-color: var(--eco-primary); color: #fff; box-shadow: var(--eco-shadow-sm); }
-.eco-chip--lime { background: var(--eco-lime-soft); border-color: rgba(0,70,52,.2); color: var(--eco-primary-deep); }
+.eco-chip--lime { background: var(--eco-lime-soft); border-color: rgba(42,124,19,.2); color: var(--eco-primary-deep); }
 .eco-chip--amber { background: var(--eco-amber-bg); border-color: #f5d78e; color: var(--eco-amber); }
 .eco-chip--sky { background: var(--eco-sky-bg); border-color: #bae6fd; color: var(--eco-sky); }
 
@@ -247,7 +252,7 @@
   border: 1.5px dashed var(--eco-line);
   border-radius: var(--eco-r-lg);
   background:
-    radial-gradient(300px 120px at 50% 0%, rgba(170, 204, 0, 0.1), transparent 70%),
+    radial-gradient(300px 120px at 50% 0%, rgba(118, 196, 87, 0.1), transparent 70%),
     rgba(255,255,255,.6);
   color: var(--eco-muted);
 }
@@ -255,8 +260,8 @@
   font-size: 2.75rem;
   color: var(--eco-primary);
   opacity: .8;
-  background: linear-gradient(140deg, #eef4e2, #e7f4d2);
-  border: 1px solid rgba(0, 70, 52, 0.14);
+  background: linear-gradient(140deg, #eef4e2, #EAF6DC);
+  border: 1px solid rgba(42, 124, 19, 0.14);
   width: 72px;
   height: 72px;
   border-radius: 24px;
@@ -323,14 +328,14 @@
 
 /* ── Progress ────────────────────────────────────────────────── */
 .eco-progress { height: 8px; border-radius: var(--eco-r-full); background: #e6ece5; overflow: hidden; }
-.eco-progress > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #55a630, var(--eco-primary)); transition: width 0.6s var(--eco-ease); }
+.eco-progress > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2A7C13, var(--eco-primary)); transition: width 0.6s var(--eco-ease); }
 
 /* ── Toast polish (react-hot-toast) ──────────────────────────── */
 .go2484888252 { font-family: var(--font-body) !important; }
 
 /* ── Focus visibility (a11y) ─────────────────────────────────── */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 3px solid rgba(0, 70, 52, 0.45);
+  outline: 3px solid rgba(42, 124, 19, 0.45);
   outline-offset: 2px;
   border-radius: 8px;
 }
@@ -347,19 +352,19 @@
 
 /* Auth cards: deeper, softer, premium */
 .login-card {
-  border: 1px solid rgba(0, 70, 52, 0.12) !important;
+  border: 1px solid rgba(42, 124, 19, 0.12) !important;
   border-radius: 28px !important;
-  box-shadow: 0 24px 70px rgba(0, 70, 52, 0.16) !important;
+  box-shadow: 0 24px 70px rgba(42, 124, 19, 0.16) !important;
   animation: eco-page-in 0.55s var(--eco-ease) both;
 }
 .brand-panel {
   background:
-    radial-gradient(500px 260px at 110% -40px, rgba(170, 204, 0, 0.35), transparent 60%),
-    radial-gradient(400px 300px at -20% 110%, rgba(170, 204, 0, 0.18), transparent 55%),
-    linear-gradient(150deg, #2b9348 0%, var(--primary) 55%, #004634 100%) !important;
+    radial-gradient(500px 260px at 110% -40px, rgba(118, 196, 87, 0.35), transparent 60%),
+    radial-gradient(400px 300px at -20% 110%, rgba(118, 196, 87, 0.18), transparent 55%),
+    linear-gradient(150deg, #2A7C13 0%, var(--primary) 55%, #1C5410 100%) !important;
 }
 .submit-btn {
-  background: linear-gradient(135deg, #2b9348 0%, var(--primary) 60%, #004634 100%) !important;
+  background: linear-gradient(135deg, #2A7C13 0%, var(--primary) 60%, #1C5410 100%) !important;
   border-radius: 14px !important;
   min-height: 50px !important;
   font-weight: 800 !important;
@@ -377,7 +382,7 @@
   to { opacity: 1; transform: none; }
 }
 .hero-immersive {
-  border: 1px solid rgba(170, 204, 0, 0.22) !important;
+  border: 1px solid rgba(118, 196, 87, 0.22) !important;
   box-shadow: 0 20px 55px rgba(3, 45, 30, 0.35) !important;
 }
 .activity-item, .wc-preview-card, .challenge-card {
@@ -399,7 +404,7 @@
 /* Primary CTA buttons across pages: gradient + press feel */
 .challenge-btn, .ed-rsvp-btn, .scan-confirm-btn, .quiz-start-btn,
 .shop-buy-btn, .voucher-unlock-btn, .wc-see-all-btn {
-  background: linear-gradient(135deg, #2b9348 0%, var(--primary) 60%, #004634 100%) !important;
+  background: linear-gradient(135deg, #2A7C13 0%, var(--primary) 60%, #1C5410 100%) !important;
   color: #fff !important;
   border-radius: 14px !important;
   font-weight: 800 !important;
@@ -438,8 +443,8 @@
   50% { transform: translateY(-6px); }
 }
 @keyframes eco-pulse-aqua {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(170, 204, 0, 0.45); }
-  50% { box-shadow: 0 0 0 8px rgba(170, 204, 0, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(118, 196, 87, 0.45); }
+  50% { box-shadow: 0 0 0 8px rgba(118, 196, 87, 0); }
 }
 .anim-fade-up { animation: eco-fade-up 0.55s var(--eco-ease) both; }
 .anim-pop { animation: eco-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }

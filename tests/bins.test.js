@@ -96,7 +96,7 @@ describe('Bins API', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         name: 'Gate Bin',
-        address: 'NSUT Gate 1',
+        address: 'Green Park Gate 1',
         location: { coordinates: [77.03, 28.61] },
         types: ['plastic'],
       });

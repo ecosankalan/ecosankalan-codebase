@@ -5,7 +5,7 @@ describe('Model schemas', () => {
   test('Bin accepts valid GeoJSON coordinates', () => {
     const bin = new Bin({
       name: 'Gate Bin',
-      address: 'NSUT Gate 1',
+      address: 'Green Park Gate 1',
       location: { type: 'Point', coordinates: [77.03, 28.61] },
       types: ['plastic'],
     });
@@ -16,7 +16,7 @@ describe('Model schemas', () => {
   test('Bin rejects invalid GeoJSON coordinates', () => {
     const bin = new Bin({
       name: 'Gate Bin',
-      address: 'NSUT Gate 1',
+      address: 'Green Park Gate 1',
       location: { type: 'Point', coordinates: [200, 95] },
       types: ['plastic'],
     });

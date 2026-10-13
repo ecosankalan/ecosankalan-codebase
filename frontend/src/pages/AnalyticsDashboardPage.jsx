@@ -15,9 +15,9 @@ const WEEK_DATA = {
 };
 
 const BREAKDOWN = [
-  { label: 'Plastic',  pct: 45, color: 'var(--primary)',            stroke: '#005127' },
-  { label: 'Organic',  pct: 25, color: 'var(--secondary)',          stroke: '#1b6d24' },
-  { label: 'E-waste',  pct: 20, color: 'var(--tertiary)',           stroke: '#782c39' },
+  { label: 'Plastic',  pct: 45, color: 'var(--primary)',            stroke: '#2A7C13' },
+  { label: 'Organic',  pct: 25, color: 'var(--secondary)',          stroke: '#2A7C13' },
+  { label: 'E-waste',  pct: 20, color: 'var(--tertiary)',           stroke: '#7A5B12' },
   { label: 'Other',    pct: 10, color: 'var(--outline-variant)',    stroke: '#bfc9bd' },
 ];
 
@@ -138,7 +138,7 @@ export default function AnalyticsDashboardPage() {
                     <div style={{ height: `${(m/total)*100}%`, background: 'var(--outline-variant)', borderRadius: '2px 2px 0 0' }} />
                     <div style={{ height: `${(e/total)*100}%`, background: 'var(--tertiary-container)' }} />
                     <div style={{ height: `${(o/total)*100}%`, background: 'var(--secondary)' }} />
-                    <div style={{ height: `${(p/total)*100}%`, background: 'rgba(0,81,39,0.8)', borderRadius: '0 0 2px 2px' }} />
+                    <div style={{ height: `${(p/total)*100}%`, background: 'rgba(42,124,19,0.8)', borderRadius: '0 0 2px 2px' }} />
                   </div>
                   <span className="an-bar-label">{day}</span>
                 </div>
@@ -148,7 +148,7 @@ export default function AnalyticsDashboardPage() {
 
           <div className="an-legend">
             {[
-              { color: 'rgba(0,81,39,0.8)',  label: 'Plastic'  },
+              { color: 'rgba(42,124,19,0.8)',  label: 'Plastic'  },
               { color: 'var(--secondary)',   label: 'Organic'  },
               { color: 'var(--tertiary-container)', label: 'E-waste' },
               { color: 'var(--outline-variant)',    label: 'Other'   },
@@ -253,7 +253,7 @@ export default function AnalyticsDashboardPage() {
             </div>
             <span className="an-goal-pct">42.3 / 80 kg <strong>(53%)</strong></span>
           </div>
-          <p className="an-goal-note">You need <strong>37.7 kg more</strong> this month to hit your goal 🌱</p>
+          <p className="an-goal-note">You need <strong>37.7 kg more</strong> this month to hit your goal</p>
         </section>
 
         {/* ── Achievements ─────────────────────────────────────── */}

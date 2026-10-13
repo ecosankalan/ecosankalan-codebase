@@ -105,7 +105,7 @@ describe('Events API', () => {
       .send({
         title: 'Past',
         description: 'Past event',
-        address: 'NSUT',
+        address: 'Central Park',
         location: { coordinates: [77, 28] },
         eventDate: '2020-01-01T00:00:00.000Z',
         organiser: 'Eco Club',
@@ -129,7 +129,7 @@ describe('Events API', () => {
       .send({
         title: 'Future',
         description: 'Future event',
-        address: 'NSUT',
+        address: 'Central Park',
         location: { coordinates: [77, 28] },
         eventDate: new Date(Date.now() + 86400000).toISOString(),
         organiser: 'Eco Club',

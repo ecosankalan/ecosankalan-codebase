@@ -8,12 +8,14 @@
  */
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Account } from 'appwrite';
 import appwriteClient from '../../lib/appwrite';
 
 export default function OTPForm() {
   const navigate  = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const userId = searchParams.get('userId');
@@ -47,7 +49,7 @@ export default function OTPForm() {
   return (
     <div className="auth-form-wrapper" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
       <span className="spinner" style={{ width: 48, height: 48, margin: '0 auto 1.5rem' }} />
-      <h3>Verifying your email...</h3>
+      <h3>{t('auth.verifying')}</h3>
     </div>
   );
 }

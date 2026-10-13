@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
@@ -16,6 +17,7 @@ const DEFAULT = {
 };
 
 export default function ProductDetailPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const raw = location.state?.product ?? {};
@@ -65,20 +67,20 @@ export default function ProductDetailPage() {
           <div className="pd-carousel-track" style={{ transform: `translateX(0%)` }}>
             <img src={product.imgs[0]} alt={`${product.name}`} className="pd-carousel-img" />
           </div>
-          <button className="pd-fav-btn"><span className="material-symbols-outlined">favorite</span></button>
-          <button className="pd-back-btn" onClick={() => navigate(-1)}><span className="material-symbols-outlined">arrow_back</span></button>
+          <button className="pd-fav-btn" aria-label={t('shop.favLabel')}><span className="material-symbols-outlined">favorite</span></button>
+          <button className="pd-back-btn" onClick={() => navigate(-1)} aria-label={t('shop.backLabel')}><span className="material-symbols-outlined">arrow_back</span></button>
         </section>
 
         {/* Identity */}
         <section className="pd-identity">
           <h1 className="pd-name">{product.name}</h1>
-          <span className="pd-partner-label">{product.partner} Partner</span>
+          <span className="pd-partner-label">{t('shop.partnerLabel', { name: product.partner })}</span>
           <div className="pd-price-row">
             <span className="pd-price">{product.price}</span>
-            <span className="pd-or">or</span>
+            <span className="pd-or">{t('shop.orLabel')}</span>
             <div className="pd-pts-badge">
               <span className="material-symbols-outlined pd-pts-icon" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-              {product.points} Points
+              {t('shop.pointsBadge', { n: product.points })}
             </div>
           </div>
         </section>
@@ -88,24 +90,24 @@ export default function ProductDetailPage() {
           <div className="pd-metric-wide">
             <div className="pd-metric-avatar"><span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>person_2</span></div>
             <div>
-              <p className="pd-metric-label">Carbon Saving</p>
+              <p className="pd-metric-label">{t('shop.carbonSaving')}</p>
               <p className="pd-metric-val">{product.co2}</p>
             </div>
           </div>
           <div className="pd-metric-tile tertiary">
             <span className="material-symbols-outlined">potted_plant</span>
-            <p>100% Sustainable Material</p>
+            <p>{t('shop.sustainableMaterial')}</p>
           </div>
           <div className="pd-metric-tile primary">
             <span className="material-symbols-outlined">fan_indirect</span>
-            <p>Zero Plastic Packaging</p>
+            <p>{t('shop.zeroPlastic')}</p>
           </div>
         </section>
 
         {/* About (expandable) */}
         <section className="pd-about-card">
           <button className="pd-about-toggle" onClick={() => setExpanded(e => !e)}>
-            <span className="pd-about-toggle-title">About the Product</span>
+            <span className="pd-about-toggle-title">{t('shop.aboutProduct')}</span>
             <span className="material-symbols-outlined pd-chevron" style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}>expand_more</span>
           </button>
           {expanded && (
@@ -124,8 +126,8 @@ export default function ProductDetailPage() {
         {related.length > 0 && (
           <section className="pd-related-section">
             <div className="pd-related-header">
-              <h2 className="pd-related-title">You Might Also Like</h2>
-              <button className="pd-view-all">View All</button>
+              <h2 className="pd-related-title">{t('shop.youMayLike')}</h2>
+              <button className="pd-view-all">{t('shop.viewAll')}</button>
             </div>
             <div className="pd-related-scroll">
               {related.map((r, i) => (
@@ -142,7 +144,7 @@ export default function ProductDetailPage() {
       </main>
       <footer className="pd-footer">
         <button className="pd-buy-btn" onClick={() => window.open(getProductRedirectUrl(product._id), '_blank', 'noopener,noreferrer')}>
-          Buy on Partner <span className="material-symbols-outlined">arrow_forward</span>
+          {t('shop.buyOnPartnerCta')} <span className="material-symbols-outlined">arrow_forward</span>
         </button>
       </footer>
       <BottomNav />

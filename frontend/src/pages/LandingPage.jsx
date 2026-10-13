@@ -13,6 +13,7 @@
  */
 
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import LandingNavbar from '../components/landing/LandingNavbar';
 import HeroSection   from '../components/landing/HeroSection';
 import {
@@ -85,6 +86,7 @@ function useScrollReveal(rootRef) {
 /* Page component ────────────────────────────────────────────── */
 export default function LandingPage() {
   const rootRef = useRef(null);
+  const { t } = useTranslation();
 
   useLeafParticles(rootRef);
   useScrollReveal(rootRef);
@@ -105,9 +107,9 @@ export default function LandingPage() {
           borderRadius: '0 0 8px 0',
         }}
         onFocus={(e) => { e.target.style.left = '0'; }}
-        onBlur={(e)  => { e.target.style.left = '-9999px'; }}
+        onBlur={(e) => { e.target.style.left = '-9999px'; }}
       >
-        Skip to main content
+        {t('common.skipToContent')}
       </a>
 
       <LandingNavbar />

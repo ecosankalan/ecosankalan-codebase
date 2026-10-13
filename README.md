@@ -71,7 +71,7 @@ An intelligent **Progressive Web Application (PWA)** that enables users to class
 
 # 🌍 Overview
 
-EcoSankalan is a full-stack AI-powered waste management platform developed under **NSUT Delhi – CPVS STP 2025–26(E)**.
+EcoSankalan is a full-stack AI-powered waste management platform.
 
 The application encourages responsible waste disposal through artificial intelligence, geospatial search, gamification, and real-time analytics. Instead of simply logging waste, EcoSankalan creates an engaging ecosystem where users are rewarded for making environmentally responsible decisions.
 
@@ -861,7 +861,7 @@ Special thanks to:
 - Vite
 - GitHub
 
-We also acknowledge the guidance and support provided by **Netaji Subhas University of Technology (NSUT)** under the **CPVS-STP 2025–26(E)** program.
+We also acknowledge the guidance and support provided by our mentors under the college project program.
 
 ---
 
@@ -944,7 +944,7 @@ The project is more than a waste management application—it's an initiative to 
 
 Built with ❤️ using **React • Node.js • MongoDB • OpenAI • Vercel**
 
-**Made at Netaji Subhas University of Technology (NSUT)**
+**Made in India**
 
 ### ♻️ Reduce • Recycle • Reward • Repeat
 

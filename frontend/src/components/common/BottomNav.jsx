@@ -1,90 +1,94 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../../styles/bottomnav.css';
 
-/* Dock items — Scan rides center, larger, like a macOS dock magnifier */
-const ITEMS = [
-  { label: 'Home',    icon: 'home',         route: '/dashboard' },
-  { label: 'Map',     icon: 'map',          route: '/community' },
-  { label: 'Scan',    icon: 'photo_camera', route: '/waste', center: true },
-  { label: 'Learn',   icon: 'school',       route: '/learn' },
-  { label: 'Profile', icon: 'person',       route: '/profile' },
-];
-
-/* Gaussian falloff — icons swell near the cursor, settle at the edges */
-const magnification = (distance) => 1 + 0.42 * Math.exp(-((distance / 90) ** 2));
-
+/**
+ * EcoTabBar — animated bottom navigation (Leaf Harvest theme).
+ * - Floating cream pill with a sliding active indicator.
+ * - Icons pop + labels slide in on activation; press ripple on tap.
+ * - Center Scan action rides raised with a glow halo.
+ */
 export default function BottomNav() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { pathname } = useLocation();
-  const innerRef = useRef(null);
-  const [focus, setFocus] = useState(null); // { x, width } in px, or null
-  const reduceMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const barRef = useRef(null);
+  const indicatorRef = useRef(null);
 
-  const onMove = useCallback((e) => {
-    if (reduceMotion || !innerRef.current) return;
-    const r = innerRef.current.getBoundingClientRect();
-    setFocus({ x: e.clientX - r.left, width: r.width });
-  }, [reduceMotion]);
+  const TABS = [
+    { key: 'home', label: t('nav.home'), icon: 'home', route: '/dashboard' },
+    { key: 'map', label: t('nav.map'), icon: 'explore', route: '/community', center: true },
+    { key: 'scan', label: t('dashboard.scanWaste'), icon: 'qr_code_scanner', route: '/waste', fab: true },
+    { key: 'learn', label: t('nav.learn'), icon: 'school', route: '/learn' },
+    { key: 'profile', label: t('nav.profile'), icon: 'person', route: '/profile' },
+  ];
 
-  const onLeave = useCallback(() => setFocus(null), []);
+  const isActive = (tab) =>
+    pathname === tab.route || (tab.route === '/dashboard' && pathname === '/');
 
-  const scaleFor = (index) => {
-    if (!focus) return 1;
-    const center = ((index + 0.5) / ITEMS.length) * focus.width;
-    return magnification(Math.abs(focus.x - center));
-  };
+  const activeIndex = Math.max(
+    0,
+    TABS.findIndex(isActive)
+  );
+
+  /* Slide the indicator pill under the active tab */
+  useEffect(() => {
+    const bar = barRef.current;
+    const indicator = indicatorRef.current;
+    if (!bar || !indicator) return;
+    const btns = bar.querySelectorAll('[data-tab]');
+    const activeBtn = btns[activeIndex];
+    if (!activeBtn) return;
+    const barRect = bar.getBoundingClientRect();
+    const r = activeBtn.getBoundingClientRect();
+    indicator.style.width = `${r.width}px`;
+    indicator.style.transform = `translateX(${r.left - barRect.left}px)`;
+  }, [activeIndex, pathname]);
 
   return (
-    <nav className="dock" role="navigation" aria-label="Main navigation">
-      <div
-        className="dock-inner"
-        ref={innerRef}
-        onMouseMove={onMove}
-        onMouseLeave={onLeave}
-      >
-        {ITEMS.map((item, i) => {
-          const active = pathname === item.route ||
-            (item.route === '/dashboard' && pathname === '/');
-          const scale = scaleFor(i);
-          if (item.center) {
+    <nav className="ecotab" role="navigation" aria-label={t('nav.home')}>
+      <div className="ecotab-bar" ref={barRef}>
+        <span className="ecotab-indicator" ref={indicatorRef} aria-hidden="true" />
+        {TABS.map((tab) => {
+          const active = isActive(tab);
+          if (tab.fab) {
             return (
               <button
-                key={item.label}
-                className="dock-scan"
-                onClick={() => navigate(item.route)}
-                aria-label="Scan or log waste"
-                style={focus ? { transform: `scale(${scale})` } : undefined}
+                key={tab.key}
+                data-tab
+                type="button"
+                className="ecotab-fab"
+                onClick={() => navigate(tab.route)}
+                aria-label={tab.label}
               >
-                <span className="dock-scan-circle">
-                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
-                    {item.icon}
-                  </span>
+                <span className="ecotab-fab-core">
+                  <span className="material-symbols-outlined" aria-hidden="true">{tab.icon}</span>
                 </span>
-                <span className="dock-scan-label">{item.label}</span>
+                <span className="ecotab-fab-label">{tab.label}</span>
               </button>
             );
           }
           return (
             <button
-              key={item.label}
-              className={`dock-item${active ? ' active' : ''}`}
-              onClick={() => navigate(item.route)}
-              aria-label={item.label}
+              key={tab.key}
+              data-tab
+              type="button"
+              className={`ecotab-tab${active ? ' active' : ''}${tab.center ? ' ecotab-tab--wide' : ''}`}
+              onClick={() => navigate(tab.route)}
+              aria-label={tab.label}
               aria-current={active ? 'page' : undefined}
-              style={focus ? { transform: `scale(${scale}) translateY(${(scale - 1) * -14}px)` } : undefined}
             >
-              <span className="dock-icon-wrap">
+              <span className="ecotab-icon">
                 <span
                   className="material-symbols-outlined"
                   style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
+                  aria-hidden="true"
                 >
-                  {item.icon}
+                  {tab.icon}
                 </span>
               </span>
-              <span className="dock-label">{item.label}</span>
+              <span className="ecotab-label">{tab.label}</span>
             </button>
           );
         })}

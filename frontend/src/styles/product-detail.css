@@ -26,7 +26,7 @@
 
 /* Metrics */
 .pd-metrics { padding: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.pd-metric-wide { grid-column: 1 / -1; background: rgba(0,81,39,0.05); border: 1px solid rgba(0,81,39,0.1); border-radius: 0.75rem; padding: 1rem; display: flex; align-items: center; gap: 1rem; }
+.pd-metric-wide { grid-column: 1 / -1; background: rgba(42,124,19,0.05); border: 1px solid rgba(42,124,19,0.1); border-radius: 0.75rem; padding: 1rem; display: flex; align-items: center; gap: 1rem; }
 .pd-metric-avatar { width: 3rem; height: 3rem; border-radius: 50%; background: var(--primary-container); display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
 .pd-metric-avatar .material-symbols-outlined { font-size: 1.5rem !important; }
 .pd-metric-label { font-family: var(--font-body); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--on-surface-variant); }

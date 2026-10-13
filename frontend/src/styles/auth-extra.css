@@ -5,8 +5,8 @@
   min-height: 100dvh;
   background: var(--surface);
   background-image:
-    radial-gradient(circle at top left,    rgba(165,244,182,0.45) 0%, transparent 40%),
-    radial-gradient(circle at bottom right, rgba(160,243,153,0.35) 0%, transparent 40%);
+    radial-gradient(circle at top left,    rgba(212,215,0,0.45) 0%, transparent 40%),
+    radial-gradient(circle at bottom right, rgba(118,196,87,0.35) 0%, transparent 40%);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -97,7 +97,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(0,81,39,0.10) 0%, rgba(0,101,118,0.10) 100%);
+  background: linear-gradient(135deg, rgba(42,124,19,0.10) 0%, rgba(0,101,118,0.10) 100%);
   mix-blend-mode: multiply;
 }
 .auth-illustration img {
@@ -199,8 +199,8 @@
 }
 .phone-input::placeholder { color: rgba(112,122,111,0.5); }
 .phone-input:focus {
-  border-color: rgba(0,81,39,0.4);
-  box-shadow: 0 0 0 3px rgba(0,81,39,0.08);
+  border-color: rgba(42,124,19,0.4);
+  box-shadow: 0 0 0 3px rgba(42,124,19,0.08);
   background: var(--surface-container-lowest);
 }
 
@@ -254,8 +254,8 @@
   caret-color: var(--primary);
 }
 .verify-otp-box:focus {
-  border-color: rgba(0,81,39,0.4);
-  box-shadow: 0 0 0 3px rgba(0,81,39,0.08);
+  border-color: rgba(42,124,19,0.4);
+  box-shadow: 0 0 0 3px rgba(42,124,19,0.08);
   background: var(--surface-container-lowest);
 }
 

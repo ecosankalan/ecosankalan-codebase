@@ -33,11 +33,12 @@ export default function useRoute(profile = PROFILES.DRIVING) {
   const fetchRoute = useCallback(async (start, end) => {
     if (!start || !end) return;
 
-    // Cache check — same destination, skip request
-    const destKey = `${end[0]},${end[1]}`;
+    // Cache check — same rounded destination, skip request
+    const destKey = `${Math.round(end[0] * 10000)},${Math.round(end[1] * 10000)}`;
     if (lastDestRef.current === destKey && route) return;
 
-    // Cancel any previous in-flight request
+    // Cancel any previous in-flight request (signal is now actually wired
+    // into fetch, so tapping another marker truly aborts the slow one)
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -47,7 +48,7 @@ export default function useRoute(profile = PROFILES.DRIVING) {
     setError(null);
 
     try {
-      const result = await getRoute(start, end, profile);
+      const result = await getRoute(start, end, profile, { signal: controller.signal });
       // Only update state if this request wasn't cancelled
       if (!controller.signal.aborted) {
         setRoute(result);

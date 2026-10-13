@@ -1,26 +1,29 @@
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../../styles/navbar.css';
 import BrandLogo from './BrandLogo';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useNotifications } from "../../context/NotificationContext";
 import NotificationDropdown from "./NotificationDropdown";
 import { useState } from "react";
-
-const DESKTOP_LINKS = [
-  { label: 'Home', route: '/dashboard' },
-  { label: 'Impact', route: '/impact' },
-  { label: 'Challenges', route: '/weekly-challenges' },
-  { label: 'Learn', route: '/learn' },
-  { label: 'Shop', route: '/shop' },
-];
 
 const initialOf = (name) => (name?.trim()?.charAt(0)?.toUpperCase() || 'E');
 
 export default function Navbar() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const DESKTOP_LINKS = [
+    { label: t('nav.home'), route: '/dashboard' },
+    { label: t('nav.impact'), route: '/impact' },
+    { label: t('nav.challenges'), route: '/weekly-challenges' },
+    { label: t('nav.learn'), route: '/learn' },
+    { label: t('nav.shop'), route: '/shop' },
+  ];
 
   const {
     notifications,
@@ -36,8 +39,8 @@ export default function Navbar() {
     <header className="navbar">
       {/* Logo */}
       <div className="navbar-logo" onClick={() => navigate('/dashboard')} role="link" tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && navigate('/dashboard')} aria-label="Go to dashboard">
-        <BrandLogo size="sm" tagline="Go Green Daily" />
+        onKeyDown={(e) => e.key === 'Enter' && navigate('/dashboard')} aria-label={t('nav.goToDashboard')}>
+        <BrandLogo size="sm" tagline={t('common.tagline')} />
       </div>
 
       {/* Desktop links */}
@@ -56,8 +59,9 @@ export default function Navbar() {
 
       {/* Right side */}
       <div className="navbar-right">
+        <LanguageSwitcher compact />
         {points !== null && (
-          <button className="navbar-points" onClick={() => navigate('/vouchers')} aria-label={`${points} eco points — view rewards`}>
+          <button className="navbar-points" onClick={() => navigate('/vouchers')} aria-label={t('nav.pointsRewards', { count: points })}>
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>savings</span>
             {Number(points).toLocaleString('en-IN')}
           </button>

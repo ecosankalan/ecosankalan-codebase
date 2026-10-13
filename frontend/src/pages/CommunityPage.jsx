@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import Loader from '../components/common/Loader';
@@ -12,8 +13,8 @@ import { searchPlaces } from '../lib/geocode';
 import { getUpcomingEvents, getNearbyBins } from '../services/api';
 import '../styles/community.css';
 
-const DEFAULT_CENTER = [22.5, 79.0]; // Central India
-const DEFAULT_ZOOM = 5;
+const DEFAULT_CENTER = [28.6139, 77.209]; // Delhi — street-level default avoids the 45° bbox cap
+const DEFAULT_ZOOM = 12;
 
 function createBinIcon(L) {
   return L.divIcon({
@@ -44,14 +45,16 @@ function createUserIcon(L) {
   });
 }
 
-function fmtDate(iso) {
+function fmtDate(iso, locale = 'en-IN') {
   if (!iso) return '';
   const d = new Date(iso);
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export default function CommunityPage() {
   const navigate       = useNavigate();
+  const { t, i18n }    = useTranslation();
+  const locale = i18n.language === 'hi' ? 'hi-IN' : 'en-IN';
   const [activeFilter, setActiveFilter] = useState('all');
   const [events,       setEvents]       = useState([]);
   const [bins,         setBins]         = useState([]);
@@ -78,9 +81,9 @@ export default function CommunityPage() {
   const { route, loading: routeLoading, error: routeError, fetchRoute, clearRoute } = useRoute();
 
   const filters = [
-    { key: 'all',    icon: 'filter_list',    label: 'All Bins' },
-    { key: 'events', icon: 'calendar_today', label: 'Events'   },
-    { key: 'nearby', icon: 'near_me',        label: 'My Area'  },
+    { key: 'all',    icon: 'filter_list',    label: t('map.allBins') },
+    { key: 'events', icon: 'calendar_today', label: t('map.events')  },
+    { key: 'nearby', icon: 'near_me',        label: t('map.myArea')  },
   ];
 
   /* ── Search: debounced Nominatim geocoding ─────────────────────── */
@@ -186,9 +189,9 @@ export default function CommunityPage() {
       _id: event._id,
       title: event.title,
       category: 'Community Event',
-      date: fmtDate(event.eventDate),
-      dateFull: new Date(event.eventDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }),
-      time: new Date(event.eventDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+      date: fmtDate(event.eventDate, locale),
+      dateFull: new Date(event.eventDate).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' }),
+      time: new Date(event.eventDate).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
       location: event.address,
       distance: '',
       points: event.bonusPoints || 50,
@@ -260,7 +263,7 @@ export default function CommunityPage() {
         marker.bindPopup(`
           <div class="map-popup">
             <strong>${name}</strong>
-            <span class="map-popup-type">Event</span>
+            <span class="map-popup-type">${t('map.legendEvent')}</span>
             <p>${addr}</p>
           </div>
         `);
@@ -283,7 +286,7 @@ export default function CommunityPage() {
         marker.bindPopup(`
           <div class="map-popup">
             <strong>${name}</strong>
-            <span class="map-popup-type">Bin</span>
+            <span class="map-popup-type">${t('map.legendBin')}</span>
             <p>${addr}</p>
           </div>
         `);
@@ -291,7 +294,7 @@ export default function CommunityPage() {
         markersRef.current.push({ marker, item: binItem });
       });
     }
-  }, [bins, events, activeFilter]);
+  }, [bins, events, activeFilter, t]);
 
   useEffect(() => { syncMarkers(); }, [syncMarkers]);
 
@@ -398,14 +401,14 @@ export default function CommunityPage() {
               </span>
               <input
                 className="community-search-input"
-                placeholder="Search places in India..."
+                placeholder={t('map.searchPlaceholder')}
                 type="text"
                 value={searchQuery}
                 onChange={handleSearchInput}
                 onFocus={() => searchResults.length > 0 && setShowResults(true)}
               />
               {searchQuery && (
-                <button type="button" className="community-search-clear" aria-label="Clear search" onClick={() => {
+                <button type="button" className="community-search-clear" aria-label={t('map.clearSearch')} onClick={() => {
                   setSearchQuery('');
                   setSearchResults([]);
                   setShowResults(false);
@@ -414,7 +417,7 @@ export default function CommunityPage() {
                 </button>
               )}
               <div className="community-search-divider" />
-              <button type="submit" className="community-list-btn" aria-label="Search places">
+              <button type="submit" className="community-list-btn" aria-label={t('map.searchPlaces')}>
                 <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>arrow_forward</span>
               </button>
             </form>
@@ -466,22 +469,22 @@ export default function CommunityPage() {
           {/* Add Bin — live photo + live location report */}
           <div className="waste-loading-badge" style={{ background: '#fff8e1', color: '#5d4037', padding: '0.4rem 0.75rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '0.35rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '0.72rem', maxWidth: '220px' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>warning</span>
-            <span>Only report real bins — false reports lose points.</span>
+            <span>{t('map.reportWarning')}</span>
           </div>
           <button
             className="community-fab-addbin"
             onClick={() => setShowAddBin(true)}
             style={{ alignSelf: 'flex-end' }}
-            aria-label="Report a new bin"
+            aria-label={t('map.reportBin')}
           >
             <span className="material-symbols-outlined">add_location</span>
-            <span>Add Bin</span>
+            <span>{t('map.addBin')}</span>
           </button>
           {/* Marker legend */}
           <div className="waste-loading-badge" aria-label="Map legend" style={{ background: 'rgba(255,255,255,0.95)', color: '#37474f', padding: '0.5rem 0.75rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '0.75rem' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><span style={{ width: '0.6rem', height: '0.6rem', borderRadius: '50%', background: '#2e7d32', display: 'inline-block' }} /> Bin</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><span style={{ width: '0.6rem', height: '0.6rem', borderRadius: '50%', background: '#7b1fa2', display: 'inline-block' }} /> Event</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><span style={{ width: '0.6rem', height: '0.6rem', borderRadius: '50%', background: '#1565c0', display: 'inline-block' }} /> You</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><span style={{ width: '0.6rem', height: '0.6rem', borderRadius: '50%', background: '#2e7d32', display: 'inline-block' }} /> {t('map.legendBin')}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><span style={{ width: '0.6rem', height: '0.6rem', borderRadius: '50%', background: '#7b1fa2', display: 'inline-block' }} /> {t('map.legendEvent')}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><span style={{ width: '0.6rem', height: '0.6rem', borderRadius: '50%', background: '#1565c0', display: 'inline-block' }} /> {t('map.legendYou')}</span>
           </div>
         </div>
 
@@ -499,7 +502,7 @@ export default function CommunityPage() {
               <div className="community-sheet-info">
                 <div className="community-sheet-toprow">
                   <span className="community-sheet-tag">
-                    {sheetItem.type === 'event' ? 'Community Event' : 'Waste Bin'}
+                    {sheetItem.type === 'event' ? t('map.communityEvent') : t('map.wasteBin')}
                   </span>
                   <div className="community-sheet-rating">
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: '1rem' }}>star</span>
@@ -514,7 +517,7 @@ export default function CommunityPage() {
                   <p>
                     {sheetItem.data.address}
                     {sheetItem.type === 'bin' && sheetItem.data.distanceMetres
-                      ? ` \u2022 ${(sheetItem.data.distanceMetres / 1000).toFixed(1)} km away`
+                      ? ` \u2022 ${(sheetItem.data.distanceMetres / 1000).toFixed(1)} ${t('map.kmAway')}`
                       : ''}
                   </p>
                 </div>
@@ -528,10 +531,10 @@ export default function CommunityPage() {
                 {sheetItem.type === 'event' && (
                   <div className="community-sheet-meta">
                     <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>calendar_today</span>
-                    <span>{fmtDate(sheetItem.data.eventDate)}</span>
+                    <span>{fmtDate(sheetItem.data.eventDate, locale)}</span>
                     <span className="community-sheet-meta-sep">|</span>
                     <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>emoji_events</span>
-                    <span>{sheetItem.data.bonusPoints || 0} pts</span>
+                    <span>{sheetItem.data.bonusPoints || 0} {t('map.pts')}</span>
                   </div>
                 )}
                 <div className="community-sheet-actions">
@@ -539,17 +542,17 @@ export default function CommunityPage() {
                     <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
                       {routeLoading ? 'progress_activity' : 'directions'}
                     </span>
-                    {routeLoading ? 'Loading...' : 'Directions'}
+                    {routeLoading ? t('map.loading') : t('map.directions')}
                   </button>
                   {sheetItem.type === 'event' ? (
                     <button className="community-sheet-btn-pri" onClick={() => handleEventClick(sheetItem.data)}>
                       <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>check_circle</span>
-                      RSVP
+                      {t('map.rsvp')}
                     </button>
                   ) : (
                     <button className="community-sheet-btn-pri" onClick={() => navigate('/waste')}>
                       <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>delete</span>
-                      Log Waste
+                      {t('map.logWaste')}
                     </button>
                   )}
                 </div>

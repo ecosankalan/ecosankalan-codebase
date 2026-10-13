@@ -28,11 +28,9 @@ api.interceptors.request.use(async (config) => {
     const account = new Account(appwriteClient);
     const jwtResponse = await account.createJWT();
     config.headers.Authorization = `Bearer ${jwtResponse.jwt}`;
-  } catch (err) {
-    // Log for debugging — the request will go without auth (backend returns 401)
-    if (import.meta.env.DEV) {
-      console.warn('[api] createJWT failed:', err?.message || err);
-    }
+  } catch {
+    // No session (logged out) — proceed unauthenticated silently.
+    // Backend returns 401 and ProtectedRoute redirects; no warning needed.
   }
   return config;
 });
@@ -41,6 +39,16 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Preserve cancellations so callers (e.g. WasteMarkers map panning)
+    // can ignore them instead of logging "Fetch error: canceled".
+    if (
+      axios.isCancel?.(error) ||
+      error?.code === 'ERR_CANCELED' ||
+      error?.name === 'CanceledError' ||
+      error?.name === 'AbortError'
+    ) {
+      return Promise.reject(error);
+    }
     const status = error?.response?.status;
     // Expired/revoked Appwrite JWT: drop cached profile so ProtectedRoute redirects.
     if (status === 401) {
@@ -138,6 +146,13 @@ export const createBin = (data) => api.post('/api/v1/bins', data);
 
 export const getMapMarkers = (bounds, config = {}) =>
   api.get('/api/v1/markers', { params: bounds, ...config });
+
+// ─═══════════════════════════════════════════════════════════════════════════
+// PLATFORM  (public aggregate stats for the marketing landing page)
+// ════════════════════════════════════════════════════════════════════════════
+
+export const getPlatformStats = () =>
+  api.get('/api/v1/platform/stats');
 
 // ════════════════════════════════════════════════════════════════════════════
 // EVENTS  (FR-13, FR-14)

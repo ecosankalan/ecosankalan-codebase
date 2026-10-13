@@ -43,7 +43,7 @@
   border-radius: 1rem;
   padding: 1.5rem;
   color: var(--on-primary);
-  box-shadow: 0 12px 32px rgba(0, 81, 39, 0.15);
+  box-shadow: 0 12px 32px rgba(42, 124, 19, 0.15);
   display: flex;
 }
 .learn-quiz-card::before {
@@ -368,7 +368,7 @@
 .learn-upcycle-watch-btn:active { transform: scale(0.97); }
 .learn-upcycle-watch-btn .material-symbols-outlined { font-size: 1rem !important; }
 .learn-upcycle-read-btn { flex: 1; background: transparent; border: 1.5px solid var(--primary); color: var(--primary); border-radius: 0.75rem; padding: 0.6rem; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: background 0.15s, transform 0.1s; }
-.learn-upcycle-read-btn:hover { background: rgba(0,81,39,0.05); }
+.learn-upcycle-read-btn:hover { background: rgba(42,124,19,0.05); }
 .learn-upcycle-read-btn:active { transform: scale(0.97); }
 .learn-upcycle-read-btn .material-symbols-outlined { font-size: 1rem !important; }
 

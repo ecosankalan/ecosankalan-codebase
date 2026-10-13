@@ -7,6 +7,7 @@
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Client, Account } from 'appwrite';
 import '../styles/login.css';
 import '../styles/auth-extra.css';
@@ -19,6 +20,7 @@ const account = new Account(client);
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,7 +29,7 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      setError('Please enter a valid email address.');
+      setError(t('auth.invalidEmail'));
       return;
     }
     setLoading(true);
@@ -54,11 +56,9 @@ export default function ForgotPasswordPage() {
               <span className="material-symbols-outlined">mark_email_read</span>
             </div>
             <div className="auth-text-center">
-              <h1>Check your email</h1>
+              <h1>{t('auth.checkEmail')}</h1>
               <p>
-                If an account exists with <strong>{email}</strong>, we've sent a
-                password reset link. Check your inbox and click the link to
-                reset your password.
+                {t('auth.resetSentA')} <strong>{email}</strong>{t('auth.resetSentB')}
               </p>
             </div>
           </div>
@@ -67,16 +67,16 @@ export default function ForgotPasswordPage() {
             style={{ marginTop: '1.5rem' }}
             onClick={() => navigate('/login')}
           >
-            Back to Login <span className="material-symbols-outlined">arrow_forward</span>
+            {t('auth.backToLogin')} <span className="material-symbols-outlined">arrow_forward</span>
           </button>
           <p className="auth-support-text" style={{ marginTop: '1.5rem' }}>
-            Didn't receive it?{' '}
+            {t('auth.didntReceive')}{' '}
             <button
               type="button"
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontWeight: 700, fontSize: 'inherit', padding: 0 }}
               onClick={() => { setSent(false); setEmail(''); }}
             >
-              Try another email
+              {t('auth.tryAnother')}
             </button>
           </p>
         </main>
@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
       <header className="auth-top-bar">
         <button className="auth-back-btn" onClick={() => navigate('/login')}>
           <span className="material-symbols-outlined">arrow_back</span>
-          Back to Login
+          {t('auth.backToLogin')}
         </button>
         <div className="auth-top-brand">
           <span
@@ -112,14 +112,14 @@ export default function ForgotPasswordPage() {
         <div className="auth-illustration">
           <img
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuDioo39r7ih6H0lkeRrA8sKzrJr3ueQ2EEJ8B_0vLEs4Stq6efW4CLwwUbJNPBcC8F8LQ5py-diRqpSCdvNuwEYUW720AgSolRYmpvo3AMDF6yfzpSi4B9Nw9p8SzXgSkvmfMPDnhuOzC7TRIP3a99MzpSiiMgJlrNz1VEh1cigDmbS-bOEgAugfCuKONiZmBU7TJ64hM2TTRslHBaPD3VyxWEy0L5s-e-sWy1ZrToqPlE0a9-_hBVOZkg_1FqoGEy7NQxiVIw9AhU"
-            alt="Security concept"
+            alt={t('auth.securityAlt')}
           />
         </div>
 
         {/* Heading */}
         <div className="auth-text-center">
-          <h1>Forgot Password</h1>
-          <p>Enter your email address and we'll send you a link to reset your password.</p>
+          <h1>{t('auth.forgotTitle')}</h1>
+          <p>{t('auth.forgotSub')}</p>
         </div>
 
         {/* Form */}
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
           noValidate
         >
           <div className="field-group">
-            <label htmlFor="fp-email">Email Address</label>
+            <label htmlFor="fp-email">{t('auth.emailLabel')}</label>
             <div className="input-wrap">
               <span className="material-symbols-outlined input-icon">mail</span>
               <input
@@ -149,20 +149,20 @@ export default function ForgotPasswordPage() {
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading
               ? <span className="spinner" />
-              : <>Send Reset Link <span className="material-symbols-outlined">arrow_forward</span></>
+              : <>{t('auth.sendReset')} <span className="material-symbols-outlined">arrow_forward</span></>
             }
           </button>
         </form>
 
         {/* Support */}
         <p className="auth-support-text">
-          Remember your password?{' '}
+          {t('auth.rememberPass')}{' '}
           <button
             type="button"
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontWeight: 700, fontSize: 'inherit', padding: 0 }}
             onClick={() => navigate('/login')}
           >
-            Sign in
+            {t('auth.signIn')}
           </button>
         </p>
       </main>

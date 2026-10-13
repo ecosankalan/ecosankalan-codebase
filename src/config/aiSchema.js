@@ -35,6 +35,7 @@ const wasteScanSchema = {
             type: 'array',
             items: { type: 'string' },
           },
+          ecoLesson: { type: 'string' },
           confidence: { type: 'number' },
         },
         required: [
@@ -49,6 +50,7 @@ const wasteScanSchema = {
           'beforeThrowing',
           'betterAlternatives',
           'specialHandling',
+          'ecoLesson',
           'confidence',
         ],
         additionalProperties: false,

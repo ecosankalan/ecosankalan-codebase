@@ -8,6 +8,10 @@
 
 const ORS_BASE = 'https://api.openrouteservice.org/v2/directions';
 
+/* Short-lived in-memory route cache — repeat taps resolve instantly. */
+const routeCache = new Map();
+const ROUTE_CACHE_TTL_MS = 10 * 60 * 1000;
+
 /** Supported ORS travel profiles */
 export const PROFILES = {
   DRIVING:   'driving-car',
@@ -70,10 +74,18 @@ function decodePolyline(encoded) {
  *   distance — total distance in meters
  *   duration — total duration in seconds
  */
-export async function getRoute(start, end, profile = PROFILES.DRIVING) {
+export async function getRoute(start, end, profile = PROFILES.DRIVING, opts = {}) {
   const apiKey = import.meta.env.VITE_ORS_API_KEY;
   if (!apiKey) {
     throw new Error('Missing VITE_ORS_API_KEY — add it to frontend/.env');
+  }
+
+  // In-memory cache: repeat taps (same rounded endpoints) return instantly.
+  const round4 = (n) => Math.round(n * 10000) / 10000;
+  const cacheKey = [round4(start[0]), round4(start[1]), round4(end[0]), round4(end[1]), profile].join('|');
+  const cached = routeCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < ROUTE_CACHE_TTL_MS) {
+    return cached.data;
   }
 
   // ORS expects [longitude, latitude] order
@@ -84,15 +96,34 @@ export async function getRoute(start, end, profile = PROFILES.DRIVING) {
 
   const url = `${ORS_BASE}/${profile}`;
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: apiKey,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({ coordinates: coords }),
-  });
+  // Timeout so a slow ORS graph never hangs the UI forever (25s default).
+  const timeoutMs = opts.timeoutMs ?? 25000;
+  const timerCtrl = new AbortController();
+  const timer = setTimeout(() => timerCtrl.abort(new Error('Route request timed out — please retry')), timeoutMs);
+  const signal = opts.signal
+    ? AbortSignal.any([opts.signal, timerCtrl.signal])
+    : timerCtrl.signal;
+
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ coordinates: coords }),
+      signal,
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    if (err?.name === 'AbortError' || err?.name === 'TimeoutError') {
+      throw new Error(opts.signal?.aborted ? 'Route request cancelled' : 'Route is taking too long — please retry');
+    }
+    throw err;
+  }
+  clearTimeout(timer);
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -123,12 +154,14 @@ export async function getRoute(start, end, profile = PROFILES.DRIVING) {
     coordinates,
   };
 
-  return {
+  const result = {
     geometry,
     distance: summary.distance || 0,
     duration: summary.duration || 0,
     summary,
   };
+  routeCache.set(cacheKey, { at: Date.now(), data: result });
+  return result;
 }
 
 /**

@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2355a630'/%3E%3Cstop offset='.55' stop-color='%23007f5f'/%3E%3Cstop offset='1' stop-color='%23004634'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='17' fill='url(%23g)'/%3E%3Cpath d='M32 47V30' stroke='%23e7f4d2' stroke-width='4.2' stroke-linecap='round'/%3E%3Cpath d='M32 37.5C24.8 37.5 19.3 32.8 18.3 24.6 26.3 25.6 31 30.2 32 37.5Z' fill='%23aacc00'/%3E%3Cpath d='M32 32.5C39.2 32.5 44.7 27.8 45.7 19.6 37.7 20.6 33 25.2 32 32.5Z' fill='%23e7f4d2'/%3E%3Cpath d='M22 50.5Q32 54.5 42 50.5' stroke='%23aacc00' stroke-width='3.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
-    <link rel="apple-touch-icon" href="/logo-192.png" />
+    <link rel="icon" href="/logo.png?v=2" />
+    <link rel="apple-touch-icon" href="/logo-192.png?v=2" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="EcoSankalan — log waste, find nearby bins, join clean-up events and earn eco rewards." />
-    <meta name="theme-color" content="#004634" />
+    <meta name="theme-color" content="#2A7C13" />
     <title>EcoSankalan — Go Green Daily</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -30,7 +30,7 @@
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: radial-gradient(600px 400px at 50% 30%, rgba(170, 204, 0, 0.14), transparent 60%), linear-gradient(160deg, #007f5f 0%, #004634 70%);
+          background: radial-gradient(600px 400px at 50% 30%, rgba(118, 196, 87, 0.22), transparent 60%), linear-gradient(160deg, #2A7C13 0%, #1C5410 70%);
           font-family: 'Plus Jakarta Sans', sans-serif;
           z-index: 9999;
           transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -43,12 +43,13 @@
           align-items: center;
           justify-content: center;
           margin-bottom: 2rem;
-          filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 30px rgba(170, 204, 0, 0.35));
+          filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 30px rgba(118, 196, 87, 0.4));
           animation: splash-float 2.4s ease-in-out infinite;
         }
         .splash-logo {
-          width: 96px;
-          height: 96px;
+          width: 112px;
+          height: 112px;
+          object-fit: contain;
         }
         .splash-brand {
           font-size: 1.5rem;
@@ -61,7 +62,7 @@
           margin-top: 0.3rem;
           font-size: 0.65rem;
           font-weight: 700;
-          color: #aacc00;
+          color: #76C457;
           letter-spacing: 0.22em;
           text-transform: uppercase;
         }
@@ -79,7 +80,7 @@
       </style>
       <div class="splash-screen" id="app-splash">
         <div class="splash-logo-container">
-          <svg class="splash-logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="splashg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#55a630"/><stop offset=".55" stop-color="#007f5f"/><stop offset="1" stop-color="#004634"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="17" fill="url(#splashg)"/><rect x="2.75" y="2.75" width="58.5" height="58.5" rx="16" fill="none" stroke="#aacc00" stroke-opacity=".4" stroke-width="1.5"/><path d="M32 47V30" stroke="#e7f4d2" stroke-width="4.2" stroke-linecap="round"/><path d="M32 37.5C24.8 37.5 19.3 32.8 18.3 24.6 26.3 25.6 31 30.2 32 37.5Z" fill="#aacc00"/><path d="M32 32.5C39.2 32.5 44.7 27.8 45.7 19.6 37.7 20.6 33 25.2 32 32.5Z" fill="#e7f4d2"/><path d="M22 50.5Q32 54.5 42 50.5" stroke="#aacc00" stroke-width="3.4" fill="none" stroke-linecap="round"/></svg>
+          <img class="splash-logo" src="/logo.png" alt="EcoSankalan logo" />
         </div>
         <h2 class="splash-brand">EcoSankalan</h2>
         <p class="splash-tag">Go Green Daily</p>

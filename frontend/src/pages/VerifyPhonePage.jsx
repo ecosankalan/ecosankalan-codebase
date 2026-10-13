@@ -5,6 +5,7 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../styles/login.css';
 import '../styles/auth-extra.css';
 
@@ -13,6 +14,7 @@ const RESEND_SECONDS = 60;
 export default function VerifyPhonePage() {
   const navigate  = useNavigate();
   const location  = useLocation();
+  const { t } = useTranslation();
   const phone     = location.state?.phone || '';
   const flow      = location.state?.flow  || 'forgot';
 
@@ -59,7 +61,7 @@ export default function VerifyPhonePage() {
     e.preventDefault();
     const code = otp.join('');
     if (code.length < 6) {
-      setError('Please enter the complete 6-digit code.');
+      setError(t('auth.otpIncomplete'));
       return;
     }
     setLoading(true);
@@ -69,7 +71,7 @@ export default function VerifyPhonePage() {
       await new Promise(r => setTimeout(r, 800)); // mock delay
       navigate('/reset-password', { state: { phone, token: 'mock-reset-token' } });
     } catch (err) {
-      setError(err?.response?.data?.message || 'Invalid OTP. Please try again.');
+      setError(err?.response?.data?.message || t('auth.otpInvalid'));
     } finally {
       setLoading(false);
     }
@@ -99,8 +101,8 @@ export default function VerifyPhonePage() {
 
         {/* Heading */}
         <div className="auth-text-center">
-          <h1>Verify OTP</h1>
-          <p>Enter the 6-digit code sent to your phone</p>
+          <h1>{t('auth.verifyOtp')}</h1>
+          <p>{t('auth.verifyOtpSub')}</p>
         </div>
 
         {/* OTP card */}
@@ -120,6 +122,7 @@ export default function VerifyPhonePage() {
                 maxLength={1}
                 value={digit}
                 placeholder="·"
+                aria-label={t('auth.otpDigit', { n: i + 1 })}
                 onChange={e => handleChange(i, e.target.value)}
                 onKeyDown={e => handleKeyDown(i, e)}
                 autoFocus={i === 0}
@@ -132,7 +135,7 @@ export default function VerifyPhonePage() {
             {!canResend && (
               <span className="verify-timer">
                 <span className="material-symbols-outlined">schedule</span>
-                Resend OTP in {timer}s
+                {t('auth.resendIn', { s: timer })}
               </span>
             )}
             <button
@@ -141,7 +144,7 @@ export default function VerifyPhonePage() {
               onClick={handleResend}
               disabled={!canResend}
             >
-              Resend OTP
+              {t('auth.resendOtp')}
             </button>
           </div>
 
@@ -153,19 +156,19 @@ export default function VerifyPhonePage() {
           >
             {loading
               ? <span className="spinner" />
-              : <>Verify <span className="material-symbols-outlined">arrow_forward</span></>
+              : <>{t('auth.verifyBtnShort')} <span className="material-symbols-outlined">arrow_forward</span></>
             }
           </button>
         </div>
 
         {/* Tagline pill — from the screenshot */}
         <p className="verify-tagline">
-          Securing your journey towards a sustainable future with EcoSankalan.
+          {t('auth.verifyTagline')}
         </p>
 
         {/* Footer copyright — from the screenshot */}
         <p style={{ fontSize: '0.8rem', color: 'var(--outline)', textAlign: 'center' }}>
-          © EcoSankalan 2026
+          {t('auth.copyright')}
         </p>
 
       </main>

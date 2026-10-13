@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import CommandMenu from './components/common/CommandMenu';
+import { FullscreenLoader } from './components/common/Loader';
 import useListener from './hooks/useListener';
 import { NotificationProvider } from "./context/NotificationContext";
 
@@ -52,14 +53,14 @@ const queryClient = new QueryClient();
 // ── Protected route: redirects to /login if not authenticated ────────
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
-  if (isLoading) return null;
+  if (isLoading) return <FullscreenLoader />;
   return user ? children : <Navigate to="/login" replace />;
 };
 
 // ── Admin route: requires role admin (or ngo where needed) ─────────────
 const AdminRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
-  if (isLoading) return null;
+  if (isLoading) return <FullscreenLoader />;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== 'admin') return <Navigate to="/dashboard" replace />;
   return children;
@@ -140,16 +141,16 @@ export default function App() {
                       duration: 3500,
                       style: {
                         borderRadius: '16px',
-                        background: '#101815',
-                        color: '#fff',
+                        background: '#20301A',
+                        color: '#FFF8CF',
                         fontFamily: "'Inter', sans-serif",
                         fontSize: '0.87rem',
                         fontWeight: 600,
                         padding: '12px 16px',
-                        boxShadow: '0 12px 32px rgba(10,20,14,.35)',
-                        border: '1px solid rgba(170,204,0,.25)',
+                        boxShadow: '0 12px 32px rgba(32,48,26,.35)',
+                        border: '1px solid rgba(118,196,87,.35)',
                       },
-                      success: { iconTheme: { primary: '#aacc00', secondary: '#007f5f' } },
+                      success: { iconTheme: { primary: '#76C457', secondary: '#2A7C13' } },
                     }}
                   />
                   <AppRoutes />

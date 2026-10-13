@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import { rsvpEvent } from '../services/api';
@@ -31,6 +32,7 @@ const DEFAULT_EVENT = {
 export default function EventDetailPage() {
   const navigate  = useNavigate();
   const location  = useLocation();
+  const { t } = useTranslation();
   const event     = location.state?.event ?? DEFAULT_EVENT;
 
   const [rsvped,    setRsvped]    = useState(false);
@@ -46,8 +48,8 @@ export default function EventDetailPage() {
 
   // If organizer is a string (from backend), wrap it
   const org = typeof organizer === 'string'
-    ? { name: organizer, type: 'Organiser' }
-    : organizer ?? { name: 'EcoSankalan', type: 'Community' };
+    ? { name: organizer, type: t('events.orgFallback') }
+    : organizer ?? { name: 'EcoSankalan', type: t('events.orgDefault') };
 
   const extraCount = Math.max(0, (attendees || 0) - (avatars?.length || 0));
 
@@ -68,9 +70,9 @@ export default function EventDetailPage() {
     } catch (err) {
       if (err.message?.includes('409') || err.message?.toLowerCase().includes('already')) {
         setRsvped(true);
-        setRsvpError('You have already RSVP\'d for this event.');
+        setRsvpError(t('events.alreadyRsvpd'));
       } else {
-        setRsvpError(err.message || 'Failed to RSVP. Please try again.');
+        setRsvpError(err.message || t('events.rsvpFailed'));
       }
     } finally {
       setRsvping(false);
@@ -96,7 +98,7 @@ export default function EventDetailPage() {
             </div>
             <h1 className="ed-hero-title">{title}</h1>
           </div>
-          <button className="ed-back-btn" onClick={() => navigate(-1)}>
+          <button className="ed-back-btn" onClick={() => navigate(-1)} aria-label={t('events.back')}>
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
         </section>
@@ -108,7 +110,7 @@ export default function EventDetailPage() {
 
             {/* About */}
             <div className="ed-card">
-              <h2 className="ed-card-title">About the Event</h2>
+              <h2 className="ed-card-title">{t('events.about')}</h2>
               {(Array.isArray(about) ? about : [about]).map((p, i) => (
                 <p key={i} className="ed-body-text">{p}</p>
               ))}
@@ -126,18 +128,18 @@ export default function EventDetailPage() {
                 </h3>
                 <p className="ed-org-type">{org.type}</p>
               </div>
-              <button className="ed-follow-btn">Follow</button>
+              <button className="ed-follow-btn">{t('events.follow')}</button>
             </div>
 
             {/* Attendees */}
             <div className="ed-card">
               <div className="ed-attendees-header">
-                <h3 className="ed-card-title">Attendees</h3>
-                <span className="ed-attendees-count">{attendees} Joined</span>
+                <h3 className="ed-card-title">{t('events.attendees')}</h3>
+                <span className="ed-attendees-count">{t('events.joined', { count: attendees })}</span>
               </div>
               <div className="ed-avatar-row">
                 {(avatars || []).map((src, i) => (
-                  <img key={i} src={src} alt="Attendee" className="ed-avatar" />
+                  <img key={i} src={src} alt={t('events.attendeeAlt')} className="ed-avatar" />
                 ))}
                 {extraCount > 0 && (
                   <div className="ed-avatar ed-avatar-more">+{extraCount}</div>
@@ -155,7 +157,7 @@ export default function EventDetailPage() {
                 <div className="ed-info-icon-wrap">
                   <span className="material-symbols-outlined">schedule</span>
                 </div>
-                <h4 className="ed-info-label">Date &amp; Time</h4>
+                <h4 className="ed-info-label">{t('events.dateTime')}</h4>
               </div>
               <div className="ed-info-detail">
                 <p>{dateFull}</p>
@@ -168,7 +170,7 @@ export default function EventDetailPage() {
                 <div className="ed-info-icon-wrap">
                   <span className="material-symbols-outlined">location_on</span>
                 </div>
-                <h4 className="ed-info-label">Location</h4>
+                <h4 className="ed-info-label">{t('events.location')}</h4>
               </div>
               <div className="ed-info-detail">
                 <p>{venue}</p>
@@ -186,8 +188,8 @@ export default function EventDetailPage() {
               <div className="ed-reward-blob" />
               <div className="ed-reward-content">
                 <div className="ed-reward-left">
-                  <span className="ed-reward-earn">Earn</span>
-                  <h3 className="ed-reward-pts">+{rsvpPts || points} Eco Points</h3>
+                  <span className="ed-reward-earn">{t('events.earn')}</span>
+                  <h3 className="ed-reward-pts">{t('events.ecoPoints', { count: rsvpPts || points })}</h3>
                 </div>
                 <div className="ed-reward-icon-wrap">
                   <span className="material-symbols-outlined ed-reward-icon">emoji_events</span>
@@ -199,7 +201,7 @@ export default function EventDetailPage() {
             {rsvped && (
               <div className="ed-rsvp-success">
                 <span className="material-symbols-outlined">check_circle</span>
-                RSVP confirmed! {rsvpPts ? `+${rsvpPts} pts earned.` : ''}
+                {t('events.rsvpConfirmed', { pts: rsvpPts ? t('events.ptsEarned', { count: rsvpPts }) : '' })}
               </div>
             )}
 
@@ -221,16 +223,16 @@ export default function EventDetailPage() {
                 {rsvping ? (
                   <>
                     <span className="material-symbols-outlined" style={{ animation: 'spin 1s linear infinite' }}>progress_activity</span>
-                    RSVP'ing…
+                    {t('events.rsvping')}
                   </>
                 ) : rsvped ? (
                   <>
                     <span className="material-symbols-outlined">check_circle</span>
-                    RSVP'd
+                    {t('events.rsvpd')}
                   </>
-                ) : 'RSVP Now'}
+                ) : t('events.rsvpNow')}
               </button>
-              <button className="ed-cal-btn">
+              <button className="ed-cal-btn" aria-label={t('events.addToCalendar')}>
                 <span className="material-symbols-outlined">calendar_add_on</span>
               </button>
             </div>

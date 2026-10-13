@@ -20,28 +20,51 @@
   border-radius: 1.5rem;
   overflow: hidden;
   margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #1A4D2E 0%, #113620 100%);
+  background: linear-gradient(135deg, #2A7C13 0%, #2A7C13 48%, #1C5410 100%);
   color: white;
-  box-shadow: 0 8px 32px rgba(26,77,46,0.15);
+  box-shadow: 0 8px 32px rgba(42, 124, 19, 0.35), 0 18px 50px rgba(42, 124, 19, 0.18);
+  border: 1px solid rgba(118, 196, 87, 0.25);
   display: flex;
   flex-direction: column;
+  isolation: isolate;
+  animation: hero-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Animated aqua sheen sweeping across the hero */
+.hero-immersive::after {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(118, 196, 87, 0.16) 50%, transparent 58%);
+  transform: translateX(-60%);
+  animation: hero-sheen 7s ease-in-out infinite;
+}
+@keyframes hero-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes hero-sheen {
+  0%, 55% { transform: translateX(-60%); }
+  90%, 100% { transform: translateX(60%); }
 }
 
 .hero-immersive-bg {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: 0;
-  opacity: 0.6;
-  background-image: 
-    radial-gradient(circle at 100% 0%, rgba(160,243,153,0.15) 0%, transparent 50%),
-    radial-gradient(circle at 0% 100%, rgba(200,250,180,0.1) 0%, transparent 50%);
+  opacity: 0.7;
+  background-image:
+    radial-gradient(circle at 100% 0%, rgba(118, 196, 87, 0.22) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(212, 215, 0, 0.14) 0%, transparent 50%),
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
 }
 
 .hero-glass-sun {
   position: absolute;
   width: 250px;
   height: 250px;
-  background: linear-gradient(45deg, #A0F399, #76D172);
+  background: linear-gradient(45deg, #76C457, #80b918);
   border-radius: 50%;
   top: -60px;
   right: -60px;
@@ -57,11 +80,20 @@
 
 .hero-immersive-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+/* Staggered text entrance */
+.hi-text-content > * { animation: hi-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hi-text-content > *:nth-child(2) { animation-delay: 0.08s; }
+.hi-text-content > *:nth-child(3) { animation-delay: 0.16s; }
+.hi-text-content > *:nth-child(4) { animation-delay: 0.24s; }
+@keyframes hi-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
 }
 
 .hero-immersive-top {
@@ -103,9 +135,9 @@
 .hi-level-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: rgba(160,243,153,0.2);
-  border: 1px solid rgba(160,243,153,0.3);
-  color: #A0F399;
+  background: rgba(118,196,87,0.2);
+  border: 1px solid rgba(118,196,87,0.3);
+  color: #76C457;
   font-size: 0.65rem;
   font-weight: 700;
   border-radius: 9999px;
@@ -113,9 +145,10 @@
 }
 
 .hi-score-ring {
+  position: relative;
   width: 90px;
   height: 90px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -123,12 +156,34 @@
   flex-direction: column;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border: 1px solid rgba(118, 196, 87, 0.35);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 24px rgba(118, 196, 87, 0.25);
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
   flex-shrink: 0;
+  animation: ring-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
 }
+/* Rotating aqua glow ring */
+.hi-score-ring::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(from 0deg, transparent 10%, rgba(118, 196, 87, 0.9) 30%, transparent 50%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: ring-spin 6s linear infinite;
+  pointer-events: none;
+}
+.hi-score-ring:hover { transform: scale(1.06); box-shadow: 0 6px 26px rgba(0,0,0,0.25), 0 0 32px rgba(118,196,87,0.4); }
+@keyframes ring-pop {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes ring-spin { to { transform: rotate(360deg); } }
 
 .hi-score-ring:active {
   transform: scale(0.95);
@@ -157,10 +212,10 @@
 }
 
 .hi-stat-card {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.07);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(118, 196, 87, 0.18);
   border-radius: 1.25rem;
   padding: 1rem 0.75rem;
   display: flex;
@@ -168,16 +223,23 @@
   align-items: center;
   text-align: center;
   gap: 0.25rem;
-  transition: background 0.2s;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s, border-color 0.2s, box-shadow 0.25s;
+  animation: hi-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+.hero-immersive-stats .hi-stat-card:nth-child(1) { animation-delay: 0.3s; }
+.hero-immersive-stats .hi-stat-card:nth-child(2) { animation-delay: 0.4s; }
+.hero-immersive-stats .hi-stat-card:nth-child(3) { animation-delay: 0.5s; }
 
 .hi-stat-card:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(118, 196, 87, 0.45);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
 }
 
 .hi-stat-icon {
   font-size: 1.5rem !important;
-  color: #A0F399;
+  color: #76C457;
   margin-bottom: 0.25rem;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
@@ -206,7 +268,7 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 2rem;
-  border: 1px solid rgba(160,243,153,0.3);
+  border: 1px solid rgba(118,196,87,0.3);
   box-shadow: 0 4px 12px rgba(0,0,0,0.02);
   user-select: none;
   -webkit-user-select: none;
@@ -308,7 +370,7 @@
 /* ── Waste Management Fact Card — NEW ─────────────────────────────── */
 .bento-fact {
   grid-column: 1 / -1;
-  background: rgba(160,243,153,0.3);
+  background: rgba(118,196,87,0.3);
   border: 1px solid var(--secondary-container);
   border-radius: 1.5rem;
   padding: 1.25rem;
@@ -418,15 +480,17 @@
 
 .activity-item {
   background: var(--surface-container-lowest);
-  padding: 1.25rem;
+  padding: 1rem 1.25rem;
   border-radius: 1.5rem;
   border: 1px solid rgba(191,201,189,0.05);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: background 0.15s;
+  gap: 0.75rem;
+  transition: background 0.15s, transform 0.15s, border-color 0.15s, box-shadow 0.2s;
 }
-.activity-item:hover { background: var(--surface-container-low); }
+.activity-item:hover { background: var(--surface-container-low); border-color: rgba(42, 124, 19, 0.16); }
+.activity-item:active { transform: scale(0.99); }
 
 .activity-left { display: flex; align-items: center; gap: 1rem; }
 .activity-icon-wrap {
@@ -486,7 +550,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 16px rgba(25,28,27,0.05);
-  border: 1px solid rgba(160,243,153,0.3);
+  border: 1px solid rgba(118,196,87,0.3);
   height: clamp(20rem, 60vw, 26rem); /* slightly taller */
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
 }
@@ -583,7 +647,7 @@
 .challenge-progress-bar {
   width: 100%;
   height: 0.5rem;
-  background: rgba(160,243,153,0.3);
+  background: rgba(118,196,87,0.3);
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: auto; /* Push button to bottom */
@@ -591,7 +655,7 @@
 
 .challenge-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #76D172, #3DA239);
+  background: linear-gradient(90deg, #80b918, #3DA239);
   border-radius: 999px;
   transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -613,14 +677,14 @@
   gap: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(0,81,39,0.2);
+  box-shadow: 0 4px 12px rgba(42,124,19,0.2);
 }
 
 .challenge-btn:hover {
   background: var(--primary-container);
   color: var(--on-primary-container);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,81,39,0.25);
+  box-shadow: 0 6px 16px rgba(42,124,19,0.25);
 }
 
 .challenge-btn:active {
@@ -1001,3 +1065,22 @@
   .eco-content h4 { font-size: 10px; }
   .eco-content p  { font-size: 8px; }
 }
+
+/* Tap-to-impact affordance under hero stats */
+.hi-impact-link {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 248, 207, 0.14);
+  border: 1px solid rgba(255, 248, 207, 0.35);
+  color: #FFF8CF;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.hi-impact-link:hover { background: rgba(255, 248, 207, 0.24); transform: translateY(-1px); }
+.hi-impact-link .material-symbols-outlined { font-size: 1rem; }

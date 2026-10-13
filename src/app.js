@@ -41,6 +41,7 @@ const voucherRoutes = require('./routes/vouchers');
 const adminRoutes = require('./routes/admin');
 const aiRoutes = require('./routes/ai');
 const markerRoutes = require('./routes/markers');
+const platformRoutes = require('./routes/platform');
 // Middleware imports
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
@@ -110,9 +111,12 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 // Default: 100 requests per 15 minutes per IP.
 // Auth routes get a stricter limiter (defined in auth routes in Month 2).
 // ─────────────────────────────────────────────────
+const IS_DEV = process.env.NODE_ENV !== 'production';
 const globalLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 50,
+  // Dev needs headroom: StrictMode double-mounts + HMR + map polling
+  // easily exceed 50/min locally. Production stays strict.
+  max: IS_DEV ? 600 : 50,
   standardHeaders: true,  // include rate limit info in response headers
   legacyHeaders: false,
   message: {
@@ -156,6 +160,7 @@ app.use('/api/v1/vouchers', voucherRoutes);     // Month 5
 app.use('/api/v1/admin', adminRoutes);          // Month 6
 app.use('/api/v1/ai', aiRoutes);                // AI waste scan
 app.use('/api/v1/markers', markerRoutes);        // Map markers
+app.use('/api/v1/platform', platformRoutes);     // Public platform stats (landing)
 
 
 //notification 
@@ -168,7 +173,7 @@ app.get('/', (req, res) => {
     message: '🌿 EcoSankalan API is running',
     version: '1.0.0',
     docs: '/health',
-    project: 'NSUT CPVS-STP 2025-26(E)',
+    project: 'EcoSankalan',
   });
 });
 

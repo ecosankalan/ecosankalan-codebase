@@ -1,0 +1,32 @@
+/* Language switcher — pill toggle, Leaf Harvest theme */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 253, 242, 0.9);
+  border: 1px solid var(--eco-line, #EBD3A6);
+  border-radius: 999px;
+  padding: 3px;
+  box-shadow: var(--eco-shadow-xs);
+}
+.lang-switch-btn {
+  border: 0;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--eco-primary, #2A7C13);
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+.lang-switch-btn:hover { background: rgba(42, 124, 19, 0.08); }
+.lang-switch-btn.active {
+  background: linear-gradient(135deg, #76C457, #2A7C13);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(42, 124, 19, 0.35);
+}
+.lang-switch-sep { color: var(--eco-line, #EBD3A6); font-size: 0.75rem; }
+.lang-switch--compact .lang-switch-btn { padding: 4px 8px; font-size: 0.7rem; }

@@ -1,9 +1,13 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import LoginForm from '../components/auth/LoginForm';
+import BrandLogo from '../components/common/BrandLogo';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import '../styles/login.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="login-root">
@@ -15,9 +19,8 @@ export default function LoginPage() {
 
         {/* ── LEFT: Brand panel ─────────────────────────────── */}
         <section className="brand-panel">
-          <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <img src="/logo.png" alt="EcoSankalan Logo" style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
-            <span className="brand-name">EcoSankalan</span>
+          <div className="brand-logo">
+            <BrandLogo size="md" onDark tagline={t('common.tagline')} />
           </div>
 
           <div className="brand-headline">
@@ -54,14 +57,17 @@ export default function LoginPage() {
         <section className="form-panel">
 
           {/* Mobile logo (hidden on desktop) */}
-          <div className="mobile-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '1rem' }}>
-            <img src="/logo.png" alt="EcoSankalan Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
-            <span className="brand-name" style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary)' }}>EcoSankalan</span>
+          <div className="mobile-logo">
+            <BrandLogo size="sm" tagline={t('common.tagline')} />
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+            <LanguageSwitcher compact />
           </div>
 
           <div className="form-heading">
-            <h3>Welcome Back</h3>
-            <p>Please enter your details to continue your impact journey.</p>
+            <h3>{t('auth.loginTitle')}</h3>
+            <p>{t('auth.loginSub')}</p>
           </div>
 
           {/* LoginForm handles all form logic + API call */}
@@ -70,9 +76,9 @@ export default function LoginPage() {
           {/* Footer — "Create an account" is static (Month 1) */}
           <footer className="form-footer">
             <p>
-              Don't have an account?{' '}
+              {t('auth.noAccount')}{' '}
               <Link to="/register" className="create-account-link">
-                Create an account
+                {t('auth.registerBtn')}
               </Link>
             </p>
           </footer>

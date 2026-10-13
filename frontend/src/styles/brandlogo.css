@@ -1,0 +1,104 @@
+/* ── BrandLogo — canonical EcoSankalan lockup (teal/aqua theme) ── */
+@import './design-system.css';
+
+.brandlock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.brandlock-tile {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: transparent;
+  filter: drop-shadow(0 3px 8px rgba(42, 124, 19, 0.3));
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s;
+}
+/* Real logo photo: file already has transparency — no blend needed */
+.brandlock-img--photo {
+  object-fit: contain;
+}
+/* SVG fallback keeps its own dark tile */
+.brandlock-tile--svg { background: #101a0e; }
+.brandlock-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Traveling shine across the tile */
+.brandlock-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: 30%;
+  background: linear-gradient(105deg, transparent 44%, rgba(255, 255, 255, 0.3) 50%, transparent 56%);
+  transform: translateX(-70%);
+  animation: brandlock-shine 5.5s ease-in-out infinite;
+  pointer-events: none;
+  overflow: hidden;
+}
+@keyframes brandlock-shine {
+  0%, 60% { transform: translateX(-70%); }
+  100% { transform: translateX(70%); }
+}
+
+/* Hover / focus micro-interaction (parent is usually a link) */
+a:hover .brandlock-tile, button:hover .brandlock-tile,
+[role='link']:hover .brandlock-tile, [role='button']:hover .brandlock-tile {
+  transform: translateY(-1px) rotate(-3deg);
+  filter: drop-shadow(0 6px 14px rgba(42, 124, 19, 0.4)) drop-shadow(0 0 10px rgba(118, 196, 87, 0.45));
+}
+a:hover .brandlock-img, button:hover .brandlock-img,
+[role='link']:hover .brandlock-img, [role='button']:hover .brandlock-img {
+  transform: scale(1.08);
+}
+
+.brandlock-text { display: inline-flex; flex-direction: column; gap: 2px; }
+.brandlock-word {
+  font-family: var(--font-headline);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--eco-ink);
+  white-space: nowrap;
+}
+.brandlock-tag {
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--eco-primary);
+  white-space: nowrap;
+}
+.brandlock--dark .brandlock-word { color: #fff; }
+.brandlock--dark .brandlock-tag { color: var(--eco-lime); }
+
+/* Sizes — enlarged per placement so the real logo reads clearly */
+.brandlock--xs { gap: 0.45rem; }
+.brandlock--xs .brandlock-tile { width: 40px; height: 40px; border-radius: 12px; }
+.brandlock--xs .brandlock-word { font-size: 1rem; }
+.brandlock--xs .brandlock-tag { font-size: 0.58rem; }
+
+.brandlock--sm { gap: 0.65rem; }
+.brandlock--sm .brandlock-tile { width: 56px; height: 56px; border-radius: 16px; }
+.brandlock--sm .brandlock-word { font-size: 1.3rem; }
+.brandlock--sm .brandlock-tag { font-size: 0.65rem; }
+
+.brandlock--md { gap: 0.75rem; }
+.brandlock--md .brandlock-tile { width: 76px; height: 76px; border-radius: 20px; }
+.brandlock--md .brandlock-word { font-size: 1.6rem; }
+.brandlock--md .brandlock-tag { font-size: 0.7rem; }
+
+.brandlock--lg { gap: 0.9rem; }
+.brandlock--lg .brandlock-tile { width: 96px; height: 96px; border-radius: 24px; }
+.brandlock--lg .brandlock-word { font-size: 1.9rem; }
+.brandlock--lg .brandlock-tag { font-size: 0.75rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .brandlock-shine, .brandlock-tile, .brandlock-img { animation: none !important; transition: none !important; }
+}

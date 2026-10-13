@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import { getWasteStats } from '../services/api';
@@ -6,23 +7,31 @@ import '../styles/impact.css';
 
 import { useStats } from '../context/StatsContext';
 
-const TIME_FILTERS = ['Today', 'This Week', 'This Month', 'All Time'];
+const TIME_FILTER_KEYS = [
+  { key: 'today', labelKey: 'fToday', range: 'week' },
+  { key: 'week', labelKey: 'fWeek', range: 'week' },
+  { key: 'month', labelKey: 'fMonth', range: 'month' },
+  { key: 'all', labelKey: 'fAll', range: 'all' },
+];
 
 // Constants for Donut Chart
 const R = 15.9;
 const CIRCUM_D = 2 * Math.PI * R;
 
 const ACHIEVEMENT_TILES = [
-  { icon: 'emoji_events',  label: 'Eco Starter',    desc: 'First log',   earned: true  },
-  { icon: 'recycling',     label: 'Recycler',        desc: '10 logs',     earned: true  },
-  { icon: 'local_florist', label: 'Green Thumb',     desc: '5 organic',   earned: true  },
-  { icon: 'water_drop',    label: 'Water Saver',     desc: '100L saved',  earned: false },
-  { icon: 'bolt',          label: 'Energy Wizard',   desc: '50kWh saved', earned: false },
-  { icon: 'public',        label: 'Planet Guardian', desc: 'Top 1%',      earned: false },
+  { icon: 'emoji_events',  labelKey: 'aStarter',  descKey: 'aStarterD', earned: true  },
+  { icon: 'recycling',     labelKey: 'aRecycler', descKey: 'aRecyclerD', earned: true  },
+  { icon: 'local_florist', labelKey: 'aThumb',    descKey: 'aThumbD',   earned: true  },
+  { icon: 'water_drop',    labelKey: 'aWater',    descKey: 'aWaterD',   earned: false },
+  { icon: 'bolt',          labelKey: 'aEnergy',   descKey: 'aEnergyD',  earned: false },
+  { icon: 'public',        labelKey: 'aPlanet',   descKey: 'aPlanetD',  earned: false },
 ];
 
 export default function ImpactPage() {
-  const [timeFilter, setTimeFilter] = useState('This Week');
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === 'hi' ? 'hi-IN' : 'en-IN';
+  const dateLocale = i18n.language === 'hi' ? 'hi-IN' : 'en-US';
+  const [timeFilter, setTimeFilter] = useState('week');
   const [stats, setStats] = useState(null);
   
   const { fetchStatsForRange } = useStats();
@@ -33,19 +42,17 @@ export default function ImpactPage() {
     const loadStats = async () => {
       setLoading(true);
       try {
-        let range = 'week';
-        if (timeFilter === 'This Month') range = 'month';
-        if (timeFilter === 'All Time') range = 'all';
-        
+        const range = TIME_FILTER_KEYS.find((f) => f.key === timeFilter)?.range || 'week';
+
         const dataRes = await fetchStatsForRange(range);
         if (!active) return;
-        
+
         let data = dataRes ? { ...dataRes } : {};
         // Basic local filtering for "Today"
-        if (timeFilter === 'Today' && data.weeklyTrend) {
+        if (timeFilter === 'today' && data.weeklyTrend) {
            const today = new Date().toLocaleDateString('en-CA');
            const todayData = data.weeklyTrend.filter(t => t.date && t.date.startsWith(today));
-           
+
            data = {
               ...data,
               weeklyTrend: todayData,
@@ -76,10 +83,10 @@ export default function ImpactPage() {
   // Breakdown array
   const safeTotal = totalKg || 1;
   const BREAKDOWN = [
-    { label: 'Plastic', pct: Math.round(((bk.plastic || 0) / safeTotal) * 100), color: 'var(--primary)', stroke: '#005127' },
-    { label: 'Organic', pct: Math.round(((bk.organic || 0) / safeTotal) * 100), color: 'var(--secondary)', stroke: '#1b6d24' },
-    { label: 'E-waste', pct: Math.round((((bk.eWaste || 0) + (bk.metal || 0)) / safeTotal) * 100), color: 'var(--tertiary)', stroke: '#782c39' },
-    { label: 'Other',   pct: Math.round((((bk.other || 0) + (bk.paper || 0)) / safeTotal) * 100), color: 'var(--outline-variant)', stroke: '#bfc9bd' },
+    { labelKey: 'catPlastic', pct: Math.round(((bk.plastic || 0) / safeTotal) * 100), color: 'var(--primary)', stroke: '#2A7C13' },
+    { labelKey: 'catOrganic', pct: Math.round(((bk.organic || 0) / safeTotal) * 100), color: 'var(--secondary)', stroke: '#2A7C13' },
+    { labelKey: 'catEwaste', pct: Math.round((((bk.eWaste || 0) + (bk.metal || 0)) / safeTotal) * 100), color: 'var(--tertiary)', stroke: '#7A5B12' },
+    { labelKey: 'catOther',   pct: Math.round((((bk.other || 0) + (bk.paper || 0)) / safeTotal) * 100), color: 'var(--outline-variant)', stroke: '#bfc9bd' },
   ];
 
   let cumOffset = 0;
@@ -87,7 +94,7 @@ export default function ImpactPage() {
     const dash = (b.pct / 100) * CIRCUM_D;
     const offset = -cumOffset;
     cumOffset += dash;
-    return { ...b, dash, offset };
+    return { ...b, label: t(`impact.${b.labelKey}`), dash, offset };
   });
 
   // Chart data
@@ -100,20 +107,20 @@ export default function ImpactPage() {
       <main className="impact-main">
 
         <div className="impact-page-header">
-          <span className="impact-eyebrow">Your Progress</span>
-          <h1 className="impact-title">My Impact</h1>
+          <span className="impact-eyebrow">{t('impact.eyebrow')}</span>
+          <h1 className="impact-title">{t('impact.title')}</h1>
         </div>
 
         <section className="impact-score-card">
           <div className="impact-score-left">
-            <span className="impact-score-eyebrow">Eco-Score</span>
+            <span className="impact-score-eyebrow">{t('impact.scoreEyebrow')}</span>
             <div className="impact-score-num-row">
               <span className="impact-score-num">{ecoScore}</span>
               <span className="impact-score-denom">/100</span>
             </div>
             <p className="impact-score-trend">
               <span className="material-symbols-outlined impact-trend-icon">trending_up</span>
-              Keep logging to improve!
+              {t('impact.improve')}
             </p>
           </div>
           <div className="impact-score-ring-wrap">
@@ -138,28 +145,28 @@ export default function ImpactPage() {
 
         <div className="impact-stats-row">
           {[
-            { icon: 'delete_sweep', label: 'Total Logged',  value: `${totalKg.toLocaleString()} kg`, color: 'var(--secondary)' },
-            { icon: 'cloud_done',   label: 'CO₂ Saved',     value: `${totalCo2.toFixed(1)} kg`, color: 'var(--primary)' },
-            { icon: 'savings',      label: 'Eco Points',    value: totalPoints.toLocaleString(), color: 'var(--primary-container)' },
-            { icon: 'recycling',    label: 'Recyclables',   value: `${((bk.plastic || 0) + (bk.paper || 0) + (bk.metal || 0) + (bk.eWaste || 0)).toFixed(1)} kg`, color: 'var(--tertiary)' },
+            { icon: 'delete_sweep', labelKey: 'statLogged',  value: `${totalKg.toLocaleString()} kg`, color: 'var(--secondary)' },
+            { icon: 'cloud_done',   labelKey: 'statCo2',     value: `${totalCo2.toFixed(1)} kg`, color: 'var(--primary)' },
+            { icon: 'savings',      labelKey: 'statPoints',    value: totalPoints.toLocaleString(), color: 'var(--primary-container)' },
+            { icon: 'recycling',    labelKey: 'statRecyc',   value: `${((bk.plastic || 0) + (bk.paper || 0) + (bk.metal || 0) + (bk.eWaste || 0)).toFixed(1)} kg`, color: 'var(--tertiary)' },
           ].map(s => (
-            <div className="impact-stat-tile" key={s.label}>
+            <div className="impact-stat-tile" key={s.labelKey}>
               <span className="material-symbols-outlined impact-stat-icon"
                 style={{ color: s.color, fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
               <span className="impact-stat-val">{s.value}</span>
-              <span className="impact-stat-lbl">{s.label}</span>
+              <span className="impact-stat-lbl">{t(`impact.${s.labelKey}`)}</span>
             </div>
           ))}
         </div>
 
         <div className="impact-time-chips">
-          {TIME_FILTERS.map(f => (
+          {TIME_FILTER_KEYS.map(f => (
             <button
-              key={f}
-              className={`impact-time-chip${timeFilter === f ? ' active' : ''}`}
-              onClick={() => setTimeFilter(f)}
+              key={f.key}
+              className={`impact-time-chip${timeFilter === f.key ? ' active' : ''}`}
+              onClick={() => setTimeFilter(f.key)}
             >
-              {f}
+              {t(`impact.${f.labelKey}`)}
             </button>
           ))}
         </div>
@@ -167,17 +174,17 @@ export default function ImpactPage() {
         <section className="impact-card">
           <div className="impact-card-header-row">
             <div>
-              <h2 className="impact-card-title">Waste Activity</h2>
-              <p className="impact-card-sub">Distribution by material type (kg)</p>
+              <h2 className="impact-card-title">{t('impact.cardActivity')}</h2>
+              <p className="impact-card-sub">{t('impact.cardSub')}</p>
             </div>
             <span className="material-symbols-outlined impact-card-icon-right">bar_chart</span>
           </div>
           
           <div className="impact-bar-chart">
             {trend.length > 0 ? trend.map((t, i) => {
-              const dateLabel = timeFilter === 'This Week' || timeFilter === 'Today' 
-                ? new Date(t.date || Date.now()).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()
-                : new Date(t.date || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              const dateLabel = timeFilter === 'week' || timeFilter === 'today'
+                ? new Date(t.date || Date.now()).toLocaleDateString(dateLocale, { weekday: 'short' }).toUpperCase()
+                : new Date(t.date || Date.now()).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' });
               
               const p = t.plastic || 0;
               const o = t.organic || 0;
@@ -191,27 +198,27 @@ export default function ImpactPage() {
                     <div style={{ height: `${(m/total)*100}%`, background: 'var(--outline-variant)', borderRadius: '2px 2px 0 0' }} />
                     <div style={{ height: `${(e/total)*100}%`, background: 'var(--tertiary-container)' }} />
                     <div style={{ height: `${(o/total)*100}%`, background: 'var(--secondary)' }} />
-                    <div style={{ height: `${(p/total)*100}%`, background: 'rgba(0,81,39,0.8)', borderRadius: '0 0 2px 2px' }} />
+                    <div style={{ height: `${(p/total)*100}%`, background: 'rgba(42,124,19,0.8)', borderRadius: '0 0 2px 2px' }} />
                   </div>
                   <span className="impact-bar-lbl">{dateLabel}</span>
                 </div>
               );
             }) : (
               <div style={{ width: '100%', textAlign: 'center', color: 'var(--outline)', padding: '2rem 0' }}>
-                No data for this period
+                {t('impact.noData')}
               </div>
             )}
           </div>
           <div className="impact-legend">
             {[
-              { color: 'rgba(0,81,39,0.8)',           label: 'Plastic'  },
-              { color: 'var(--secondary)',             label: 'Organic'  },
-              { color: 'var(--tertiary-container)',    label: 'E-waste'  },
-              { color: 'var(--outline-variant)',       label: 'Other'    },
+              { color: 'rgba(42,124,19,0.8)',           labelKey: 'catPlastic'  },
+              { color: 'var(--secondary)',             labelKey: 'catOrganic'  },
+              { color: 'var(--tertiary-container)',    labelKey: 'catEwaste'  },
+              { color: 'var(--outline-variant)',       labelKey: 'catOther'    },
             ].map(l => (
-              <div className="impact-legend-item" key={l.label}>
+              <div className="impact-legend-item" key={l.labelKey}>
                 <span className="impact-legend-dot" style={{ background: l.color }} />
-                <span>{l.label}</span>
+                <span>{t(`impact.${l.labelKey}`)}</span>
               </div>
             ))}
           </div>
@@ -225,19 +232,19 @@ export default function ImpactPage() {
             </div>
             <div className="impact-co2-badge">
               <span className="material-symbols-outlined">trending_up</span>
-              Keep it up!
+              {t('impact.keepUp')}
             </div>
           </div>
           <h3 className="impact-co2-num">{totalCo2.toLocaleString()} kg CO₂</h3>
-          <p className="impact-co2-sub">Saved through conscious disposal</p>
+          <p className="impact-co2-sub">{t('impact.savedThru')}</p>
           <div className="impact-co2-meta">
             <div>
-              <span className="impact-co2-meta-label">Trees Equivalent</span>
-              <span className="impact-co2-meta-val">{Math.round(totalCo2 / 21)} Mature Trees</span>
+              <span className="impact-co2-meta-label">{t('impact.treesEq')}</span>
+              <span className="impact-co2-meta-val">{Math.round(totalCo2 / 21)} {t('impact.matureTrees')}</span>
             </div>
             <div>
-              <span className="impact-co2-meta-label">Impact Period</span>
-              <span className="impact-co2-meta-val">{timeFilter}</span>
+              <span className="impact-co2-meta-label">{t('impact.period')}</span>
+              <span className="impact-co2-meta-val">{t(`impact.${TIME_FILTER_KEYS.find((f) => f.key === timeFilter)?.labelKey || 'fWeek'}`)}</span>
             </div>
           </div>
           <div className="impact-co2-blob" />
@@ -260,7 +267,7 @@ export default function ImpactPage() {
               <span className="impact-donut-center">100%</span>
             </div>
             <div className="impact-donut-legend">
-              <h3 className="impact-donut-title">Waste Breakdown</h3>
+              <h3 className="impact-donut-title">{t('impact.breakdown')}</h3>
               {BREAKDOWN.map(b => (
                 <div className="impact-donut-row" key={b.label}>
                   <div className="impact-donut-row-left">
@@ -275,16 +282,16 @@ export default function ImpactPage() {
 
           <section className="impact-mini-stats">
             {[
-              { icon: 'eco',        label: 'CO₂ Saved',     value: `${totalCo2} kg`,  color: 'var(--primary)'   },
-              { icon: 'water_drop', label: 'Water Saved',   value: `${Math.round(totalKg * 40)} L`,  color: 'var(--secondary)' },
-              { icon: 'bolt',       label: 'Energy Saved',  value: `${Math.round(totalKg * 1.5)} kWh`, color: 'var(--tertiary)'  },
-              { icon: 'recycling',  label: 'Diverted',      value: `${totalKg} kg`,  color: 'var(--primary)'   },
+              { icon: 'eco',        labelKey: 'miniCo2',     value: `${totalCo2} kg`,  color: 'var(--primary)'   },
+              { icon: 'water_drop', labelKey: 'miniWater',   value: `${Math.round(totalKg * 40)} L`,  color: 'var(--secondary)' },
+              { icon: 'bolt',       labelKey: 'miniEnergy',  value: `${Math.round(totalKg * 1.5)} kWh`, color: 'var(--tertiary)'  },
+              { icon: 'recycling',  labelKey: 'miniDiverted',      value: `${totalKg} kg`,  color: 'var(--primary)'   },
             ].map(s => (
-              <div className="impact-mini-tile" key={s.label}>
+              <div className="impact-mini-tile" key={s.labelKey}>
                 <span className="material-symbols-outlined impact-mini-icon"
                   style={{ color: s.color, fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
                 <span className="impact-mini-val">{s.value}</span>
-                <span className="impact-mini-lbl">{s.label}</span>
+                <span className="impact-mini-lbl">{t(`impact.${s.labelKey}`)}</span>
               </div>
             ))}
           </section>
@@ -293,7 +300,7 @@ export default function ImpactPage() {
         <section className="impact-card">
           <div className="impact-card-header-row">
             <span className="material-symbols-outlined impact-card-icon-left">flag</span>
-            <h2 className="impact-card-title">Monthly Goal — 80 kg CO₂</h2>
+            <h2 className="impact-card-title">{t('impact.goalTitle')}</h2>
           </div>
           <div className="impact-goal-bar-wrap">
             <div className="impact-goal-bar">
@@ -302,24 +309,24 @@ export default function ImpactPage() {
             <span className="impact-goal-pct">{totalCo2} / 80 kg <strong>({Math.round((totalCo2 / 80) * 100)}%)</strong></span>
           </div>
           {totalCo2 < 80 ? (
-             <p className="impact-goal-note">You need <strong>{Math.max(0, 80 - totalCo2).toFixed(1)} kg more</strong> this month to hit your goal 🌱</p>
+             <p className="impact-goal-note">{t('impact.goalNeed', { kg: Math.max(0, 80 - totalCo2).toFixed(1) })}</p>
           ) : (
-             <p className="impact-goal-note">You <strong>smashed your goal</strong> this month! Fantastic job! 🎉</p>
+             <p className="impact-goal-note">{t('impact.goalSmashed')}</p>
           )}
         </section>
 
         <section className="impact-card">
           <div className="impact-card-header-row">
             <span className="material-symbols-outlined impact-card-icon-left">military_tech</span>
-            <h2 className="impact-card-title">Achievements</h2>
+            <h2 className="impact-card-title">{t('impact.achTitle')}</h2>
           </div>
           <div className="impact-badges-grid">
             {ACHIEVEMENT_TILES.map(b => (
-              <div className={`impact-badge-tile${b.earned ? '' : ' locked'}`} key={b.label}>
+              <div className={`impact-badge-tile${b.earned ? '' : ' locked'}`} key={b.labelKey}>
                 <span className="material-symbols-outlined impact-badge-tile-icon"
                   style={b.earned ? { fontVariationSettings: "'FILL' 1" } : {}}>{b.icon}</span>
-                <span className="impact-badge-tile-label">{b.label}</span>
-                <span className="impact-badge-tile-desc">{b.desc}</span>
+                <span className="impact-badge-tile-label">{t(`impact.${b.labelKey}`)}</span>
+                <span className="impact-badge-tile-desc">{t(`impact.${b.descKey}`)}</span>
                 {!b.earned && (
                   <span className="material-symbols-outlined impact-badge-lock">lock</span>
                 )}

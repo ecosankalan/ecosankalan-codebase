@@ -1,6 +1,6 @@
 # 🌿 EcoSankalan — Frontend
 
-> Community-driven waste management web app · NSUT CPVS-STP 2025-26
+> Community-driven waste management web app
 
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-5.3-646CFF?logo=vite)](https://vitejs.dev)
@@ -13,8 +13,8 @@
 | Field | Detail |
 |-------|--------|
 | **Project ID** | STP2025-26(E)CSE(M)VivekAyush(2024UCS1573) |
-| **Faculty Guide** | Prof. Vivek Mehta, NSUT Dept. of CSE |
-| **Grant** | ₹10,000 · NSUT CPVS Short-Term Project |
+| **Faculty Guide** | Prof. Vivek Mehta, Dept. of CSE |
+| **Grant** | ₹10,000 · Short-Term Project |
 | **Frontend Dev** | Vipin Gupta (2024UCS1607) |
 | **UI/UX Design** | Krishna (2024UCS1548) |
 

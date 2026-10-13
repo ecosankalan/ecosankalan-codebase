@@ -1,12 +1,14 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import '../styles/quiz.css';
 
 export default function QuizResultPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { score = 4, total = 5, time = '1:42', points = 50, quizTitle = 'Eco Quiz', badge = 'Eco Scholar' } = location.state || {};
+  const { score = 4, total = 5, time = '1:42', points = 50, quizTitle = t('quiz.defaultQuiz'), badge = t('quiz.defaultBadge') } = location.state || {};
 
   const accuracy = Math.round((score / total) * 100);
   const wrong    = total - score;
@@ -20,8 +22,8 @@ export default function QuizResultPage() {
       <main className="result-main">
 
         <div className="result-header">
-          <h1>Quiz Completed!</h1>
-          <p>{quizTitle} • You're making a real difference, one answer at a time.</p>
+          <h1>{t('quiz.completed')}</h1>
+          <p>{t('quiz.completedSub', { title: quizTitle })}</p>
         </div>
 
         {/* Badge unlocked banner */}
@@ -29,8 +31,8 @@ export default function QuizResultPage() {
           <div className="result-badge-banner">
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", color: '#08713a', fontSize: '1.75rem' }}>workspace_premium</span>
             <div>
-              <p className="result-badge-title">Badge Unlocked: <strong>{badge}</strong></p>
-              <p className="result-badge-sub">Added to your profile achievements!</p>
+              <p className="result-badge-title">{t('quiz.badgeUnlocked')} <strong>{badge}</strong></p>
+              <p className="result-badge-sub">{t('quiz.badgeSub')}</p>
             </div>
           </div>
         )}
@@ -46,12 +48,12 @@ export default function QuizResultPage() {
               </svg>
               <div className="result-donut-label">
                 <span className="result-donut-score">{score}/{total}</span>
-                <span className="result-donut-sub">Score</span>
+                <span className="result-donut-sub">{t('quiz.score')}</span>
               </div>
             </div>
             <div className="result-accuracy-badge">
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
-              {accuracy}% Accuracy
+              {t('quiz.accuracy', { pct: accuracy })}
             </div>
           </div>
 
@@ -59,12 +61,12 @@ export default function QuizResultPage() {
           <div className="result-points-card">
             <div className="result-points-top">
               <span className="material-symbols-outlined result-points-icon" style={{ fontVariationSettings: "'FILL' 1" }}>volunteer_activism</span>
-              <h3>Impact Level Up!</h3>
-              <p>Your knowledge helps reduce carbon footprints in your local community.</p>
+              <h3>{t('quiz.impactTitle')}</h3>
+              <p>{t('quiz.impactSub')}</p>
             </div>
             <div>
               <div className="result-points-earned">+{points}</div>
-              <div className="result-points-label">Eco Points earned</div>
+              <div className="result-points-label">{t('quiz.pointsEarned')}</div>
             </div>
           </div>
         </div>
@@ -75,17 +77,17 @@ export default function QuizResultPage() {
             <div className="result-stat-cell">
               <span className="material-symbols-outlined stat-correct">check_circle</span>
               <span className="result-stat-num">{score}</span>
-              <span className="result-stat-label">Correct</span>
+              <span className="result-stat-label">{t('quiz.correct')}</span>
             </div>
             <div className="result-stat-cell">
               <span className="material-symbols-outlined stat-incorrect">cancel</span>
               <span className="result-stat-num">{wrong}</span>
-              <span className="result-stat-label">Incorrect</span>
+              <span className="result-stat-label">{t('quiz.incorrect')}</span>
             </div>
             <div className="result-stat-cell">
               <span className="material-symbols-outlined stat-time">timer</span>
               <span className="result-stat-num">{time}</span>
-              <span className="result-stat-label">Time</span>
+              <span className="result-stat-label">{t('quiz.time')}</span>
             </div>
           </div>
         </div>
@@ -93,16 +95,16 @@ export default function QuizResultPage() {
         <div className="result-actions">
           <button className="result-primary-btn" onClick={() => navigate('/quiz', { replace: true })}>
             <span className="material-symbols-outlined">refresh</span>
-            Try Again
+            {t('quiz.tryAgain')}
           </button>
           <button className="result-secondary-btn" onClick={() => navigate('/profile')}>
             <span className="material-symbols-outlined">person</span>
-            View Profile
+            {t('quiz.viewProfile')}
           </button>
         </div>
 
         <div className="result-quote">
-          <p>"The greatest threat to our planet is the belief that someone else will save it."</p>
+          <p>{t('quiz.quote')}</p>
           <cite>— Robert Swan</cite>
         </div>
 

@@ -100,7 +100,7 @@
 }
 
 .shop-balance-icon-wrap {
-    background: rgba(0, 81, 39, 0.1);
+    background: rgba(42, 124, 19, 0.1);
     border-radius: 0.75rem;
     padding: 0.6rem;
     display: flex;
@@ -292,7 +292,7 @@
 }
 
 .shop-copy-btn:hover {
-    background: rgba(0, 81, 39, 0.08);
+    background: rgba(42, 124, 19, 0.08);
 }
 
 .shop-copy-btn .material-symbols-outlined {
@@ -494,7 +494,7 @@
 }
 
 .shop-buy-btn:hover {
-    background: rgba(0, 81, 39, 0.05);
+    background: rgba(42, 124, 19, 0.05);
 }
 
 @media (max-width: 400px) {

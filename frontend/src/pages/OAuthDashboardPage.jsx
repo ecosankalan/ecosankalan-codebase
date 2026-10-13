@@ -7,6 +7,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Client, Account } from 'appwrite';
 import { syncUser } from '../services/api';
 
@@ -18,6 +19,7 @@ const account = new Account(client);
 
 export default function OAuthDashboardPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,7 +54,7 @@ export default function OAuthDashboardPage() {
       <div className="auth-page">
         <div className="auth-form-wrapper" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
           <span className="spinner" style={{ width: 48, height: 48, margin: '0 auto 1.5rem' }} />
-          <h3>Loading...</h3>
+          <h3>{t('misc.loading')}</h3>
         </div>
       </div>
     );
@@ -65,16 +67,16 @@ export default function OAuthDashboardPage() {
           person
         </span>
         <h2 style={{ margin: '1rem 0 0.5rem' }}>
-          Welcome, {user?.name || user?.email || 'User'}!
+          {t('misc.oauthWelcome', { name: user?.name || user?.email || t('misc.oauthUserFallback') })}
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
           {user?.email}
         </p>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>
-          You are signed in with Google via Appwrite OAuth2.
+          {t('misc.oauthSignedIn')}
         </p>
         <button className="submit-btn" onClick={handleSignOut}>
-          Sign Out <span className="material-symbols-outlined">logout</span>
+          {t('misc.signOut')} <span className="material-symbols-outlined">logout</span>
         </button>
       </div>
     </div>

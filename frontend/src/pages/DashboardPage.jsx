@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
@@ -11,15 +12,9 @@ import { useStats } from '../context/StatsContext';
 import useFCM from '../hooks/useFCM';
 import '../styles/dashboard.css';
 
-const WASTE_FACTS = [
-  'Recycling one aluminum can saves enough energy to run a TV for 3 hours.',
-  'A glass bottle takes up to 1 million years to decompose in a landfill.',
-  'Composting food waste reduces methane emissions by up to 50%.',
-  'Recycling one ton of paper saves 17 trees and 7,000 gallons of water.',
-  'Plastic bags take 10–1,000 years to decompose in landfills.',
-];
+const WASTE_FACT_KEYS = ['fact1', 'fact2', 'fact3', 'fact4', 'fact5'];
 
-// Derive Eco Score from stats (simple formula for now)
+// Eco Score from stats (simple formula for now)
 const computeEcoScore = (stats) => {
   if (!stats) return 0;
   const score = Math.min(100, Math.round(
@@ -32,6 +27,8 @@ const computeEcoScore = (stats) => {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === 'hi' ? 'hi-IN' : 'en-IN';
   const { user, updateUser } = useAuth();
   useFCM(user); // Initialize FCM when the user is available
 
@@ -114,19 +111,19 @@ export default function DashboardPage() {
   // Auto-rotate facts every 6 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setFactIndex(i => (i + 1) % WASTE_FACTS.length);
+      setFactIndex(i => (i + 1) % WASTE_FACT_KEYS.length);
     }, 6000);
     return () => clearInterval(timer);
   }, []);
 
   const prevFact = (e) => {
     if (e) e.stopPropagation();
-    setFactIndex(i => (i - 1 + WASTE_FACTS.length) % WASTE_FACTS.length);
+    setFactIndex(i => (i - 1 + WASTE_FACT_KEYS.length) % WASTE_FACT_KEYS.length);
   };
 
   const nextFact = (e) => {
     if (e) e.stopPropagation();
-    setFactIndex(i => (i + 1) % WASTE_FACTS.length);
+    setFactIndex(i => (i + 1) % WASTE_FACT_KEYS.length);
   };
 
   const handleCarouselScroll = () => {
@@ -160,7 +157,7 @@ export default function DashboardPage() {
     ];
     return {
       id: ch._id,
-      tag: 'Weekly Mission',
+      tag: t('dashboard.weeklyMission'),
       title: ch.title,
       desc: ch.description || `Complete tasks and earn ${ch.rewardPoints || 100} eco points.`,
       progress: ch.userProgress?.percentCompleted || 0,
@@ -170,17 +167,27 @@ export default function DashboardPage() {
     };
   });
 
+  const catLabel = (cat) => {
+    const key = String(cat || '').toLowerCase();
+    const map = {
+      dry: 'catDry', wet: 'catWet', ewaste: 'catEwaste', 'e-waste': 'catEwaste',
+      hazardous: 'catHazardous', plastic: 'catPlastic', paper: 'catPaper',
+      metal: 'catMetal', organic: 'catOrganic',
+    };
+    return t(`dashboard.${map[key] || 'catOther'}`);
+  };
+
   // Build activity feed from the user's own recent logs.
   // No demo/fallback entries — a new account correctly shows an empty state.
   const activityFeed = recentLogs.map((log) => ({
     id: log._id,
     icon: 'recycling',
     iconColor: 'var(--primary)',
-    title: `${log.category} Waste Logged`,
-    meta: `${log.unit === 'g' ? (log.quantity / 1000).toFixed(2) : log.quantity.toFixed(1)} kg • ${new Date(log.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
-    points: `+${log.pointsEarned} pts`,
+    title: t('dashboard.wasteLogged', { cat: catLabel(log.category) }),
+    meta: `${log.unit === 'g' ? (log.quantity / 1000).toFixed(2) : log.quantity.toFixed(1)} kg • ${new Date(log.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}`,
+    points: `+${log.pointsEarned} ${t('dashboard.pts')}`,
     pointsType: 'positive',
-    status: log.pointsEarned > 0 ? 'Verified' : 'Pending',
+    status: log.pointsEarned > 0 ? t('dashboard.verified') : t('dashboard.pending'),
   }));
 
   return (
@@ -203,15 +210,15 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="eco-content">
-                  <h2>DAILY CHECKIN</h2>
-                  <h4>Welcome back, {userName}!</h4>
-                  <p>Consistency is key to a sustainable lifestyle. Keep going to unlock the "Eco Warrior" badge!</p>
+                  <h2>{t('dashboard.badgeTitle')}</h2>
+                  <h4>{t('dashboard.badgeWelcome', { name: userName })}</h4>
+                  <p>{t('dashboard.badgeText')}</p>
                   <div className="eco-points">
-                    <span className="points-dot">✤</span>
-                    +10 Eco Points Today
+                    <span className="material-symbols-outlined points-dot-icon" aria-hidden="true">stars</span>
+                    {t('dashboard.badgePoints')}
                   </div>
                 </div>
-                <button className="eco-badge-close" onClick={handleCloseBadge} aria-label="Dismiss badge">
+                <button className="eco-badge-close" onClick={handleCloseBadge} aria-label={t('dashboard.dismissBadge')}>
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
@@ -227,19 +234,21 @@ export default function DashboardPage() {
             <div className="hero-immersive-content">
               <div className="hero-immersive-top">
                 <div className="hi-text-content">
-                  <div className="hi-greeting">Welcome back</div>
+                  <div className="hi-greeting">{t('dashboard.welcomeBack')}</div>
                   <h1 className="hi-title">{userName}</h1>
                   <p className="hi-subtitle">
-                    {co2Saved > 0 
-                      ? `Your sustainable habits saved ${co2Saved.toFixed(1)} kg of CO₂ this week.` 
-                      : 'Start logging waste to build your eco score and track your impact.'}
+                    {co2Saved > 0
+                      ? t('dashboard.heroSubSaved', { kg: co2Saved.toFixed(1) })
+                      : t('dashboard.heroSubStart')}
                   </p>
-                  <span className="hi-level-badge">Level {Math.floor(ecoScore / 20) + 1}</span>
+                  <span className="hi-level-badge">{t('dashboard.level', { n: Math.floor(ecoScore / 20) + 1 })}</span>
                 </div>
-                
-                <div className="hi-score-ring" onClick={() => navigate('/impact')}>
+
+                <div className="hi-score-ring" onClick={() => navigate('/impact')} role="link" tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate('/impact')}
+                  aria-label={t('dashboard.viewImpact')}>
                   <span className="hi-score-val">{ecoScore}</span>
-                  <span className="hi-score-lbl">ECO SCORE</span>
+                  <span className="hi-score-lbl">{t('dashboard.ecoScoreCaps')}</span>
                 </div>
               </div>
 
@@ -247,30 +256,34 @@ export default function DashboardPage() {
                 <div className="hi-stat-card">
                   <span className="material-symbols-outlined hi-stat-icon" style={{ fontVariationSettings: "'FILL' 1" }}>savings</span>
                   <span className="hi-stat-val">{ecoPoints.toLocaleString('en-IN')}</span>
-                  <span className="hi-stat-lbl">Points</span>
+                  <span className="hi-stat-lbl">{t('dashboard.points')}</span>
                 </div>
                 <div className="hi-stat-card">
                   <span className="material-symbols-outlined hi-stat-icon" style={{ fontVariationSettings: "'FILL' 1" }}>cloud_done</span>
                   <span className="hi-stat-val">{co2Saved.toFixed(1)} kg</span>
-                  <span className="hi-stat-lbl">CO₂ Saved</span>
+                  <span className="hi-stat-lbl">{t('dashboard.co2Saved')}</span>
                 </div>
                 <div className="hi-stat-card">
                   <span className="material-symbols-outlined hi-stat-icon" style={{ fontVariationSettings: "'FILL' 1" }}>delete_sweep</span>
                   <span className="hi-stat-val">{wasteKg.toFixed(1)} kg</span>
-                  <span className="hi-stat-lbl">Logged</span>
+                  <span className="hi-stat-lbl">{t('dashboard.logged')}</span>
                 </div>
               </div>
+              <button type="button" className="hi-impact-link" onClick={() => navigate('/impact')}>
+                {t('dashboard.viewImpact')}
+                <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              </button>
             </div>
           </section>
 
           {/* ── Daily Fact Strip ── */}
           <div className="daily-fact-strip">
-            <button type="button" className="fact-nav-btn" onClick={prevFact} aria-label="Previous fact">
+            <button type="button" className="fact-nav-btn" onClick={prevFact} aria-label={t('dashboard.prevFact')}>
               <span className="material-symbols-outlined fact-arrow">chevron_left</span>
             </button>
             <span className="material-symbols-outlined fact-icon">lightbulb</span>
-            <p className="fact-text">{WASTE_FACTS[factIndex]}</p>
-            <button type="button" className="fact-nav-btn" onClick={nextFact} aria-label="Next fact">
+            <p className="fact-text">{t(`dashboard.${WASTE_FACT_KEYS[factIndex]}`)}</p>
+            <button type="button" className="fact-nav-btn" onClick={nextFact} aria-label={t('dashboard.nextFact')}>
               <span className="material-symbols-outlined fact-arrow">chevron_right</span>
             </button>
           </div>
@@ -279,8 +292,8 @@ export default function DashboardPage() {
           <section className="feed-grid">
             <div className="feed-col">
               <div className="feed-header">
-                <h2 className="section-title">Recent Activity Feed</h2>
-                <button className="view-all-btn" onClick={() => navigate('/waste-history')}>View All</button>
+                <h2 className="section-title">{t('dashboard.feedTitle')}</h2>
+                <button className="view-all-btn" onClick={() => navigate('/waste-history')}>{t('dashboard.viewAll')}</button>
               </div>
               <div className="activity-list">
                 {activityFeed.length > 0 ? activityFeed.map(item => (
@@ -300,19 +313,14 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 )) : (
-                  <div className="activity-item" style={{ cursor: 'default' }}>
-                    <div className="activity-left">
-                      <div className="activity-icon-wrap">
-                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", color: 'var(--outline)' }}>eco</span>
-                      </div>
-                      <div className="activity-info">
-                        <h4 className="activity-title">No activity yet</h4>
-                        <p className="activity-meta">Log your first waste entry to get started</p>
-                      </div>
-                    </div>
-                    <div className="activity-right">
-                      <button className="view-all-btn" onClick={() => navigate('/waste')}>Log waste</button>
-                    </div>
+                  <div className="eco-empty">
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>recycling</span>
+                    <h3>{t('dashboard.emptyTitle')}</h3>
+                    <p>{t('dashboard.emptySub')}</p>
+                    <button className="eco-btn eco-btn--primary eco-btn--sm" onClick={() => navigate('/waste')}>
+                      <span className="material-symbols-outlined">add</span>
+                      {t('dashboard.logWaste')}
+                    </button>
                   </div>
                 )}
               </div>
@@ -320,7 +328,7 @@ export default function DashboardPage() {
 
             <div className="challenge-col">
               <div className="challenge-col-header">
-                <h2 className="section-title">Current Challenges</h2>
+                <h2 className="section-title">{t('dashboard.challTitle')}</h2>
                 <span className="challenge-counter">{carouselItems.length > 0 ? `${activeSlide + 1} / ${carouselItems.length}` : '0 / 0'}</span>
               </div>
               {carouselItems.length > 0 ? (
@@ -338,13 +346,13 @@ export default function DashboardPage() {
                             <p className="challenge-desc">{ch.desc}</p>
                             <div className="challenge-meta-row">
                               <span className="material-symbols-outlined challenge-people-icon">group</span>
-                              <span className="challenge-people">{ch.participants} joined</span>
+                              <span className="challenge-people">{ch.participants}</span>
                             </div>
                             <div className="challenge-progress-bar">
                               <div className="challenge-progress-fill" style={{ width: `${ch.progress}%` }} />
                             </div>
                             <button className="challenge-btn" onClick={() => navigate('/weekly-challenges')}>
-                              Accept Challenge
+                              {t('dashboard.accept')}
                               <span className="material-symbols-outlined">arrow_forward</span>
                             </button>
                           </div>
@@ -354,16 +362,16 @@ export default function DashboardPage() {
                   </div>
                   <div className="challenge-dots">
                     {carouselItems.map((_, i) => (
-                      <button key={i} className={`challenge-dot${activeSlide === i ? ' active' : ''}`} onClick={() => scrollToSlide(i)} aria-label={`Go to challenge ${i + 1}`} />
+                      <button key={i} className={`challenge-dot${activeSlide === i ? ' active' : ''}`} onClick={() => scrollToSlide(i)} aria-label={t('dashboard.challengeGo', { n: i + 1 })} />
                     ))}
                   </div>
                 </>
               ) : (
                 <div className="wc-preview-card" style={{ padding: '24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onClick={() => navigate('/weekly-challenges')}>
                   <span className="material-symbols-outlined" style={{ fontSize: '40px', color: 'var(--outline)', marginBottom: '8px' }}>emoji_events</span>
-                  <h4 className="wc-preview-title" style={{ fontSize: '1rem', marginBottom: '4px' }}>No Active Challenges</h4>
-                  <p style={{ fontSize: '0.825rem', color: 'var(--on-surface-variant)', marginBottom: '12px' }}>Check back soon for new weekly missions!</p>
-                  <span className="wc-preview-status not-started">Explore Challenges</span>
+                  <h4 className="wc-preview-title" style={{ fontSize: '1rem', marginBottom: '4px' }}>{t('dashboard.noActiveTitle')}</h4>
+                  <p style={{ fontSize: '0.825rem', color: 'var(--on-surface-variant)', marginBottom: '12px' }}>{t('dashboard.noActiveSub')}</p>
+                  <span className="wc-preview-status not-started">{t('dashboard.explore')}</span>
                 </div>
               )}
             </div>
@@ -372,8 +380,8 @@ export default function DashboardPage() {
           {/* Weekly Challenges Section */}
           <section className="weekly-challenges-section">
             <div className="feed-header">
-              <h2 className="section-title">Weekly Challenges</h2>
-              <button className="view-all-btn" onClick={() => navigate('/weekly-challenges')}>View All</button>
+              <h2 className="section-title">{t('dashboard.weeklyTitle')}</h2>
+              <button className="view-all-btn" onClick={() => navigate('/weekly-challenges')}>{t('dashboard.viewAll')}</button>
             </div>
             <div className="weekly-challenges-preview">
               {challenges.slice(0, 2).map((ch, i) => (
@@ -389,20 +397,26 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <span className={`wc-preview-status ${ch.joined ? 'in-progress' : 'not-started'}`}>
-                    {ch.joined ? 'In Progress' : 'Not Started'}
+                    {ch.joined ? t('dashboard.inProgress') : t('dashboard.notStarted')}
                   </span>
                 </div>
               ))}
 
               {challenges.length === 0 && (
-                <div className="wc-preview-card" style={{ padding: '16px', justifyContent: 'center' }} onClick={() => navigate('/weekly-challenges')}>
-                  <span style={{ fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>No active challenges available right now.</span>
+                <div className="eco-empty">
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>emoji_events</span>
+                  <h3>{t('dashboard.noWeeklyTitle')}</h3>
+                  <p>{t('dashboard.noWeeklySub')}</p>
+                  <button className="eco-btn eco-btn--secondary eco-btn--sm" onClick={() => navigate('/weekly-challenges')}>
+                    {t('dashboard.exploreLower')}
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                  </button>
                 </div>
               )}
 
               <button className="wc-see-all-btn" onClick={() => navigate('/weekly-challenges')}>
                 <span className="material-symbols-outlined">grid_view</span>
-                See All Weekly Challenges
+                {t('dashboard.seeAllWeekly')}
                 <span className="material-symbols-outlined">arrow_forward</span>
               </button>
             </div>

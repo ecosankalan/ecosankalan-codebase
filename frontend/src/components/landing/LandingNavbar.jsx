@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import BrandLogo from '../common/BrandLogo';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 
 export default function LandingNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -28,38 +32,33 @@ export default function LandingNavbar() {
           aria-label="EcoSankalan — scroll to top"
           onKeyDown={(e) => e.key === 'Enter' && window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
-          <span
-            className="material-symbols-outlined lp-nav-logo-icon"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            <img id='land_logo'src="/logo.png" alt="EcoSankalan logo" style={{ height: '25px' }}/>
-          </span>
-          <span className="lp-nav-brand">EcoSankalan</span>
+          <BrandLogo size="sm" />
         </div>
 
         {/* Nav links */}
         <ul className="lp-nav-links" role="list">
-          <li><a href="#" className="lp-active-link" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Home</a></li>
-          <li><a href="#features" onClick={(e) => { e.preventDefault(); scrollTo('features'); }}>Features</a></li>
-          <li><a href="#process" onClick={(e) => { e.preventDefault(); scrollTo('process'); }}>How It Works</a></li>
-          <li><a href="#impact" onClick={(e) => { e.preventDefault(); scrollTo('impact'); }}>Impact</a></li>
+          <li><a href="#" className="lp-active-link" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>{t('landing.navHome')}</a></li>
+          <li><a href="#features" onClick={(e) => { e.preventDefault(); scrollTo('features'); }}>{t('landing.navFeatures')}</a></li>
+          <li><a href="#process" onClick={(e) => { e.preventDefault(); scrollTo('process'); }}>{t('landing.navHow')}</a></li>
+          <li><a href="#impact" onClick={(e) => { e.preventDefault(); scrollTo('impact'); }}>{t('landing.navImpact')}</a></li>
         </ul>
 
         {/* Actions */}
         <div className="lp-nav-actions">
+          <LanguageSwitcher compact />
           <button
             className="lp-btn-ghost"
             onClick={() => scrollTo('process')}
-            aria-label="Watch demo"
+            aria-label={t('landing.watchDemo')}
           >
-            Watch Demo
+            {t('landing.watchDemo')}
           </button>
           <button
             className="lp-btn-primary"
             onClick={() => navigate('/register')}
-            aria-label="Get started with EcoSankalan"
+            aria-label={t('landing.getStarted')}
           >
-            Get Started
+            {t('landing.getStarted')}
           </button>
         </div>
       </div>

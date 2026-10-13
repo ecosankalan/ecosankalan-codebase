@@ -3,13 +3,13 @@ import axios from 'axios';
 import 'leaflet.markercluster';
 import { getMapMarkers } from '../services/api';
 
-/* ── Marker palette: color + Material Symbol icon per category ──── */
+/* ── Marker palette: teal-ramp disciplined (icons carry the semantics) ──── */
 const CATEGORY_META = {
-  waste_basket:           { label: 'Waste Baskets',      color: '#005127', icon: 'delete',           bgColor: '#e8f5e9' },
-  recycling:              { label: 'Recycling Bins',     color: '#1565C0', icon: 'recycling',        bgColor: '#e3f2fd' },
-  recycling_centre:       { label: 'Recycling Centres',  color: '#7B1FA2', icon: 'recycling',        bgColor: '#f3e5f5' },
-  waste_transfer_station: { label: 'Transfer Stations',  color: '#E65100', icon: 'local_shipping',   bgColor: '#fff3e0' },
-  landfill:               { label: 'Landfills',          color: '#B71C1C', icon: 'terrain',          bgColor: '#ffebee' },
+  waste_basket:           { label: 'Waste Baskets',      color: '#2A7C13', icon: 'delete',           bgColor: '#FBE6C2' },
+  recycling:              { label: 'Recycling Bins',     color: '#2A7C13', icon: 'recycling',        bgColor: '#e9f2da' },
+  recycling_centre:       { label: 'Recycling Centres',  color: '#55a630', icon: 'recycling',        bgColor: '#eef3d4' },
+  waste_transfer_station: { label: 'Transfer Stations',  color: '#80b918', icon: 'local_shipping',   bgColor: '#f2f7e6' },
+  landfill:               { label: 'Landfills',          color: '#475569', icon: 'terrain',          bgColor: '#f1f5f9' },
 };
 
 const DEFAULT_CATEGORIES = [
@@ -33,7 +33,7 @@ function locationToFilterKey(loc) {
 }
 
 function getMeta(filterKey) {
-  return CATEGORY_META[filterKey] || { label: 'Other', color: '#546E7A', icon: 'help', bgColor: '#eceff1' };
+  return CATEGORY_META[filterKey] || { label: 'Other', color: '#55705c', icon: 'help', bgColor: '#eef4f3' };
 }
 
 function createWasteIcon(L, filterKey) {
@@ -54,30 +54,46 @@ function createWasteIcon(L, filterKey) {
   });
 }
 
+/* Friendly names for OSM recycling:* material tags */
+const MATERIAL_LABELS = {
+  glass_bottles: 'Glass', glass: 'Glass', paper: 'Paper', cardboard: 'Cardboard',
+  plastic: 'Plastic', plastic_bottles: 'Plastic', metal: 'Metal', cans: 'Cans',
+  clothes: 'Clothes', shoes: 'Shoes', batteries: 'Batteries', electronics: 'Electronics',
+  green_waste: 'Green waste', food_waste: 'Food waste', oil: 'Oil', books: 'Books',
+};
+
 function buildPopupHTML(loc, filterKey) {
   const meta = getMeta(filterKey);
-  const name = loc.name || loc.category;
-  const tagRows = Object.entries(loc.tags || {})
-    .filter(([k]) => !k.startsWith('_'))
-    .map(([k, v]) => `<tr><td style="color:#666;white-space:nowrap;padding:1px 6px 1px 0">${k}</td><td style="padding:1px 0">${v}</td></tr>`)
-    .join('');
+  const tags = loc.tags || {};
+  const name = loc.name || meta.label;
+  const operator = tags.operator || '';
+  const address = tags['addr:full']
+    || [tags['addr:housenumber'], tags['addr:street'], tags['addr:suburb'], tags['addr:city']]
+      .filter(Boolean).join(', ');
+  const phone = tags['contact:phone'] || tags.phone || '';
+  const hours = tags.opening_hours || '';
+  const materials = Object.keys(tags)
+    .filter((k) => k.startsWith('recycling:') && String(tags[k]).toLowerCase() === 'yes')
+    .map((k) => MATERIAL_LABELS[k.replace('recycling:', '')] || k.replace('recycling:', '').replace(/_/g, ' '))
+    .slice(0, 6);
 
   return `
-    <div style="font-family:Inter,sans-serif;min-width:180px;max-width:280px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <div style="width:28px;height:28px;border-radius:50%;background:${meta.color};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <span class="material-symbols-outlined" style="font-size:16px;color:#fff;font-variation-settings:'FILL' 1">${meta.icon}</span>
+    <div class="wm-popup">
+      <div class="wm-popup-head">
+        <div class="wm-popup-icon" style="background:${meta.color}">
+          <span class="material-symbols-outlined"> ${meta.icon}</span>
         </div>
-        <div>
-          <div style="font-weight:700;font-size:0.95rem;line-height:1.2">${name}</div>
-          <div style="font-size:0.7rem;color:${meta.color};font-weight:600;text-transform:uppercase;letter-spacing:0.05em">${loc.category}</div>
+        <div class="wm-popup-titles">
+          <div class="wm-popup-name">${name}</div>
+          <div class="wm-popup-cat" style="color:${meta.color}">${loc.category}</div>
         </div>
       </div>
-      <div style="font-size:0.75rem;color:#888;margin-bottom:4px">
-        OSM ID: ${loc.osmId || 'N/A'} &middot; ${loc.type || 'Bin'}<br/>
-        ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}
-      </div>
-      ${tagRows ? `<div style="max-height:120px;overflow-y:auto;margin-top:6px;border-top:1px solid #eee;padding-top:4px"><table style="font-size:0.7rem;border-collapse:collapse;width:100%">${tagRows}</table></div>` : ''}
+      ${operator ? `<div class="wm-popup-row"><span class="material-symbols-outlined">store</span><span>Run by <b>${operator}</b></span></div>` : ''}
+      ${address ? `<div class="wm-popup-row"><span class="material-symbols-outlined">location_on</span><span>${address}</span></div>` : ''}
+      ${hours ? `<div class="wm-popup-row"><span class="material-symbols-outlined">schedule</span><span>${hours}</span></div>` : ''}
+      ${phone ? `<div class="wm-popup-row"><span class="material-symbols-outlined">call</span><a href="tel:${phone.replace(/\s/g, '')}">${phone}</a></div>` : ''}
+      ${materials.length ? `<div class="wm-popup-mats">${materials.map((m) => `<span class="wm-popup-chip">${m}</span>`).join('')}</div>` : ''}
+      <div class="wm-popup-coords">${Number(loc.lat).toFixed(5)}, ${Number(loc.lng).toFixed(5)}</div>
     </div>
   `;
 }
@@ -177,6 +193,20 @@ export default function WasteMarkers({ map, activeFilter = 'all', onMarkerClick 
       return;
     }
 
+    // Client-side guard: mirror the backend's 45° cap so a country-level
+    // view (e.g. whole India at zoom 5) shows "zoom in" instantly instead
+    // of firing a request that 400s and spams the console + rate limit.
+    const latSpan = Math.abs(bounds.north - bounds.south);
+    const lngSpan = Math.abs(bounds.east - bounds.west);
+    if (latSpan > 44 || lngSpan > 44) {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      setLoading(false);
+      setError('Bounding box too large. Zoom in.');
+      return;
+    }
+
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -200,7 +230,19 @@ export default function WasteMarkers({ map, activeFilter = 'all', onMarkerClick 
       renderMarkers();
       setHasLoaded(true);
     } catch (err) {
-      if (err.name === 'CanceledError' || err.name === 'AbortError' || axios.isCancel?.(err)) {
+      // Aborted by a newer pan/zoom or unmount — not an error, stay silent.
+      if (
+        err?.code === 'ERR_CANCELED' ||
+        err?.name === 'CanceledError' ||
+        err?.name === 'AbortError' ||
+        axios.isCancel?.(err) ||
+        /canceled|cancelled|aborted/i.test(err?.message || '')
+      ) {
+        return;
+      }
+      // "Zoom in" is an expected UX state, not an error — don't console.error it.
+      if (/bounding box/i.test(err?.message || '')) {
+        setError(err.message);
         return;
       }
       console.error('[WasteMarkers] Fetch error:', err);
@@ -225,7 +267,7 @@ export default function WasteMarkers({ map, activeFilter = 'all', onMarkerClick 
         east: b.getEast(),
         west: b.getWest(),
       });
-    }, 400);
+    }, 650);
   }, [map, fetchData, activeFilter]);
 
   useEffect(() => {

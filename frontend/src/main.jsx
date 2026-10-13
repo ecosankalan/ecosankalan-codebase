@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
+import './i18n';
 import { isFirebaseConfigured } from './lib/firebase';
 
 if (isFirebaseConfigured && "serviceWorker" in navigator) {

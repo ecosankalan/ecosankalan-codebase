@@ -5,6 +5,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../styles/quiz.css';
 
 const QUIZZES = [
@@ -12,7 +13,7 @@ const QUIZZES = [
     id: 'quiz-plastic',
     title: 'Plastic Waste',
     icon: 'inventory_2',
-    color: '#1b6b3a',
+    color: '#2A7C13',
     badge: 'Plastic Expert',
     questions: [
       {
@@ -46,7 +47,7 @@ const QUIZZES = [
     id: 'quiz-organic',
     title: 'Organic Waste',
     icon: 'compost',
-    color: '#005127',
+    color: '#2A7C13',
     badge: 'Compost Champion',
     questions: [
       {
@@ -80,7 +81,7 @@ const QUIZZES = [
     id: 'quiz-ewaste',
     title: 'E-Waste & Metal',
     icon: 'devices_other',
-    color: '#782c39',
+    color: '#7A5B12',
     badge: 'Tech Recycler',
     questions: [
       {
@@ -114,7 +115,7 @@ const QUIZZES = [
     id: 'quiz-paper',
     title: 'Paper & Other',
     icon: 'description',
-    color: '#1b6b3a',
+    color: '#2A7C13',
     badge: 'Paper Sage',
     questions: [
       {
@@ -156,6 +157,7 @@ function saveQuizResult(quizId, score, total) {
 }
 
 export default function QuizPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -169,6 +171,17 @@ export default function QuizPage() {
   const [score,     setScore]     = useState(0);
   const [startTime] = useState(Date.now());
   const [elapsed,   setElapsed]   = useState(0);
+
+  // Quiz titles/badges are content data — display them via existing translated keys
+  const QUIZ_TITLE_KEYS = { 'quiz-plastic': 'quizPlastic', 'quiz-organic': 'quizOrganic', 'quiz-ewaste': 'quizEwaste', 'quiz-paper': 'quizPaper' };
+  const QUIZ_BADGE_KEYS = { 'quiz-plastic': 'badgePlastic', 'quiz-organic': 'badgeOrganic', 'quiz-ewaste': 'badgeEwaste', 'quiz-paper': 'badgePaper' };
+  const quizTitleFor = (id) => t(`profilePage.${QUIZ_TITLE_KEYS[id] || 'quizPlastic'}`);
+  const quizBadgeFor = (id) => t(`profilePage.${QUIZ_BADGE_KEYS[id] || 'badgePlastic'}`);
+  const quizCatFor = (cat) => {
+    const key = String(cat || '').toLowerCase();
+    const map = { plastic: 'catPlastic', organic: 'catOrganic', 'e-waste': 'catEwaste', ewaste: 'catEwaste', metal: 'catMetal', paper: 'catPaper' };
+    return map[key] ? t(`learn.${map[key]}`) : cat;
+  };
 
   useEffect(() => {
     const id = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 1000);
@@ -199,7 +212,7 @@ export default function QuizPage() {
       const secs = elapsed % 60;
       saveQuizResult(quiz.id, score, TOTAL);
       navigate('/quiz-result', {
-        state: { score: score, total: TOTAL, time: `${mins}:${secs.toString().padStart(2, '0')}`, points: 50, quizTitle: quiz.title, badge: quiz.badge },
+        state: { score: score, total: TOTAL, time: `${mins}:${secs.toString().padStart(2, '0')}`, points: 50, quizTitle: quizTitleFor(quiz.id), badge: quizBadgeFor(quiz.id) },
         replace: true,
       });
       return;
@@ -214,7 +227,7 @@ export default function QuizPage() {
     if (nextQ >= TOTAL) {
       saveQuizResult(quiz.id, score, TOTAL);
       navigate('/quiz-result', {
-        state: { score, total: TOTAL, time: '0:00', points: score * 10, quizTitle: quiz.title, badge: quiz.badge },
+        state: { score, total: TOTAL, time: '0:00', points: score * 10, quizTitle: quizTitleFor(quiz.id), badge: quizBadgeFor(quiz.id) },
         replace: true,
       });
       return;
@@ -231,9 +244,9 @@ export default function QuizPage() {
     return 'default';
   };
 
-  const continueLabel = !selected ? 'Select an answer'
-    : !revealed ? 'Check Answer'
-    : currentQ + 1 >= TOTAL ? 'See Results' : 'Next Question';
+  const continueLabel = !selected ? t('quiz.selectAnswer')
+    : !revealed ? t('quiz.checkAnswer')
+    : currentQ + 1 >= TOTAL ? t('quiz.seeResults') : t('quiz.nextQuestion');
 
   // ── Quiz selection screen ──
   if (!selectedQuizId) {
@@ -245,14 +258,14 @@ export default function QuizPage() {
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
             EcoSankalan
           </div>
-          <button className="quiz-close-btn" onClick={() => navigate('/learn')} aria-label="Close">
+          <button className="quiz-close-btn" onClick={() => navigate('/learn')} aria-label={t('quiz.close')}>
             <span className="material-symbols-outlined">close</span>
           </button>
         </header>
         <main className="quiz-main">
           <div className="quiz-select-header">
-            <h2 className="quiz-select-title">Choose a Quiz</h2>
-            <p className="quiz-select-sub">5 questions • Earn up to 50 eco points each</p>
+            <h2 className="quiz-select-title">{t('quiz.chooseTitle')}</h2>
+            <p className="quiz-select-sub">{t('quiz.chooseSub')}</p>
           </div>
           <div className="quiz-select-grid">
             {QUIZZES.map(q => {
@@ -263,12 +276,12 @@ export default function QuizPage() {
                     <span className="material-symbols-outlined" style={{ color: q.color, fontVariationSettings: "'FILL' 1", fontSize: '2rem' }}>{q.icon}</span>
                   </div>
                   <div className="quiz-select-info">
-                    <h3 className="quiz-select-name">{q.title}</h3>
-                    <p className="quiz-select-meta">5 questions • Badge: {q.badge}</p>
+                    <h3 className="quiz-select-name">{quizTitleFor(q.id)}</h3>
+                    <p className="quiz-select-meta">{t('quiz.cardMeta', { badge: quizBadgeFor(q.id) })}</p>
                     {result && (
                       <span className="quiz-select-done">
                         <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                        {result.score}/{result.total} last attempt
+                        {t('quiz.lastAttempt', { score: result.score, total: result.total })}
                       </span>
                     )}
                   </div>
@@ -288,9 +301,9 @@ export default function QuizPage() {
       <header className="quiz-topbar">
         <div className="quiz-topbar-brand">
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-          {quiz.title}
+          {quizTitleFor(quiz.id)}
         </div>
-        <button className="quiz-close-btn" onClick={() => { setSelectedQuizId(null); setCurrentQ(0); setSelected(null); setRevealed(false); setScore(0); }} aria-label="Back to quiz list">
+        <button className="quiz-close-btn" onClick={() => { setSelectedQuizId(null); setCurrentQ(0); setSelected(null); setRevealed(false); setScore(0); }} aria-label={t('quiz.backToList')}>
           <span className="material-symbols-outlined">close</span>
         </button>
       </header>
@@ -299,10 +312,10 @@ export default function QuizPage() {
         <section className="quiz-progress-section">
           <div className="quiz-progress-header">
             <div className="quiz-progress-meta">
-              <span className="quiz-progress-category">{question.category}</span>
-              <h2 className="quiz-progress-question">Question {currentQ + 1} of {TOTAL}</h2>
+              <span className="quiz-progress-category">{quizCatFor(question.category)}</span>
+              <h2 className="quiz-progress-question">{t('quiz.questionOf', { cur: currentQ + 1, total: TOTAL })}</h2>
             </div>
-            <span className="quiz-progress-pct">{fillPct}% Complete</span>
+            <span className="quiz-progress-pct">{t('quiz.completePct', { pct: fillPct })}</span>
           </div>
           <div className="quiz-progress-bar-track">
             <div className="quiz-progress-bar-fill" style={{ width: `${fillPct}%` }} />
@@ -341,7 +354,7 @@ export default function QuizPage() {
 
       <footer className="quiz-action-bar">
         <div className="quiz-action-inner">
-          <button className="quiz-skip-btn" onClick={handleSkip}>Skip</button>
+          <button className="quiz-skip-btn" onClick={handleSkip}>{t('quiz.skip')}</button>
           <button className="quiz-continue-btn" onClick={handleContinue} disabled={!selected}>
             {continueLabel}
             <span className="material-symbols-outlined">arrow_forward</span>

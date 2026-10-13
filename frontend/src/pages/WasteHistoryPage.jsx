@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
 import Loader from '../components/common/Loader';
@@ -15,9 +16,9 @@ const ICON_MAP = {
   other:    { icon: 'pending',                 bg: 'var(--surface-dim)',               color: 'var(--on-surface)' },
 };
 
-const formatDateTime = (isoString) => {
+const formatDateTime = (isoString, locale = 'en-IN') => {
   const d = new Date(isoString);
-  return d.toLocaleString('en-IN', {
+  return d.toLocaleString(locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -27,9 +28,13 @@ const formatDateTime = (isoString) => {
   });
 };
 
+const CAT_KEY_MAP = { plastic: 'catPlastic', organic: 'catOrganic', 'e-waste': 'catEwaste', ewaste: 'catEwaste', metal: 'catMetal', paper: 'catPaper' };
+
 const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
 
 export default function WasteHistoryPage() {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === 'hi' ? 'hi-IN' : 'en-IN';
   const navigate = useNavigate();
   const [sort,     setSort]     = useState('desc');
   const [logs,     setLogs]     = useState([]);
@@ -37,6 +42,8 @@ export default function WasteHistoryPage() {
   const [error,    setError]    = useState('');
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [selectedLog, setSelectedLog] = useState(null);
+
+  const catLabel = (cat) => t(`history.${CAT_KEY_MAP[String(cat || '').toLowerCase()] || 'catOther'}`);
 
   const loadHistory = async (page = 1) => {
     setLoading(true);
@@ -46,7 +53,7 @@ export default function WasteHistoryPage() {
       setLogs(page === 1 ? data.logs : prev => [...prev, ...data.logs]);
       setPagination(data.pagination);
     } catch (err) {
-      setError(err.message || 'Failed to load waste history');
+      setError(err.message || t('history.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -67,16 +74,16 @@ export default function WasteHistoryPage() {
 
         {/* ── Title row */}
         <div className="wh-title-row">
-          <button className="wh-back-btn" onClick={() => navigate('/dashboard')}>
+          <button className="wh-back-btn" onClick={() => navigate('/dashboard')} aria-label={t('history.back')}>
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
           <div>
-            <span className="wh-eyebrow">Activity</span>
-            <h1 className="wh-title">Waste History</h1>
+            <span className="wh-eyebrow">{t('history.eyebrow')}</span>
+            <h1 className="wh-title">{t('history.title')}</h1>
           </div>
           <button className="wh-filter-btn" onClick={() => setSort(s => s === 'desc' ? 'asc' : 'desc')}>
             <span className="material-symbols-outlined">{sort === 'desc' ? 'arrow_downward' : 'arrow_upward'}</span>
-            {sort === 'desc' ? 'Newest' : 'Oldest'}
+            {sort === 'desc' ? t('history.newest') : t('history.oldest')}
           </button>
         </div>
 
@@ -84,15 +91,15 @@ export default function WasteHistoryPage() {
         <div className="wh-summary-row">
           <div className="wh-summary-card">
             <span className="wh-summary-num">{totalKg}</span>
-            <span className="wh-summary-label">Total kg</span>
+            <span className="wh-summary-label">{t('history.totalKg')}</span>
           </div>
           <div className="wh-summary-card">
             <span className="wh-summary-num">{totalPts}</span>
-            <span className="wh-summary-label">Total Points</span>
+            <span className="wh-summary-label">{t('history.totalPoints')}</span>
           </div>
           <div className="wh-summary-card">
             <span className="wh-summary-num">{pagination.total}</span>
-            <span className="wh-summary-label">Logs</span>
+            <span className="wh-summary-label">{t('history.logs')}</span>
           </div>
         </div>
 
@@ -107,13 +114,13 @@ export default function WasteHistoryPage() {
         {/* ── History List */}
         <div className="wh-list">
           {loading && logs.length === 0 && (
-            <Loader text="Loading your history…" />
+            <Loader text={t('history.loading')} />
           )}
 
           {!loading && logs.length === 0 && (
             <div className="wh-empty">
               <span className="material-symbols-outlined wh-empty-icon">inbox</span>
-              <p>No logs for this category yet.</p>
+              <p>{t('history.empty')}</p>
             </div>
           )}
 
@@ -130,10 +137,10 @@ export default function WasteHistoryPage() {
                     </span>
                   </div>
                   <div className="wh-card-info">
-                    <h3 className="wh-card-name">{capitalize(item.category)} Waste</h3>
+                    <h3 className="wh-card-name">{t('history.cardName', { cat: catLabel(item.category) })}</h3>
                     <p className="wh-card-date">
                       <span className="material-symbols-outlined wh-date-icon">schedule</span>
-                      {formatDateTime(item.createdAt)}
+                      {formatDateTime(item.createdAt, locale)}
                     </p>
                     {item.description && (
                       <p className="wh-card-desc">{item.description}</p>
@@ -141,10 +148,10 @@ export default function WasteHistoryPage() {
                   </div>
                 </div>
                 <div className="wh-card-right">
-                  <div className="wh-card-weight">{qtyKg} kg</div>
+                  <div className="wh-card-weight">{t('history.weight', { v: qtyKg })}</div>
                   <div className="wh-card-badges">
-                    <span className="wh-pts-badge">+{item.pointsEarned} Pts</span>
-                    <span className="wh-co2-badge">{co2} kg CO₂</span>
+                    <span className="wh-pts-badge">{t('history.pts', { n: item.pointsEarned })}</span>
+                    <span className="wh-co2-badge">{t('history.co2', { v: co2 })}</span>
                   </div>
                 </div>
               </div>
@@ -154,7 +161,7 @@ export default function WasteHistoryPage() {
           {/* Load more */}
           {pagination.page < pagination.pages && (
             <button className="wh-load-more" onClick={() => loadHistory(pagination.page + 1)} disabled={loading}>
-              {loading ? 'Loading…' : 'Load More'}
+              {loading ? t('history.loadingMore') : t('history.loadMore')}
             </button>
           )}
         </div>
@@ -166,35 +173,35 @@ export default function WasteHistoryPage() {
         <div className="wh-dialog-overlay" onClick={() => setSelectedLog(null)}>
           <div className="wh-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="wh-dialog-header">
-              <h3>{capitalize(selectedLog.category)} Waste</h3>
-              <button className="wh-dialog-close" onClick={() => setSelectedLog(null)}>
+              <h3>{t('history.cardName', { cat: catLabel(selectedLog.category) })}</h3>
+              <button className="wh-dialog-close" onClick={() => setSelectedLog(null)} aria-label={t('history.closeDetails')}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="wh-dialog-body">
               <div className="wh-dialog-row">
-                <span className="wh-dialog-label">Date & Time</span>
-                <span className="wh-dialog-value">{formatDateTime(selectedLog.createdAt)}</span>
+                <span className="wh-dialog-label">{t('history.dateTime')}</span>
+                <span className="wh-dialog-value">{formatDateTime(selectedLog.createdAt, locale)}</span>
               </div>
               <div className="wh-dialog-row">
-                <span className="wh-dialog-label">Quantity</span>
-                <span className="wh-dialog-value">{selectedLog.unit === 'g' ? (selectedLog.quantity / 1000).toFixed(2) : selectedLog.quantity.toFixed(1)} kg</span>
+                <span className="wh-dialog-label">{t('history.quantity')}</span>
+                <span className="wh-dialog-value">{t('history.weight', { v: selectedLog.unit === 'g' ? (selectedLog.quantity / 1000).toFixed(2) : selectedLog.quantity.toFixed(1) })}</span>
               </div>
               <div className="wh-dialog-row">
-                <span className="wh-dialog-label">Points Earned</span>
-                <span className="wh-dialog-value wh-dialog-pts">+{selectedLog.pointsEarned} pts</span>
+                <span className="wh-dialog-label">{t('history.pointsEarned')}</span>
+                <span className="wh-dialog-value wh-dialog-pts">{t('history.pts', { n: selectedLog.pointsEarned })}</span>
               </div>
               <div className="wh-dialog-row">
-                <span className="wh-dialog-label">CO₂ Saved</span>
-                <span className="wh-dialog-value">{Number(selectedLog.co2Saved).toFixed(4)} kg</span>
+                <span className="wh-dialog-label">{t('history.co2Saved')}</span>
+                <span className="wh-dialog-value">{t('history.co2', { v: Number(selectedLog.co2Saved).toFixed(4) })}</span>
               </div>
               <div className="wh-dialog-row">
-                <span className="wh-dialog-label">Log Method</span>
-                <span className="wh-dialog-value">{selectedLog.logMethod === 'ai_scan' ? 'AI Scan' : 'Manual'}</span>
+                <span className="wh-dialog-label">{t('history.logMethod')}</span>
+                <span className="wh-dialog-value">{selectedLog.logMethod === 'ai_scan' ? t('history.aiScan') : t('history.manual')}</span>
               </div>
               {selectedLog.description && (
                 <div className="wh-dialog-row">
-                  <span className="wh-dialog-label">Description</span>
+                  <span className="wh-dialog-label">{t('history.description')}</span>
                   <span className="wh-dialog-value">{selectedLog.description}</span>
                 </div>
               )}
@@ -202,23 +209,23 @@ export default function WasteHistoryPage() {
                 <div className="wh-dialog-ai">
                   <p className="wh-dialog-ai-title">
                     <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>smart_toy</span>
-                    AI Analysis
+                    {t('history.aiAnalysis')}
                   </p>
                   {selectedLog.aiScan.detectedCategory && (
                     <div className="wh-dialog-row">
-                      <span className="wh-dialog-label">Detected</span>
+                      <span className="wh-dialog-label">{t('history.detected')}</span>
                       <span className="wh-dialog-value">{selectedLog.aiScan.detectedCategory}</span>
                     </div>
                   )}
                   {selectedLog.aiScan.confidence != null && (
                     <div className="wh-dialog-row">
-                      <span className="wh-dialog-label">Confidence</span>
+                      <span className="wh-dialog-label">{t('history.confidence')}</span>
                       <span className="wh-dialog-value">{(selectedLog.aiScan.confidence * 100).toFixed(1)}%</span>
                     </div>
                   )}
                   {selectedLog.aiScan.rawResponse && (
                     <div className="wh-dialog-raw">
-                      <span className="wh-dialog-label">Raw Response</span>
+                      <span className="wh-dialog-label">{t('history.rawResponse')}</span>
                       <pre className="wh-dialog-pre">{selectedLog.aiScan.rawResponse}</pre>
                     </div>
                   )}

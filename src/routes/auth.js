@@ -16,11 +16,17 @@
 const express = require('express');
 const { protect } = require('../middleware/auth');
 const User = require('../models/User');
+const { sendMail } = require('../services/mailer');
+const { welcomeEmail } = require('../services/emailTemplates');
 
 const router = express.Router();
 
+// Best-effort "welcome once" dedupe — avoids double-sending when the
+// frontend syncs twice in quick succession (StrictMode / OAuth retries).
+const welcomedIds = new Set();
+
 // Admin bootstrap: comma-separated emails promoted to admin on sync.
-// Example: ADMIN_EMAILS=vipin.gupta.ug24@nsut.ac.in,teammate@nsut.ac.in
+// Example: ADMIN_EMAILS=teammate1@example.com,teammate2@example.com
 const adminEmails = () =>
   (process.env.ADMIN_EMAILS || '')
     .split(',')
@@ -45,6 +51,19 @@ router.post('/sync', protect, async (req, res) => {
       user.role = 'admin';
       await user.save();
     }
+    // Welcome mail for brand-new profiles (fire-and-forget — never blocks login).
+    try {
+      const ageMs = Date.now() - new Date(user.createdAt).getTime();
+      const uid = String(user._id);
+      if (ageMs < 120000 && !welcomedIds.has(uid) && user.email) {
+        welcomedIds.add(uid);
+        const base = (process.env.CLIENT_URL || '').replace(/\/$/, '');
+        sendMail({
+          to: user.email,
+          ...welcomeEmail({ name: user.name, dashboardUrl: base ? `${base}/dashboard` : undefined }),
+        }).catch(() => {});
+      }
+    } catch { /* mail must never break sync */ }
     return res.status(200).json({ success: true, user });
   } catch (error) {
     console.error('Auth sync error:', error);
