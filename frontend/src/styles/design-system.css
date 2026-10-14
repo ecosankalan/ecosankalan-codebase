@@ -8,23 +8,23 @@
   /* ── Brand ── EcoSankalan "Leaf Harvest" theme ──────────────
      Primary   #2A7C13  deep leaf green  (actions, text accents)
      Fresh     #76C457  young leaf green (highlights, gradients)
-     Cream     #FFF8CF  warm paper       (page background)
-     Sand      #FBE6C2  harvest sand     (soft surfaces, borders)
+     Cream     #FFFFFF  warm paper       (page background)
+     Sand      #E7EFE2  harvest sand     (soft surfaces, borders)
   ───────────────────────────────────────────────────────────── */
   --eco-primary:            #2A7C13;
   --eco-primary-deep:       #1C5410;
   --eco-primary-soft:       #76C457;
   --eco-lime:               #76C457;
-  --eco-lime-soft:          #FBE6C2;
+  --eco-lime-soft:          #E7EFE2;
   --eco-mint:               #76C457;
   --eco-ink:                #20301A;
   --eco-ink-soft:           #4A5D3F;
   --eco-muted:              #6B7A5E;
-  --eco-line:               #EBD3A6;
-  --eco-bg:                 #FFF8CF;
-  --eco-card:               #FFFDF2;
+  --eco-line:               #D3DDCE;
+  --eco-bg:                 #FFFFFF;
+  --eco-card:               #FFFFFF;
   --eco-amber:              #9A6206;
-  --eco-amber-bg:            #FBE6C2;
+  --eco-amber-bg:            #E7EFE2;
   --eco-sky:                #2A7C13;
   --eco-sky-bg:              #EAF6DC;
   --eco-danger:             #ba1a1a;
@@ -177,7 +177,7 @@
   cursor: pointer;
   transition: background var(--eco-t-fast), transform var(--eco-t-fast), border-color var(--eco-t-fast);
 }
-.eco-icon-btn:hover { background: #FBE6C2; border-color: rgba(42,124,19,.3); transform: translateY(-1px); }
+.eco-icon-btn:hover { background: #E7EFE2; border-color: rgba(42,124,19,.3); transform: translateY(-1px); }
 
 /* ── Inputs ──────────────────────────────────────────────────── */
 .eco-field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }

@@ -120,7 +120,7 @@
   transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
   position: relative;
 }
-.navbar-icon-btn:hover { background: #FBE6C2; border-color: rgba(42,124,19,.3); transform: translateY(-1px); }
+.navbar-icon-btn:hover { background: #E7EFE2; border-color: rgba(42,124,19,.3); transform: translateY(-1px); }
 .navbar-icon-btn .material-symbols-outlined { font-size: 1.3rem; }
 
 .navbar-avatar-btn {

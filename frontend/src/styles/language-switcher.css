@@ -3,8 +3,8 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  background: rgba(255, 253, 242, 0.9);
-  border: 1px solid var(--eco-line, #EBD3A6);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--eco-line, #D3DDCE);
   border-radius: 999px;
   padding: 3px;
   box-shadow: var(--eco-shadow-xs);
@@ -28,5 +28,5 @@
   color: #fff;
   box-shadow: 0 2px 8px rgba(42, 124, 19, 0.35);
 }
-.lang-switch-sep { color: var(--eco-line, #EBD3A6); font-size: 0.75rem; }
+.lang-switch-sep { color: var(--eco-line, #D3DDCE); font-size: 0.75rem; }
 .lang-switch--compact .lang-switch-btn { padding: 4px 8px; font-size: 0.7rem; }

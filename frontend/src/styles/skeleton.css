@@ -17,9 +17,9 @@
 .skel {
   background: linear-gradient(
     90deg,
-    #FBE6C2 25%,
+    #E7EFE2 25%,
     #f2f8f7 50%,
-    #FBE6C2 75%
+    #E7EFE2 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite, skeleton-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;

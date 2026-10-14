@@ -142,7 +142,7 @@ export default function App() {
                       style: {
                         borderRadius: '16px',
                         background: '#20301A',
-                        color: '#FFF8CF',
+                        color: '#FFFFFF',
                         fontFamily: "'Inter', sans-serif",
                         fontSize: '0.87rem',
                         fontWeight: 600,

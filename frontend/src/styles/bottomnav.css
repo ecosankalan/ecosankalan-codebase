@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
    EcoTabBar — animated bottom navigation, Leaf Harvest theme
-   #2A7C13 / #76C457 / #FFF8CF / #FBE6C2
+   #2A7C13 / #76C457 / #FFFFFF / #E7EFE2
    ═══════════════════════════════════════════════════════════ */
 
 .ecotab {
@@ -27,10 +27,10 @@
   align-items: stretch;
   gap: 2px;
   width: min(480px, 100%);
-  background: rgba(255, 253, 242, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   -webkit-backdrop-filter: blur(18px) saturate(1.2);
   backdrop-filter: blur(18px) saturate(1.2);
-  border: 1px solid #EBD3A6;
+  border: 1px solid #D3DDCE;
   border-radius: 26px;
   padding: 0.45rem;
   box-shadow: 0 18px 50px rgba(42, 124, 19, 0.22);
@@ -125,8 +125,8 @@
   margin-top: -1.9rem;
   border-radius: 20px;
   background: linear-gradient(140deg, #76C457 0%, #2A7C13 60%, #1C5410 100%);
-  border: 3px solid #FFFDF2;
-  color: #FFF8CF;
+  border: 3px solid #FFFFFF;
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;

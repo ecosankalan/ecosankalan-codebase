@@ -20,7 +20,7 @@
   width: 100%;
   max-width: 560px;
   background: #fffdf5;
-  border: 1px solid #EBD3A6;
+  border: 1px solid #D3DDCE;
   border-radius: 22px;
   box-shadow: 0 30px 90px rgba(3, 35, 26, 0.45), 0 0 40px rgba(118, 196, 87, 0.15);
   overflow: hidden;
@@ -35,7 +35,7 @@
   align-items: center;
   gap: 0.7rem;
   padding: 1rem 1.1rem;
-  border-bottom: 1px solid #EBD3A6;
+  border-bottom: 1px solid #D3DDCE;
 }
 .cmd-input-row .material-symbols-outlined { color: #2A7C13; font-size: 1.35rem; }
 .cmd-input {
@@ -54,7 +54,7 @@
   font-weight: 700;
   color: #55705c;
   background: #eef4e2;
-  border: 1px solid #EBD3A6;
+  border: 1px solid #D3DDCE;
   border-bottom-width: 2px;
   border-radius: 7px;
   padding: 0.15rem 0.45rem;
@@ -106,16 +106,16 @@
   display: flex;
   gap: 1.1rem;
   padding: 0.65rem 1.1rem;
-  border-top: 1px solid #EBD3A6;
+  border-top: 1px solid #D3DDCE;
   font-size: 0.72rem;
   color: #55705c;
-  background: #FFF8CF;
+  background: #FFFFFF;
 }
 .cmd-foot kbd {
   font-family: var(--font-body);
   font-weight: 700;
   background: #fff;
-  border: 1px solid #EBD3A6;
+  border: 1px solid #D3DDCE;
   border-bottom-width: 2px;
   border-radius: 6px;
   padding: 0.05rem 0.35rem;

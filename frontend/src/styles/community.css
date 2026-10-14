@@ -1234,5 +1234,5 @@
 .wm-popup-row .material-symbols-outlined { font-size: 1rem; color: #2A7C13; }
 .wm-popup-row a { color: #2A7C13; font-weight: 700; }
 .wm-popup-mats { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
-.wm-popup-chip { font-size: 0.68rem; font-weight: 700; background: #EAF6DC; border: 1px solid #EBD3A6; color: #1C5410; border-radius: 999px; padding: 2px 9px; }
+.wm-popup-chip { font-size: 0.68rem; font-weight: 700; background: #EAF6DC; border: 1px solid #D3DDCE; color: #1C5410; border-radius: 999px; padding: 2px 9px; }
 .wm-popup-coords { margin-top: 9px; font-size: 0.68rem; color: #6B7A5E; }

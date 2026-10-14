@@ -59,12 +59,12 @@ button { font-family: inherit; }
   --primary-fixed:             #76C457;
   --primary-fixed-dim:         #5DAE3E;
   --on-primary:                #ffffff;
-  --on-primary-container:      #FFF8CF;
+  --on-primary-container:      #FFFFFF;
   --on-primary-fixed:          #1C5410;
   --on-primary-fixed-variant:  #2A7C13;
 
   --secondary:                 #2A7C13;
-  --secondary-container:       #FBE6C2;
+  --secondary-container:       #E7EFE2;
   --secondary-fixed:           #76C457;
   --secondary-fixed-dim:       #5DAE3E;
   --on-secondary:              #ffffff;
@@ -73,35 +73,35 @@ button { font-family: inherit; }
   --on-secondary-fixed-variant:#2A7C13;
 
   --tertiary:                  #7A5B12;
-  --tertiary-container:        #FBE6C2;
-  --tertiary-fixed:            #FFF8CF;
-  --tertiary-fixed-dim:        #FBE6C2;
+  --tertiary-container:        #E7EFE2;
+  --tertiary-fixed:            #FFFFFF;
+  --tertiary-fixed-dim:        #E7EFE2;
   --on-tertiary:               #ffffff;
   --on-tertiary-container:     #4A3A08;
   --on-tertiary-fixed:         #3F2F05;
   --on-tertiary-fixed-variant: #7A5B12;
 
-  --surface:                   #FFF8CF;
-  --surface-dim:               #EBD3A6;
-  --surface-bright:            #FFFDF2;
-  --surface-variant:           #FBE6C2;
-  --surface-container-lowest:  #FFFDF2;
-  --surface-container-low:     #FFF6DC;
-  --surface-container:         #FBEFD2;
-  --surface-container-high:    #FBE6C2;
-  --surface-container-highest: #F0D5A3;
+  --surface:                   #FFFFFF;
+  --surface-dim:               #D3DDCE;
+  --surface-bright:            #FFFFFF;
+  --surface-variant:           #E7EFE2;
+  --surface-container-lowest:  #FFFFFF;
+  --surface-container-low:     #F7FAF5;
+  --surface-container:         #EDF3EA;
+  --surface-container-high:    #E7EFE2;
+  --surface-container-highest: #D6E0D0;
   --surface-tint:              #2A7C13;
 
   --on-surface:                #20301A;
   --on-surface-variant:        #4A5D3F;
   --inverse-surface:           #20301A;
-  --inverse-on-surface:        #FFF8CF;
+  --inverse-on-surface:        #FFFFFF;
   --inverse-primary:           #76C457;
 
   --outline:                   #6B7A5E;
-  --outline-variant:           #EBD3A6;
+  --outline-variant:           #D3DDCE;
 
-  --background:                #FFF8CF;
+  --background:                #FFFFFF;
   --on-background:             #20301A;
 
   --error:                     #ba1a1a;
@@ -205,7 +205,7 @@ button { font-family: inherit; }
   justify-content: center;
   flex-shrink: 0;
 }
-.stat-card--green .stat-card-icon { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.25); color: #FFF8CF; }
+.stat-card--green .stat-card-icon { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.25); color: #FFFFFF; }
 .stat-card-label {
   font-size: 0.65rem;
   font-weight: 700;
@@ -354,7 +354,7 @@ button { font-family: inherit; }
   transition: background 0.2s, transform 0.2s;
   color: var(--primary);
 }
-.wh-load-more:hover { background: #FBE6C2; transform: translateY(-1px); }
+.wh-load-more:hover { background: #E7EFE2; transform: translateY(-1px); }
 .wh-load-more:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .wh-error {

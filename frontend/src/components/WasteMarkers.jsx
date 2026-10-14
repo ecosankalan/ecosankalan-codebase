@@ -5,7 +5,7 @@ import { getMapMarkers } from '../services/api';
 
 /* ── Marker palette: teal-ramp disciplined (icons carry the semantics) ──── */
 const CATEGORY_META = {
-  waste_basket:           { label: 'Waste Baskets',      color: '#2A7C13', icon: 'delete',           bgColor: '#FBE6C2' },
+  waste_basket:           { label: 'Waste Baskets',      color: '#2A7C13', icon: 'delete',           bgColor: '#E7EFE2' },
   recycling:              { label: 'Recycling Bins',     color: '#2A7C13', icon: 'recycling',        bgColor: '#e9f2da' },
   recycling_centre:       { label: 'Recycling Centres',  color: '#55a630', icon: 'recycling',        bgColor: '#eef3d4' },
   waste_transfer_station: { label: 'Transfer Stations',  color: '#80b918', icon: 'local_shipping',   bgColor: '#f2f7e6' },
