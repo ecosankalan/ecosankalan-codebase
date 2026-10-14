@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useSignIn } from '@appwrite.io/react';
 import { OAuthProvider, Account } from 'appwrite';
 import appwriteClient from '../../lib/appwrite';
+import { isMedianApp, hasMedianGoogleBridge, medianGoogleLogin, nativeCallbackUrl } from '../../lib/median';
 import OAuthReturnHint, { markOAuthPending } from './OAuthReturnHint';
 
 export default function LoginForm() {
@@ -54,6 +55,25 @@ export default function LoginForm() {
     setLoading(true);
     setError('');
     markOAuthPending();
+    // Inside the Median native app, web OAuth fails (Google blocks
+    // WebViews). Use the native Social Login SDK instead — Median loads
+    // our backend callback in the WebView, which completes the same
+    // Appwrite session flow. See docs/MEDIAN_SOCIAL_LOGIN.md.
+    if (isMedianApp() && !hasMedianGoogleBridge()) {
+      setError(t('auth.nativeBridgeMissing'));
+      setLoading(false);
+      return;
+    }
+    if (hasMedianGoogleBridge()) {
+      try {
+        medianGoogleLogin(nativeCallbackUrl());
+        return; // Native flow takes over; WebView navigates on completion.
+      } catch (err) {
+        setError(err.message || 'Google login failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+    }
     try {
       // Token flow: navigates the browser to Google; do not redirect manually.
       // Google → Appwrite → /auth/success (createSession) → /dashboard.

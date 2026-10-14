@@ -7,7 +7,9 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Client, Account, OAuthProvider } from 'appwrite';
+import { isMedianApp, hasMedianGoogleBridge, medianGoogleLogin, nativeCallbackUrl } from '../lib/median';
 
 const client = new Client()
   .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
@@ -17,7 +19,9 @@ const account = new Account(client);
 
 export default function OAuthPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [checking, setChecking] = useState(true);
+  const [bridgeError, setBridgeError] = useState(false);
 
   // Auth guard: if already signed in, redirect to dashboard
   useEffect(() => {
@@ -27,6 +31,16 @@ export default function OAuthPage() {
   }, [navigate]);
 
   const signInWithGoogle = async () => {
+    // Native path inside the Median wrapper (see LoginForm + docs).
+    if (isMedianApp()) {
+      if (hasMedianGoogleBridge()) {
+        medianGoogleLogin(nativeCallbackUrl());
+        return;
+      }
+      setBridgeError(true);
+      setChecking(false);
+      return;
+    }
     const success = `${window.location.origin}/auth/success`;
     const failure = `${window.location.origin}/auth/failure`;
 
@@ -51,11 +65,13 @@ export default function OAuthPage() {
     <div className="auth-page">
       <div className="auth-form-wrapper">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h2>Welcome to EcoSankalan</h2>
+          <h2>{t('auth.oauthTitle')}</h2>
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-            Sign in to continue
+            {t('auth.oauthSub')}
           </p>
         </div>
+
+        {bridgeError && <div className="error-banner">{t('auth.nativeBridgeMissing')}</div>}
 
         <button
           type="button"
@@ -75,12 +91,12 @@ export default function OAuthPage() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          Sign in with Google
+          {t('auth.oauthGoogle')}
         </button>
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
           <a href="/login" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '0.9rem' }}>
-            Or sign in with email instead
+            {t('auth.oauthEmailInstead')}
           </a>
         </div>
       </div>

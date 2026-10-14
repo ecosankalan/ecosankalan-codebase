@@ -18,8 +18,18 @@ const { protect } = require('../middleware/auth');
 const User = require('../models/User');
 const { sendMail } = require('../services/mailer');
 const { welcomeEmail } = require('../services/emailTemplates');
+const { googleNativeCallback } = require('../controllers/nativeAuthController');
 
 const router = express.Router();
+
+/**
+ * GET /api/v1/auth/google/native-callback
+ * Public. Median Social Login (native Google SDK) redirect target.
+ * Verifies the Google ID token, mints an Appwrite session token, and
+ * redirects the in-app WebView to the frontend /auth/success page.
+ * See docs/MEDIAN_SOCIAL_LOGIN.md for the full setup.
+ */
+router.get('/google/native-callback', googleNativeCallback);
 
 // Best-effort "welcome once" dedupe — avoids double-sending when the
 // frontend syncs twice in quick succession (StrictMode / OAuth retries).
