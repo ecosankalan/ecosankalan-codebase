@@ -22,9 +22,6 @@ export default function HeroSection() {
         <span className="lp-orb lp-orb--sand" />
         <span className="lp-orb lp-orb--cream" />
         <span className="lp-grain" />
-        <img src="/logo.png" alt="" className="lp-hero-leaf lp-hero-leaf-img lp-hero-leaf--1" aria-hidden="true" />
-        <img src="/logo.png" alt="" className="lp-hero-leaf lp-hero-leaf-img lp-hero-leaf--2" aria-hidden="true" />
-        <img src="/logo.png" alt="" className="lp-hero-leaf lp-hero-leaf-img lp-hero-leaf--3" aria-hidden="true" />
       </div>
 
       <div className="lp-container lp-hero-grid">

@@ -81,11 +81,6 @@
   background-size: 22px 22px;
   mask-image: linear-gradient(180deg, black 30%, transparent 90%);
 }
-.lp-hero-leaf { position: absolute; opacity: 0.9; animation: lp-float 6s ease-in-out infinite; }
-.lp-hero-leaf-img { border-radius: 24%; }
-.lp-hero-leaf--1 { left: 8%; top: 22%; width: 88px; }
-.lp-hero-leaf--2 { right: 10%; top: 38%; width: 62px; animation-delay: -2s; }
-.lp-hero-leaf--3 { left: 46%; top: 12%; width: 50px; animation-delay: -4s; }
 @keyframes lp-float { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-16px) rotate(8deg); } }
 
 .lp-hero-grid { position: relative; display: grid; gap: 3rem; align-items: center; }
