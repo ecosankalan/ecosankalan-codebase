@@ -68,7 +68,7 @@ export function HowItWorksSection() {
   const { t } = useTranslation();
   const steps = [
     { icon: 'person_add', title: t('landing.h1T'), desc: t('landing.h1D') },
-    { icon: 'qr_code_scanner', title: t('landing.h2T'), desc: t('landing.h2D') },
+    { icon: 'photo_camera', title: t('landing.h2T'), desc: t('landing.h2D') },
     { icon: 'location_on', title: t('landing.h3T'), desc: t('landing.h3D') },
     { icon: 'add_task', title: t('landing.h4T'), desc: t('landing.h4D') },
     { icon: 'local_fire_department', title: t('landing.h5T'), desc: t('landing.h5D') },
@@ -117,7 +117,7 @@ export function AIShowcaseSection() {
         <div className="lp-phone lp-reveal lp-delay-2" aria-hidden="true">
           <div className="lp-phone-notch" />
           <div className="lp-phone-screen">
-            <span className="lp-phone-scan material-symbols-outlined">qr_code_scanner</span>
+            <span className="lp-phone-scan material-symbols-outlined">photo_camera</span>
             <div className="lp-phone-frame" />
             <p className="lp-phone-label">{t('landing.aiEyebrow')}</p>
             <div className="lp-phone-bin">{formatCompact(stats?.binsMapped)} {t('landing.statBins')} · {formatCompact(stats?.wasteLogs)} {t('landing.impactLogs')}</div>

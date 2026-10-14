@@ -19,7 +19,7 @@ export default function BottomNav() {
   const TABS = [
     { key: 'home', label: t('nav.home'), icon: 'home', route: '/dashboard' },
     { key: 'map', label: t('nav.map'), icon: 'explore', route: '/community', center: true },
-    { key: 'scan', label: t('dashboard.scanWaste'), icon: 'qr_code_scanner', route: '/waste', fab: true },
+    { key: 'scan', label: t('dashboard.scanWaste'), icon: 'photo_camera', route: '/waste', fab: true },
     { key: 'learn', label: t('nav.learn'), icon: 'school', route: '/learn' },
     { key: 'profile', label: t('nav.profile'), icon: 'person', route: '/profile' },
   ];
