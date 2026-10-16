@@ -28,6 +28,12 @@ html {
   overflow-x: hidden;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* App-like feel: no pull-to-refresh bounce, no overscroll chaining */
+  overscroll-behavior: none;
+}
+
+body {
+  overscroll-behavior-y: none;
 }
 
 body {
