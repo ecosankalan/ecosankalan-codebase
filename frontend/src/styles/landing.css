@@ -32,6 +32,8 @@
 /* ── nav: floating pill ── */
 .lp-nav {
   position: fixed; inset: 12px 12px auto; z-index: 100;
+  /* Clear the OS status bar in edge-to-edge / fullscreen modes */
+  top: max(12px, calc(env(safe-area-inset-top, 0px) + 12px));
   transition: transform 0.3s var(--lp-ease);
 }
 .lp-nav-inner {
