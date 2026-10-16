@@ -2,6 +2,21 @@
   "name": "EcoSankalan",
   "short_name": "EcoSankalan",
   "description": "Hyperlocal waste management: log waste, find bins, join clean-ups and earn eco rewards.",
+  "orientation": "portrait",
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-portrait.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/screenshot-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
   "start_url": "/",
   "id": "/",
   "scope": "/",
