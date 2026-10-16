@@ -200,25 +200,26 @@ export default function DashboardPage() {
       ) : (
         <main className="dashboard-main">
 
-          {/* ── Daily Check-in Badge */}
+          {/* ── Daily Check-in Badge (streak flame card) */}
           {showBadge && (
-            <div className="daily-badge-wrap" onClick={handleCloseBadge}>
-              <div className="eco-badge" onClick={e => e.stopPropagation()}>
-                <div className="eco-icon-wrap">
-                  <div className="eco-icon-ring">
-                    <span className="material-symbols-outlined eco-badge-logo" style={{ fontVariationSettings: "'FILL' 1, 'wght' 600" }}>eco</span>
-                  </div>
+            <div className="streak-wrap" onClick={handleCloseBadge}>
+              <div className="streak-card" onClick={e => e.stopPropagation()} role="status">
+                <span className="streak-ember streak-ember--1" aria-hidden="true" />
+                <span className="streak-ember streak-ember--2" aria-hidden="true" />
+                <span className="streak-ember streak-ember--3" aria-hidden="true" />
+                <div className="streak-flame" aria-hidden="true">
+                  <span className="material-symbols-outlined">local_fire_department</span>
                 </div>
-                <div className="eco-content">
-                  <h2>{t('dashboard.badgeTitle')}</h2>
-                  <h4>{t('dashboard.badgeWelcome', { name: userName })}</h4>
-                  <p>{t('dashboard.badgeText')}</p>
-                  <div className="eco-points">
-                    <span className="material-symbols-outlined points-dot-icon" aria-hidden="true">stars</span>
+                <div className="streak-body">
+                  <p className="streak-eyebrow">{t('dashboard.badgeTitle')}</p>
+                  <h4 className="streak-hello">{t('dashboard.badgeWelcome', { name: userName })}</h4>
+                  <p className="streak-sub">{t('dashboard.badgeText')}</p>
+                  <span className="streak-points">
+                    <span className="material-symbols-outlined" aria-hidden="true">stars</span>
                     {t('dashboard.badgePoints')}
-                  </div>
+                  </span>
                 </div>
-                <button className="eco-badge-close" onClick={handleCloseBadge} aria-label={t('dashboard.dismissBadge')}>
+                <button className="streak-close" onClick={handleCloseBadge} aria-label={t('dashboard.dismissBadge')}>
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>

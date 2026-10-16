@@ -896,174 +896,143 @@
 
 /* ── Daily Check-in Badge (inline, between Navbar and hero-grid) ── */
 
-.daily-badge-wrap {
+/* ── Daily check-in: streak-flame card (pure component, no image) ── */
+.streak-wrap {
   position: fixed;
-  top: 1rem;
+  top: max(0.8rem, env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
-  width: min(92vw, 520px);
-  padding: 0.75rem 1rem 0;
+  width: min(94vw, 560px);
+  padding: 0 0.5rem;
   cursor: pointer;
-  animation: badge-slide-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: streak-in 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
 }
-
-@keyframes badge-slide-in {
-  from { opacity: 0; transform: translate(-50%, -18px) scale(0.96); }
-  to   { opacity: 1; transform: translate(-50%, 0)     scale(1); }
+@keyframes streak-in {
+  from { opacity: 0; transform: translate(-50%, -22px) scale(0.95); }
+  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
-
-.eco-badge {
+.streak-card {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 0.75rem 2.75rem 0.75rem 1rem;
-  background:
-    radial-gradient(circle at 22% 50%, rgba(30, 129, 75, 0.22), transparent 32%),
-    linear-gradient(90deg, #f7fff9 0%, #ffffff 58%, #fbfffc 100%);
-  border: 2.5px solid #2b8a4f;
-  border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  gap: 1rem;
+  padding: 1rem 3rem 1rem 1rem;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #1C5410 0%, #2A7C13 60%, #3B9223 100%);
+  border: 1px solid rgba(118, 196, 87, 0.5);
+  box-shadow: 0 18px 50px rgba(28, 84, 16, 0.45), 0 0 32px rgba(118, 196, 87, 0.25);
   overflow: hidden;
   cursor: default;
+  color: #FFF8CF;
 }
-
-.eco-icon-wrap {
-  width: 72px;
-  height: 72px;
-  display: grid;
-  place-items: center;
+.streak-ember {
+  position: absolute;
+  bottom: -6px;
   border-radius: 50%;
-  background: rgba(45, 139, 83, 0.08);
-  box-shadow: 14px 0 28px rgba(45, 139, 83, 0.18);
+  background: radial-gradient(circle, #FFE9A8 0%, #76C457 55%, transparent 70%);
+  opacity: 0.85;
+  animation: streak-rise 2.6s ease-in infinite;
+  pointer-events: none;
+}
+.streak-ember--1 { left: 12%; width: 12px; height: 12px; animation-delay: 0s; }
+.streak-ember--2 { left: 26%; width: 8px; height: 8px; animation-delay: -0.9s; }
+.streak-ember--3 { left: 6%; width: 10px; height: 10px; animation-delay: -1.7s; }
+@keyframes streak-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  25% { opacity: 0.9; }
+  100% { transform: translateY(-70px) scale(0.3); opacity: 0; }
+}
+.streak-flame {
+  position: relative;
   flex: 0 0 auto;
-}
-
-.eco-icon-ring {
-  width: 58px;
-  height: 58px;
+  width: 76px;
+  height: 76px;
+  border-radius: 26px;
   display: grid;
   place-items: center;
-  border-radius: 50%;
-  background: #fbfffb;
-  border: 1.5px dotted #d9efdf;
-  box-shadow:
-    0 6px 16px rgba(38, 115, 72, 0.18),
-    0 0 0 5px rgba(225, 246, 230, 0.7);
+  background: linear-gradient(160deg, #76C457 0%, #2A7C13 100%);
+  box-shadow: 0 0 0 3px rgba(255, 248, 207, 0.25), 0 0 26px rgba(118, 196, 87, 0.8);
+  animation: streak-flick 1.8s ease-in-out infinite;
 }
-
-.eco-badge-logo {
-  font-size: 30px;
-  color: #08713a;
+.streak-flame .material-symbols-outlined {
+  font-size: 2.4rem;
+  color: #FFF8CF;
+  font-variation-settings: 'FILL' 1;
+  filter: drop-shadow(0 0 8px rgba(255, 233, 168, 0.9));
 }
-
-.eco-content {
-  flex: 1;
-  min-width: 0;
-  color: #1e1e1e;
+@keyframes streak-flick {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  30% { transform: scale(1.07) rotate(2deg); }
+  60% { transform: scale(0.97) rotate(-1deg); }
 }
-
-.eco-content h2 {
-  margin: 0 0 3px;
+.streak-body { flex: 1; min-width: 0; }
+.streak-eyebrow {
+  margin: 0 0 2px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #76C457;
+}
+.streak-hello {
+  margin: 0 0 4px;
   font-family: var(--font-headline);
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: -0.2px;
-  line-height: 1;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
 }
-
-.eco-content h4 {
-  margin: 0 0 6px;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  color: #2b5e38;
-}
-
-.eco-content p {
-  margin: 0 0 7px;
-  font-size: 9px;
-  line-height: 1.4;
-  font-weight: 500;
-  color: #3f3f3f;
+.streak-sub {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(255, 248, 207, 0.85);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
-.eco-points {
-  width: fit-content;
-  padding: 4px 12px;
-  display: flex;
+.streak-points {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  padding: 5px 13px;
   border-radius: 999px;
-  background: #d9f7e5;
-  color: #2c8d55;
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1;
+  background: rgba(255, 248, 207, 0.16);
+  border: 1px solid rgba(255, 248, 207, 0.4);
+  color: #FFF8CF;
+  font-size: 0.76rem;
+  font-weight: 800;
 }
-
-.points-dot {
-  width: 14px;
-  height: 14px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #b8efce;
-  color: #2c8d55;
-  font-size: 9px;
-  font-weight: 900;
-}
-
-.eco-badge-close {
+.streak-points .material-symbols-outlined { font-size: 0.95rem; }
+.streak-close {
   position: absolute;
-  top: 50%;
+  top: 0.6rem;
   right: 0.6rem;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  border: none;
-  background: rgba(0,0,0,0.06);
+  border: 0;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3f3f3f;
   padding: 0;
-  flex-shrink: 0;
 }
-
-.eco-badge-close .material-symbols-outlined {
-  font-size: 16px;
-}
-
-.daily-badge-dismiss-hint {
-  text-align: center;
-  font-size: 10px;
-  color: var(--on-surface-variant);
-  margin: 0.35rem 0 0;
-  opacity: 0.7;
-}
+.streak-close .material-symbols-outlined { font-size: 17px; }
 
 @media (max-width: 480px) {
-  .daily-badge-wrap {
-    padding: 0.6rem 0.75rem 0;
-  }
-  .eco-badge {
-    gap: 0.875rem;
-    padding: 0.625rem 2.5rem 0.625rem 0.75rem;
-  }
-  .eco-icon-wrap { width: 58px; height: 58px; }
-  .eco-icon-ring { width: 46px; height: 46px; }
-  .eco-badge-logo { font-size: 24px; }
-  .eco-content h2 { font-size: 13px; }
-  .eco-content h4 { font-size: 10px; }
-  .eco-content p  { font-size: 8px; }
+  .streak-card { gap: 0.8rem; padding: 0.9rem 2.75rem 0.9rem 0.9rem; border-radius: 20px; }
+  .streak-flame { width: 62px; height: 62px; border-radius: 20px; }
+  .streak-flame .material-symbols-outlined { font-size: 2rem; }
+  .streak-hello { font-size: 0.95rem; }
+  .streak-sub { font-size: 0.74rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .streak-wrap, .streak-flame, .streak-ember { animation: none !important; }
 }
 
 /* Tap-to-impact affordance under hero stats */

@@ -1,0 +1,1 @@
+[{"relation": ["delegate_permission/common.handle_all_urls"], "target": {"namespace": "android_app", "package_name": "in.ecosankalan.twa", "sha256_cert_fingerprints": ["AC:1A:52:D7:9C:0A:BD:36:A9:23:40:87:31:60:5F:83:E8:84:34:37:58:29:BE:01:16:F0:CD:FD:83:1E:62:9D"]}}]
