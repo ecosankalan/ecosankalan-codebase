@@ -56,13 +56,16 @@ export default function DashboardPage() {
   const [events,     setEvents]     = useState([]);     // upcoming events
   const [profile,    setProfile]    = useState(null);   // user profile
 
-  // Daily Check-in Badge — shows ONCE per day via localStorage
+  // Daily Check-in Badge — shows ONCE per day via localStorage.
+  // KEY VERSIONED (v2) to force-reset for ALL users, so everyone sees
+  // the redesigned streak-flame card once regardless of prior state.
+  const BADGE_KEY = 'daily_badge_shown_date_v2';
   const [showBadge, setShowBadge] = useState(() => {
     try {
       const today = new Date().toDateString();
-      const lastShown = localStorage.getItem('daily_badge_shown_date');
+      const lastShown = localStorage.getItem(BADGE_KEY);
       if (lastShown !== today) {
-        localStorage.setItem('daily_badge_shown_date', today);
+        localStorage.setItem(BADGE_KEY, today);
         return true;
       }
       return false;
@@ -97,7 +100,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!showBadge) return;
     const t = setTimeout(() => {
-      localStorage.setItem('daily_badge_shown_date', new Date().toDateString());
+      localStorage.setItem(BADGE_KEY, new Date().toDateString());
       setShowBadge(false);
     }, 35000);
     return () => clearTimeout(t);
