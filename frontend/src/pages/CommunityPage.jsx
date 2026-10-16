@@ -10,6 +10,7 @@ import RouteLayer from '../components/RouteLayer';
 import RouteInfo from '../components/RouteInfo';
 import useRoute from '../hooks/useRoute';
 import { searchPlaces } from '../lib/geocode';
+import { locateWithBackoff, locateErrorMessage } from '../lib/geolocation';
 import { getUpcomingEvents, getNearbyBins } from '../services/api';
 import '../styles/community.css';
 
@@ -135,16 +136,12 @@ export default function CommunityPage() {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    // Ensure we have user location
+    // Ensure we have user location (retries with backoff — cold GPS
+    // often times out once then succeeds seconds later)
     let userLoc = userLocationRef.current;
     if (!userLoc) {
       try {
-        const pos = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-          });
-        });
+        const pos = await locateWithBackoff({ attempts: 2, baseTimeout: 8000 });
         userLoc = [pos.coords.latitude, pos.coords.longitude];
         userLocationRef.current = userLoc;
 
@@ -312,49 +309,49 @@ export default function CommunityPage() {
     })();
   }, []);
 
-  /* ── Locate user & fetch nearby bins ───────────────────────────── */
-  const handleLocate = useCallback(() => {
+  /* ── Locate user & fetch nearby bins (exponential backoff) ────── */
+  const handleLocate = useCallback(async () => {
     if (!navigator.geolocation) {
-      setLocError('Geolocation not supported');
+      setLocError(t('map.locUnsupported'));
       setTimeout(() => setLocError(''), 3000);
       return;
     }
     setLocating(true);
     setLocError('');
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        const L   = window.L;
-        const map = mapInstanceRef.current;
-        if (!map || !L) { setLocating(false); return; }
+    try {
+      // 3 attempts: 8s -> 16s -> 30s timeouts with 1s/2s gaps, 60s budget.
+      // Cold-start GPS almost always locks on by attempt 2.
+      const pos = await locateWithBackoff({
+        onRetry: (attempt, max) => setLocError(t('map.retrying', { n: attempt, max })),
+      });
+      const { coords } = pos;
+      const L   = window.L;
+      const map = mapInstanceRef.current;
+      if (!map || !L) return;
 
-        const latlng = [coords.latitude, coords.longitude];
-        userLocationRef.current = latlng;
-        map.setView(latlng, 14);
+      const latlng = [coords.latitude, coords.longitude];
+      userLocationRef.current = latlng;
+      map.setView(latlng, 14);
 
-        if (userMarkerRef.current) map.removeLayer(userMarkerRef.current);
-        userMarkerRef.current = L.marker(latlng, { icon: createUserIcon(L) }).addTo(map);
+      if (userMarkerRef.current) map.removeLayer(userMarkerRef.current);
+      userMarkerRef.current = L.marker(latlng, { icon: createUserIcon(L) }).addTo(map);
 
-        try {
-          const { data } = await getNearbyBins({ lat: coords.latitude, lng: coords.longitude });
-          setBins(Array.isArray(data) ? data : []);
-          setBinsError('');
-          setActiveFilter('nearby');
-        } catch (err) {
-          setBinsError(err.message || 'Could not load nearby bins.');
-        } finally {
-          setLocating(false);
-        }
-      },
-      (err) => {
-        setLocating(false);
-        if (err.code === 1) setLocError('Location access denied. Enable it in browser settings.');
-        else if (err.code === 2) setLocError('Location unavailable. Try again.');
-        else setLocError('Location request timed out. Try again.');
-        setTimeout(() => setLocError(''), 4000);
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  }, []);
+      try {
+        const { data } = await getNearbyBins({ lat: coords.latitude, lng: coords.longitude });
+        setBins(Array.isArray(data) ? data : []);
+        setBinsError('');
+        setLocError('');
+        setActiveFilter('nearby');
+      } catch (err) {
+        setBinsError(err.message || t('map.binsFailed'));
+      }
+    } catch (err) {
+      setLocError(locateErrorMessage(err, t));
+      setTimeout(() => setLocError(''), 5000);
+    } finally {
+      setLocating(false);
+    }
+  }, [t]);
 
   const handleFilterClick = useCallback((filterKey) => {
     setActiveFilter(filterKey);
