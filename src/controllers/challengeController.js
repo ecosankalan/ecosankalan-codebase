@@ -372,9 +372,10 @@ exports.joinChallenge = async (req, res) => {
 exports.getActiveChallenges = async (req, res) => {
   try {
     const now = nowUTC();
+    // Include future-start challenges too — they surface as "Not Started"
+    // (dayIndexToday is null until the first day unlocks).
     const challenges = await Challenge.find({
       isActive: true,
-      startDate: { $lte: now },
       expiryDate: { $gte: now },
     }).lean({ virtuals: true });
 
