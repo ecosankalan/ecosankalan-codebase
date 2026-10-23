@@ -544,6 +544,40 @@ describe('Challenges API — admin & user', () => {
       expect(res.body[0].joined).toBe(true);
       expect(res.body[0].userProgress.totalPoints).toBe(50);
     });
+
+    test('includes challenges that start in the future (surface as Not Started)', async () => {
+      const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      Challenge.find.mockReturnValue({
+        lean: jest.fn().mockResolvedValue([
+          {
+            _id: challengeId,
+            title: 'Tomorrow Run',
+            description: 'd',
+            taskTemplate: { description: 't' },
+            startDate: tomorrow,
+            expiryDate: new Date(tomorrow.getTime() + 3 * DAY_MS),
+            isActive: true,
+          },
+        ]),
+      });
+      ChallengeProgress.find.mockReturnValue({
+        lean: jest.fn().mockResolvedValue([]),
+      });
+
+      const res = await request(app)
+        .get('/api/v1/challenges/active')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0].dayIndexToday).toBeNull();
+      expect(res.body[0].joined).toBe(false);
+      // No startDate lower bound — future challenges must reach the user's list
+      expect(Challenge.find).toHaveBeenCalledWith({
+        isActive: true,
+        expiryDate: { $gte: expect.any(Date) },
+      });
+    });
   });
 
   describe('Challenge auto-track — admin flag', () => {
