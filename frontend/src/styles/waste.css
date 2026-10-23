@@ -489,8 +489,8 @@
 }
 .log-modal-close-btn:hover { filter: brightness(1.2); }
 
-/* ── Live CO2 preview card ── */
-.log-co2-preview {
+/* ── Live points preview card ── */
+.log-preview {
   display: flex;
   align-items: center;
   gap: 0;
@@ -502,18 +502,18 @@
   position: relative;
 }
 
-.log-co2-preview-item {
+.log-preview-item {
   display: flex;
   align-items: center;
   gap: 0.625rem;
   flex: 1;
 }
 
-.log-co2-preview-item .material-symbols-outlined {
+.log-preview-item .material-symbols-outlined {
   font-size: 1.75rem;
 }
 
-.log-co2-val {
+.log-preview-val {
   display: block;
   font-family: var(--font-headline);
   font-size: 1.15rem;
@@ -522,14 +522,14 @@
   line-height: 1;
 }
 
-.log-co2-label {
+.log-preview-label {
   display: block;
   font-size: 0.75rem;
   color: var(--on-surface-variant);
   margin-top: 2px;
 }
 
-.log-co2-preview-divider {
+.log-preview-divider {
   width: 1px;
   height: 2.5rem;
   background: var(--outline);
@@ -537,7 +537,7 @@
   margin: 0 1rem;
 }
 
-.log-co2-preview-hint {
+.log-preview-hint {
   width: 100%;
   font-size: 0.7rem;
   color: var(--on-surface-variant);
@@ -545,14 +545,4 @@
   margin-top: 0.5rem;
   padding-top: 0.5rem;
   border-top: 1px solid rgba(112, 122, 111, 0.15);
-}
-
-.log-modal-co2-note {
-  font-size: 0.78rem;
-  color: var(--on-surface-variant);
-  text-align: center;
-  margin: -0.5rem 0 1rem;
-  padding: 0.5rem 1rem;
-  background: var(--surface-container-low);
-  border-radius: 0.5rem;
 }

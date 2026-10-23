@@ -127,7 +127,6 @@ export default function WasteHistoryPage() {
           {logs.map(item => {
             const meta = ICON_MAP[item.category] ?? ICON_MAP.other;
             const qtyKg = item.unit === 'g' ? (item.quantity / 1000).toFixed(2) : item.quantity.toFixed(1);
-            const co2 = Number(item.co2Saved).toFixed(4);
             return (
               <div className="wh-card" key={item._id} onClick={() => setSelectedLog(item)} style={{ cursor: 'pointer' }}>
                 <div className="wh-card-left">
@@ -151,7 +150,6 @@ export default function WasteHistoryPage() {
                   <div className="wh-card-weight">{t('history.weight', { v: qtyKg })}</div>
                   <div className="wh-card-badges">
                     <span className="wh-pts-badge">{t('history.pts', { n: item.pointsEarned })}</span>
-                    <span className="wh-co2-badge">{t('history.co2', { v: co2 })}</span>
                   </div>
                 </div>
               </div>
@@ -190,10 +188,6 @@ export default function WasteHistoryPage() {
               <div className="wh-dialog-row">
                 <span className="wh-dialog-label">{t('history.pointsEarned')}</span>
                 <span className="wh-dialog-value wh-dialog-pts">{t('history.pts', { n: selectedLog.pointsEarned })}</span>
-              </div>
-              <div className="wh-dialog-row">
-                <span className="wh-dialog-label">{t('history.co2Saved')}</span>
-                <span className="wh-dialog-value">{t('history.co2', { v: Number(selectedLog.co2Saved).toFixed(4) })}</span>
               </div>
               <div className="wh-dialog-row">
                 <span className="wh-dialog-label">{t('history.logMethod')}</span>

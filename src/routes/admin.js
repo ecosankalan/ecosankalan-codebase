@@ -124,7 +124,7 @@ router.get('/leaderboard', async (req, res) => {
     const users = await User.find({ role: 'user' })
       .sort({ totalPointsEarned: -1 })
       .limit(limit)
-      .select('name avatarUrl area ecoPoints totalPointsEarned totalWasteLogged totalCo2Saved badgesEarned createdAt')
+      .select('name avatarUrl area ecoPoints totalPointsEarned totalWasteLogged badgesEarned createdAt')
       .lean();
 
     const ranked = users.map((u, i) => ({

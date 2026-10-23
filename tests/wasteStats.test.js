@@ -71,7 +71,7 @@ describe('GET /api/v1/waste/stats', () => {
     // findOne is called by protect's findOrCreateMongoUser
     User.findOne.mockResolvedValue({ _id: userId, role: 'user', email: 'test@example.com' });
     WasteLog.aggregate
-      .mockResolvedValueOnce([{ totalKg: 12.345, totalCo2Saved: 8.333, totalPointsEarned: 340 }])
+      .mockResolvedValueOnce([{ totalKg: 12.345, totalPointsEarned: 340 }])
       .mockResolvedValueOnce([
         { _id: 'plastic', kg: 3.234 },
         { _id: 'e-waste', kg: 0.5 },
@@ -93,7 +93,7 @@ describe('GET /api/v1/waste/stats', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.totalKg).toBe(12.35);
-    expect(res.body.totalCo2Saved).toBe(8.33);
+    expect(res.body.totalCo2Saved).toBeUndefined();
     expect(res.body.categoryBreakdown.plastic).toBe(3.23);
     expect(res.body.categoryBreakdown.eWaste).toBe(0.5);
     expect(res.body.weeklyTrend).toEqual([

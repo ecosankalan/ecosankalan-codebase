@@ -6,6 +6,7 @@ const User = require('../models/User');
 const { uploadAiImages } = require('../middleware/upload');
 const { scanWaste } = require('../controllers/aiScanController');
 const { calculateWasteImpact } = require('../utils/aiCalculator');
+const challengeController = require('../controllers/challengeController');
 
 const router = express.Router();
 
@@ -20,6 +21,18 @@ const getRangeStart = (range) => {
 const round2 = (value) => Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
 
 const normaliseCategory = (category) => (category === 'e-waste' ? 'eWaste' : category);
+
+// Calendar day (YYYY-MM-DD) in IST — matches the aggregation timezone used
+// by /waste/stats so streak days and trend bars agree on "today".
+const istDay = (offsetDays = 0) =>
+  new Date(Date.now() + offsetDays * 24 * 60 * 60 * 1000).toLocaleDateString('en-CA', {
+    timeZone: 'Asia/Kolkata',
+  });
+
+const shiftDay = (dayStr, deltaDays) => {
+  const [y, m, d] = dayStr.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d) + deltaDays * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+};
 
 router.use(protect);
 
@@ -68,8 +81,8 @@ router.post('/log', async (req, res) => {
 
     const kgQty = unit === 'g' ? qty / 1000 : qty;
     
-    // Dynamically calculate points and CO2 saved via AI
-    const { pointsEarned, co2Saved } = await calculateWasteImpact(category, kgQty, description);
+    // Dynamically calculate eco points via AI
+    const { pointsEarned } = await calculateWasteImpact(category, kgQty, description);
 
     const logData = {
       userId: req.user.userId,
@@ -79,7 +92,6 @@ router.post('/log', async (req, res) => {
       description: description ? String(description).slice(0, 200) : undefined,
       logMethod: logMethod === 'ai_scan' ? 'ai_scan' : 'manual',
       pointsEarned,
-      co2Saved,
       isHazardous: hazardous || false,
       hazardType: hazardous ? hazardType : null,
       safetyAck: hazardous ? true : false,
@@ -105,11 +117,20 @@ router.post('/log', async (req, res) => {
       },
     });
 
+    // Satisfy today's slot for any auto-tracked challenges the user joined.
+    // Never fails the log itself.
+    let autoTracked = [];
+    try {
+      autoTracked = await challengeController.autoTrackWasteLogForUser(req.user.userId);
+    } catch (trackErr) {
+      console.log('Auto-track failed (waste log):', trackErr?.message);
+    }
+
     res.status(201).json({
       success: true,
       log,
       pointsEarned,
-      co2Saved,
+      autoTracked,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message || 'Failed to log waste' });
@@ -172,7 +193,6 @@ router.get('/stats', async (req, res) => {
           $group: {
             _id: null,
             totalKg: { $sum: kgExpression },
-            totalCo2Saved: { $sum: '$co2Saved' },
             totalPointsEarned: { $sum: '$pointsEarned' },
           },
         },
@@ -232,7 +252,6 @@ router.get('/stats', async (req, res) => {
 
     res.status(200).json({
       totalKg: round2(total.totalKg),
-      totalCo2Saved: round2(total.totalCo2Saved),
       totalPointsEarned: round2(total.totalPointsEarned),
       categoryBreakdown,
       weeklyTrend: Object.values(groupedTrend),
@@ -240,6 +259,58 @@ router.get('/stats', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to load waste stats' });
+  }
+});
+
+// GET /waste/streak — consecutive-day waste-logging streak (IST calendar days)
+// currentStreak stays alive through today if the last log was yesterday
+// (loggedToday: false lets the UI nudge without breaking the streak).
+router.get('/streak', async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
+    const since = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+
+    const dayRows = await WasteLog.aggregate([
+      { $match: { userId, createdAt: { $gte: since } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Kolkata' } },
+        },
+      },
+      { $sort: { _id: -1 } },
+      { $limit: 365 },
+    ]);
+
+    const daySet = new Set(dayRows.map((row) => row._id));
+    const today = istDay(0);
+
+    let currentStreak = 0;
+    let cursor = null;
+    if (daySet.has(today)) cursor = today;
+    else if (daySet.has(istDay(-1))) cursor = istDay(-1);
+
+    while (cursor && daySet.has(cursor)) {
+      currentStreak += 1;
+      cursor = shiftDay(cursor, -1);
+    }
+
+    let longestStreak = 0;
+    let run = 0;
+    let prev = null;
+    for (const day of dayRows.map((row) => row._id)) {
+      run = prev && shiftDay(prev, -1) === day ? run + 1 : 1;
+      if (run > longestStreak) longestStreak = run;
+      prev = day;
+    }
+
+    res.status(200).json({
+      success: true,
+      currentStreak,
+      longestStreak,
+      loggedToday: daySet.has(today),
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to load streak' });
   }
 });
 

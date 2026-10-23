@@ -34,7 +34,7 @@ export default function LoginPage() {
           <div className="brand-stats">
             <div className="stat-box stat-box--dark">
               <span className="stat-number">1.2k</span>
-              <span className="stat-label">Tons CO₂ Saved</span>
+              <span className="stat-label">Tons Waste Tracked</span>
             </div>
             <div className="stat-box stat-box--chart">
               <div className="mini-chart">

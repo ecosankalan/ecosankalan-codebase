@@ -260,8 +260,8 @@
 }
 .impact-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-/* ── CO2 Highlight Card ───────────────────────────────────────────── */
-.impact-co2-card {
+/* ── Streak Highlight Card ─────────────────────────────────────── */
+.impact-streak-card {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
   border-radius: 1.25rem;
   padding: 1.5rem;
@@ -273,12 +273,12 @@
   gap: 0.75rem;
   box-shadow: 0 8px 24px rgba(42,124,19,0.2);
 }
-.impact-co2-top {
+.impact-streak-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
-.impact-co2-icon-wrap {
+.impact-streak-icon-wrap {
   background: rgba(255,255,255,0.2);
   border-radius: 0.5rem;
   padding: 0.5rem;
@@ -287,7 +287,7 @@
   justify-content: center;
   backdrop-filter: blur(8px);
 }
-.impact-co2-badge {
+.impact-streak-badge {
   display: flex;
   align-items: center;
   gap: 0.3rem;
@@ -298,24 +298,25 @@
   font-size: 0.65rem;
   font-weight: 700;
 }
-.impact-co2-num {
+.impact-streak-badge.idle { opacity: 0.72; }
+.impact-streak-num {
   font-family: var(--font-headline);
   font-size: 2rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   line-height: 1;
 }
-.impact-co2-sub {
+.impact-streak-sub {
   font-family: var(--font-body);
   font-size: 0.82rem;
   color: rgba(255,255,255,0.8);
 }
-.impact-co2-meta {
+.impact-streak-meta {
   display: flex;
   gap: 2rem;
   padding-top: 0.5rem;
 }
-.impact-co2-meta-label {
+.impact-streak-meta-label {
   display: block;
   font-family: var(--font-body);
   font-size: 0.6rem;
@@ -325,12 +326,12 @@
   color: rgba(255,255,255,0.6);
   margin-bottom: 0.15rem;
 }
-.impact-co2-meta-val {
+.impact-streak-meta-val {
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 700;
 }
-.impact-co2-blob {
+.impact-streak-blob {
   position: absolute;
   bottom: -2.5rem; right: -2.5rem;
   width: 8rem; height: 8rem;
@@ -526,5 +527,5 @@
   .impact-score-num    { font-size: 2.4rem; }
   .impact-stats-row    { grid-template-columns: repeat(2, 1fr); }
   .impact-breakdown-grid { grid-template-columns: 1fr; }
-  .impact-co2-num      { font-size: 1.6rem; }
+  .impact-streak-num      { font-size: 1.6rem; }
 }

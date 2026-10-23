@@ -103,7 +103,7 @@ Users can:
 - 📍 Find nearby recycling bins
 - ♻️ Maintain a waste disposal history
 - 🏆 Earn EcoPoints
-- 📊 Track carbon savings
+- 📊 Track daily logging streaks
 - 📅 Participate in cleanup events
 - 🛍 Redeem rewards
 - 📈 Monitor sustainability progress
@@ -150,8 +150,7 @@ Track
 - Waste Type
 - Quantity
 - Disposal Date
-- EcoPoints
-- Carbon Reduction
+- EcoPoints- Log Method (AI Scan / Manual)
 
 ---
 
@@ -193,8 +192,7 @@ Connect with local communities through
 
 Visualize your sustainability journey with
 
-- Recycling Statistics
-- Carbon Saved
+- Recycling Statistics- Daily Streaks
 - Weekly Progress
 - Monthly Trends
 - EcoPoints History
@@ -716,7 +714,7 @@ EcoSankalan encourages environmentally responsible behavior through technology.
 
 Users can:
 
-- Measure Carbon Reduction
+- Measure Waste Impact
 - Track Recycling History
 - Participate in Community Events
 - Earn EcoPoints
@@ -744,7 +742,7 @@ EcoSankalan is continuously evolving. The following features are planned for fut
 - Smart Bin IoT Integration
 - AI Voice Assistant
 - NGO Management Portal
-- Carbon Credit Marketplace
+- Streak Rewards & Milestones
 - Multi-language Support
 - Municipal Dashboard
 - Analytics using Machine Learning

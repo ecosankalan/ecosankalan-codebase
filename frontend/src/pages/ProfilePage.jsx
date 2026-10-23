@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { getWasteStats, getWasteHistory, updateProfile, uploadAvatar, getProfile } from '../services/api';
+import { getWasteHistory, updateProfile, uploadAvatar, getProfile, getWasteStreak } from '../services/api';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
+import StreakLeaf from '../components/common/StreakLeaf';
 import '../styles/profile.css';
 import { useStats } from '../context/StatsContext';
 
@@ -39,6 +40,7 @@ export default function ProfilePage() {
   const totalQuizPoints = Object.values(quizResults).reduce((sum, r) => sum + r.score * 10, 0);
 
   const [totalLogs, setTotalLogs] = useState(0);
+  const [streak, setStreak] = useState(0);
 
   // Modals state
   const [activeModal, setActiveModal] = useState(null);
@@ -58,10 +60,12 @@ export default function ProfilePage() {
   useEffect(() => {
     Promise.allSettled([
       getWasteHistory({ limit: 1 }),
-      getProfile()
-    ]).then(([histRes, profileRes]) => {
+      getProfile(),
+      getWasteStreak()
+    ]).then(([histRes, profileRes, streakRes]) => {
       if (histRes.status === 'fulfilled') setTotalLogs(histRes.value.data.pagination.total);
       if (profileRes.status === 'fulfilled') updateUser(profileRes.value.data);
+      if (streakRes.status === 'fulfilled') setStreak(streakRes.value.data.currentStreak ?? 0);
     });
   }, []);
 
@@ -182,8 +186,9 @@ export default function ProfilePage() {
               <div><p className="profile-stat-label">{t('profilePage.totalLogs')}</p><h3 className="profile-stat-val">{totalLogs.toLocaleString()}</h3></div>
             </div>
             <div className="profile-stat-card green">
-              <span className="material-symbols-outlined profile-stat-icon">eco</span>
-              <div><p className="profile-stat-label muted">{t('profilePage.co2Saved')}</p><h3 className="profile-stat-val">{stats?.totalCo2Saved || 0} kg</h3></div>
+              <StreakLeaf days={streak} size={30} className="profile-stat-leaf"
+                label={t('profilePage.streakLabel')} />
+              <div><p className="profile-stat-label muted">{t('profilePage.streakLabel')}</p><h3 className="profile-stat-val">{streak}</h3></div>
             </div>
             <div className="profile-stat-card white">
               <span className="material-symbols-outlined profile-stat-icon secondary">toll</span>

@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Client, Account } from 'appwrite';
 import { syncUser } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const client = new Client()
   .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
@@ -20,6 +21,7 @@ const account = new Account(client);
 export default function OAuthDashboardPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { logout } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,11 +43,7 @@ export default function OAuthDashboardPage() {
   }, [navigate]);
 
   const handleSignOut = async () => {
-    try {
-      await account.deleteSession({ sessionId: 'current' });
-    } catch {
-      // Ignore errors
-    }
+    await logout();
     navigate('/auth', { replace: true });
   };
 

@@ -243,6 +243,10 @@
   margin-bottom: 0.25rem;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
+.hi-stat-leaf {
+  margin-bottom: 0.25rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
 
 .hi-stat-val {
   font-family: var(--font-headline);
@@ -418,7 +422,7 @@
 .bento-fact-btn:hover { opacity: 0.75; text-decoration: underline; }
 .bento-fact-btn .material-symbols-outlined { font-size: 0.875rem !important; }
 
-/* Small bento cards (Waste Logged + CO2) */
+/* Small bento cards (Waste Logged + Streak) */
 .bento-small {
   background: var(--surface-container-low);
   padding: 1.25rem;
@@ -893,147 +897,6 @@
 .wc-see-all-btn:hover  { background: var(--surface-container); }
 .wc-see-all-btn:active { transform: scale(0.98); }
 .wc-see-all-btn .material-symbols-outlined { font-size: 1.1rem; }
-
-/* ── Daily Check-in Badge (inline, between Navbar and hero-grid) ── */
-
-/* ── Daily check-in: streak-flame card (pure component, no image) ── */
-.streak-wrap {
-  position: fixed;
-  top: max(0.8rem, env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 999;
-  width: min(94vw, 560px);
-  padding: 0 0.5rem;
-  cursor: pointer;
-  animation: streak-in 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
-}
-@keyframes streak-in {
-  from { opacity: 0; transform: translate(-50%, -22px) scale(0.95); }
-  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
-}
-.streak-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 3rem 1rem 1rem;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #1C5410 0%, #2A7C13 60%, #3B9223 100%);
-  border: 1px solid rgba(118, 196, 87, 0.5);
-  box-shadow: 0 18px 50px rgba(28, 84, 16, 0.45), 0 0 32px rgba(118, 196, 87, 0.25);
-  overflow: hidden;
-  cursor: default;
-  color: #FFF8CF;
-}
-.streak-ember {
-  position: absolute;
-  bottom: -6px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #FFE9A8 0%, #76C457 55%, transparent 70%);
-  opacity: 0.85;
-  animation: streak-rise 2.6s ease-in infinite;
-  pointer-events: none;
-}
-.streak-ember--1 { left: 12%; width: 12px; height: 12px; animation-delay: 0s; }
-.streak-ember--2 { left: 26%; width: 8px; height: 8px; animation-delay: -0.9s; }
-.streak-ember--3 { left: 6%; width: 10px; height: 10px; animation-delay: -1.7s; }
-@keyframes streak-rise {
-  0% { transform: translateY(0) scale(1); opacity: 0; }
-  25% { opacity: 0.9; }
-  100% { transform: translateY(-70px) scale(0.3); opacity: 0; }
-}
-.streak-flame {
-  position: relative;
-  flex: 0 0 auto;
-  width: 76px;
-  height: 76px;
-  border-radius: 26px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(160deg, #76C457 0%, #2A7C13 100%);
-  box-shadow: 0 0 0 3px rgba(255, 248, 207, 0.25), 0 0 26px rgba(118, 196, 87, 0.8);
-  animation: streak-flick 1.8s ease-in-out infinite;
-}
-.streak-flame .material-symbols-outlined {
-  font-size: 2.4rem;
-  color: #FFF8CF;
-  font-variation-settings: 'FILL' 1;
-  filter: drop-shadow(0 0 8px rgba(255, 233, 168, 0.9));
-}
-@keyframes streak-flick {
-  0%, 100% { transform: scale(1) rotate(-2deg); }
-  30% { transform: scale(1.07) rotate(2deg); }
-  60% { transform: scale(0.97) rotate(-1deg); }
-}
-.streak-body { flex: 1; min-width: 0; }
-.streak-eyebrow {
-  margin: 0 0 2px;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #76C457;
-}
-.streak-hello {
-  margin: 0 0 4px;
-  font-family: var(--font-headline);
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: #fff;
-}
-.streak-sub {
-  margin: 0 0 8px;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  color: rgba(255, 248, 207, 0.85);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.streak-points {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 13px;
-  border-radius: 999px;
-  background: rgba(255, 248, 207, 0.16);
-  border: 1px solid rgba(255, 248, 207, 0.4);
-  color: #FFF8CF;
-  font-size: 0.76rem;
-  font-weight: 800;
-}
-.streak-points .material-symbols-outlined { font-size: 0.95rem; }
-.streak-close {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 0;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-.streak-close .material-symbols-outlined { font-size: 17px; }
-
-@media (max-width: 480px) {
-  .streak-card { gap: 0.8rem; padding: 0.9rem 2.75rem 0.9rem 0.9rem; border-radius: 20px; }
-  .streak-flame { width: 62px; height: 62px; border-radius: 20px; }
-  .streak-flame .material-symbols-outlined { font-size: 2rem; }
-  .streak-hello { font-size: 0.95rem; }
-  .streak-sub { font-size: 0.74rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .streak-wrap, .streak-flame, .streak-ember { animation: none !important; }
-}
 
 /* Tap-to-impact affordance under hero stats */
 .hi-impact-link {

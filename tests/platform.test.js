@@ -13,7 +13,7 @@ jest.mock('../src/models/User', () => ({
 }));
 jest.mock('../src/models/WasteLog', () => ({
   aggregate: jest.fn().mockResolvedValue([
-    { _id: null, wasteKg: 1234.56, co2SavedKg: 987.65, logs: 321 },
+    { _id: null, wasteKg: 1234.56, logs: 321 },
   ]),
 }));
 
@@ -30,7 +30,7 @@ beforeEach(() => {
     { _id: null, totalPoints: 4520 },
   ]);
   require('../src/models/WasteLog').aggregate.mockResolvedValue([
-    { _id: null, wasteKg: 1234.56, co2SavedKg: 987.65, logs: 321 },
+    { _id: null, wasteKg: 1234.56, logs: 321 },
   ]);
 });
 
@@ -47,7 +47,7 @@ describe('GET /api/v1/platform/stats (public)', () => {
       totalPoints: 4520,
     });
     expect(res.body.stats.wasteKg).toBeCloseTo(1234.6, 1);
-    expect(res.body.stats.co2SavedKg).toBeCloseTo(987.7, 1);
+    expect(res.body.stats.co2SavedKg).toBeUndefined();
   });
 
   it('serves the second call from cache', async () => {

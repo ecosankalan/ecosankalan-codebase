@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
+import StreakLeaf from '../components/common/StreakLeaf';
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import TutorialOverlay from '../components/common/TutorialOverlay';
-import { getWasteStats, getActiveChallenges, getUpcomingEvents, getProfile, getWasteHistory } from '../services/api';
+import { getActiveChallenges, getUpcomingEvents, getProfile, getWasteStreak } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useStats } from '../context/StatsContext';
-import useFCM from '../hooks/useFCM';
 import '../styles/dashboard.css';
 
 const WASTE_FACT_KEYS = ['fact1', 'fact2', 'fact3', 'fact4', 'fact5'];
@@ -19,7 +19,6 @@ const computeEcoScore = (stats) => {
   if (!stats) return 0;
   const score = Math.min(100, Math.round(
     (stats.totalKg || 0) * 2 +
-    (stats.totalCo2Saved || 0) * 1.5 +
     (stats.totalPointsEarned || 0) * 0.1
   ));
   return Math.max(10, score);
@@ -30,7 +29,6 @@ export default function DashboardPage() {
   const { t, i18n } = useTranslation();
   const locale = i18n.language === 'hi' ? 'hi-IN' : 'en-IN';
   const { user, updateUser } = useAuth();
-  useFCM(user); // Initialize FCM when the user is available
 
   const [factIndex,   setFactIndex]   = useState(0);
   const [loading,     setLoading]     = useState(true);
@@ -53,26 +51,15 @@ export default function DashboardPage() {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Daily waste-logging streak (shared with the Impact page cache)
+  const { data: streakData } = useQuery({
+    queryKey: ['wasteStreak'],
+    queryFn: async () => (await getWasteStreak()).data,
+    staleTime: 60 * 1000,
+  });
+
   const [events,     setEvents]     = useState([]);     // upcoming events
   const [profile,    setProfile]    = useState(null);   // user profile
-
-  // Daily Check-in Badge — shows ONCE per day via localStorage.
-  // KEY VERSIONED (v2) to force-reset for ALL users, so everyone sees
-  // the redesigned streak-flame card once regardless of prior state.
-  const BADGE_KEY = 'daily_badge_shown_date_v2';
-  const [showBadge, setShowBadge] = useState(() => {
-    try {
-      const today = new Date().toDateString();
-      const lastShown = localStorage.getItem(BADGE_KEY);
-      if (lastShown !== today) {
-        localStorage.setItem(BADGE_KEY, today);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  });
 
   useEffect(() => {
     const loadAll = async () => {
@@ -95,21 +82,6 @@ export default function DashboardPage() {
     };
     loadAll();
   }, []);
-
-  // Auto-dismiss badge after 35s
-  useEffect(() => {
-    if (!showBadge) return;
-    const t = setTimeout(() => {
-      localStorage.setItem(BADGE_KEY, new Date().toDateString());
-      setShowBadge(false);
-    }, 35000);
-    return () => clearTimeout(t);
-  }, [showBadge]);
-
-  const handleCloseBadge = () => {
-    sessionStorage.setItem('badge_shown', '1');
-    setShowBadge(false);
-  };
 
   // Auto-rotate facts every 6 seconds
   useEffect(() => {
@@ -146,7 +118,8 @@ export default function DashboardPage() {
   const ecoScore   = computeEcoScore(stats);
   const ecoPoints  = profile?.ecoPoints  ?? stats?.totalPointsEarned ?? 0;
   const wasteKg    = stats?.totalKg      ?? 0;
-  const co2Saved   = stats?.totalCo2Saved ?? 0;
+  const currentStreak = streakData?.currentStreak ?? 0;
+  const loggedToday   = streakData?.loggedToday ?? false;
   const userName   = profile?.name?.split(' ')[0] || 'Eco Warrior';
 
   // Use active challenges for the carousel
@@ -203,32 +176,6 @@ export default function DashboardPage() {
       ) : (
         <main className="dashboard-main">
 
-          {/* ── Daily Check-in Badge (streak flame card) */}
-          {showBadge && (
-            <div className="streak-wrap" onClick={handleCloseBadge}>
-              <div className="streak-card" onClick={e => e.stopPropagation()} role="status">
-                <span className="streak-ember streak-ember--1" aria-hidden="true" />
-                <span className="streak-ember streak-ember--2" aria-hidden="true" />
-                <span className="streak-ember streak-ember--3" aria-hidden="true" />
-                <div className="streak-flame" aria-hidden="true">
-                  <span className="material-symbols-outlined">local_fire_department</span>
-                </div>
-                <div className="streak-body">
-                  <p className="streak-eyebrow">{t('dashboard.badgeTitle')}</p>
-                  <h4 className="streak-hello">{t('dashboard.badgeWelcome', { name: userName })}</h4>
-                  <p className="streak-sub">{t('dashboard.badgeText')}</p>
-                  <span className="streak-points">
-                    <span className="material-symbols-outlined" aria-hidden="true">stars</span>
-                    {t('dashboard.badgePoints')}
-                  </span>
-                </div>
-                <button className="streak-close" onClick={handleCloseBadge} aria-label={t('dashboard.dismissBadge')}>
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* ── Immersive Nature Hero ── */}
           <section className="hero-immersive">
             <div className="hero-immersive-bg">
@@ -241,8 +188,10 @@ export default function DashboardPage() {
                   <div className="hi-greeting">{t('dashboard.welcomeBack')}</div>
                   <h1 className="hi-title">{userName}</h1>
                   <p className="hi-subtitle">
-                    {co2Saved > 0
-                      ? t('dashboard.heroSubSaved', { kg: co2Saved.toFixed(1) })
+                    {currentStreak > 0
+                      ? (loggedToday
+                          ? t('dashboard.heroSubStreak', { n: currentStreak })
+                          : t('dashboard.heroSubStreakRisk', { n: currentStreak }))
                       : t('dashboard.heroSubStart')}
                   </p>
                   <span className="hi-level-badge">{t('dashboard.level', { n: Math.floor(ecoScore / 20) + 1 })}</span>
@@ -263,9 +212,10 @@ export default function DashboardPage() {
                   <span className="hi-stat-lbl">{t('dashboard.points')}</span>
                 </div>
                 <div className="hi-stat-card">
-                  <span className="material-symbols-outlined hi-stat-icon" style={{ fontVariationSettings: "'FILL' 1" }}>cloud_done</span>
-                  <span className="hi-stat-val">{co2Saved.toFixed(1)} kg</span>
-                  <span className="hi-stat-lbl">{t('dashboard.co2Saved')}</span>
+                  <StreakLeaf days={currentStreak} size={34} className="hi-stat-leaf"
+                    label={t('dashboard.streakLabel')} />
+                  <span className="hi-stat-val">{currentStreak}</span>
+                  <span className="hi-stat-lbl">{t('dashboard.streakLabel')}</span>
                 </div>
                 <div className="hi-stat-card">
                   <span className="material-symbols-outlined hi-stat-icon" style={{ fontVariationSettings: "'FILL' 1" }}>delete_sweep</span>

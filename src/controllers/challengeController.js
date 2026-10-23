@@ -1,5 +1,7 @@
 const Challenge = require('../models/Challenge.js');
 const ChallengeProgress = require('../models/ChallengeProgress.js');
+const User = require('../models/User.js');
+const WasteLog = require('../models/WasteLog.js');
 const getCloudinary = require('../config/cloudinary');
 const { computePointsAwarded, DAY_MS } = require('../services/challengeScoring.js');
 const NotificationService = require('../services/notificationService.js');
@@ -192,6 +194,7 @@ exports.createChallenge = async (req, res) => {
         action: taskTemplate.action || 'daily_task',
         category: taskTemplate.category || null,
         imageRequired: taskTemplate.imageRequired !== false,
+        autoTrackWasteLog: taskTemplate.autoTrackWasteLog === true,
         targetCount: Number(taskTemplate.targetCount) || 1,
         pointsConfig: {
           maxPoints,
@@ -242,6 +245,7 @@ exports.updateChallenge = async (req, res) => {
         action: tt.action || 'daily_task',
         category: tt.category || null,
         imageRequired: tt.imageRequired !== false,
+        autoTrackWasteLog: tt.autoTrackWasteLog === true,
         targetCount: Number(tt.targetCount) || 1,
         pointsConfig: {
           maxPoints: Number(tt.pointsConfig?.maxPoints ?? 100),
@@ -348,7 +352,18 @@ exports.joinChallenge = async (req, res) => {
       dailySubmissions: [],
     });
 
-    res.status(201).json({ success: true, progress });
+    // Back-fill: if the user already logged waste today, today's auto-tracked
+    // slot is satisfied regardless of join order.
+    let autoTracked = [];
+    try {
+      autoTracked = await exports.autoTrackWasteLogForUser(req.user.userId, {
+        challengeId: challenge._id,
+      });
+    } catch (trackErr) {
+      console.log('Auto-track failed (join):', trackErr?.message);
+    }
+
+    res.status(201).json({ success: true, progress, autoTracked });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to join challenge' });
   }
@@ -587,6 +602,14 @@ exports.submitTask = async (req, res) => {
       });
     }
 
+    // Challenge points flow into the eco-points wallet — the atomic dayIndex
+    // guard above already ensures this credit happens exactly once per day.
+    if (pointsAwarded > 0) {
+      await User.findByIdAndUpdate(req.user.userId, {
+        $inc: { ecoPoints: pointsAwarded, totalPointsEarned: pointsAwarded },
+      });
+    }
+
     recomputeTotals(updated, totalDays);
     await updated.save();
 
@@ -606,6 +629,96 @@ exports.submitTask = async (req, res) => {
     console.log('submitTask error:', err);
     res.status(500).json({ success: false, message: 'Failed to submit task' });
   }
+};
+
+// Auto-track: a user's first waste log of the day (or a join later the same
+// day) satisfies today's task for challenges with taskTemplate.autoTrackWasteLog.
+// Mirrors submitTask's atomic dayIndex guard, but never requires an image.
+// Never throws — callers use it fire-and-forget around their own responses.
+exports.autoTrackWasteLogForUser = async (userId, { challengeId = null } = {}) => {
+  const tracked = [];
+  try {
+    const now = nowUTC();
+    const loggedToday = await WasteLog.exists({
+      userId,
+      createdAt: { $gte: snapToDayStart(now) },
+    });
+    if (!loggedToday) return tracked;
+
+    const progressFilter = { userId };
+    if (challengeId) progressFilter.challengeId = challengeId;
+    const progresses = await ChallengeProgress.find(progressFilter);
+    if (!progresses || progresses.length === 0) return tracked;
+
+    const challenges = await Challenge.find({
+      _id: { $in: progresses.map((p) => p.challengeId) },
+      isActive: true,
+      'taskTemplate.autoTrackWasteLog': true,
+    });
+    if (!challenges || challenges.length === 0) return tracked;
+
+    for (const challenge of challenges) {
+      try {
+        if (challenge.taskTemplate?.autoTrackWasteLog !== true) continue;
+        const dayIndex = dayIndexForNow(challenge, now);
+        if (dayIndex < 0) continue;
+        const unlockAt = unlockAtFor(challenge, dayIndex);
+        const expiresAt = expiresAtFor(challenge, dayIndex);
+        if (now < unlockAt || now >= expiresAt) continue;
+
+        const pointsConfig = challenge.taskTemplate?.pointsConfig || {};
+        const pointsAwarded = computePointsAwarded({
+          maxPoints: pointsConfig.maxPoints ?? 100,
+          minPoints: pointsConfig.minPoints ?? 10,
+          unlockAt,
+          submittedAt: now,
+        });
+
+        const updated = await ChallengeProgress.findOneAndUpdate(
+          {
+            userId,
+            challengeId: challenge._id,
+            'dailySubmissions.dayIndex': { $ne: dayIndex },
+          },
+          {
+            $push: {
+              dailySubmissions: {
+                dayIndex,
+                submittedAt: now,
+                imageUrl: null,
+                imagePublicId: null,
+                remarks: 'Auto-tracked from waste log',
+                pointsAwarded,
+              },
+            },
+          },
+          { new: true }
+        );
+        if (!updated) continue;
+
+        if (pointsAwarded > 0) {
+          await User.findByIdAndUpdate(userId, {
+            $inc: { ecoPoints: pointsAwarded, totalPointsEarned: pointsAwarded },
+          });
+        }
+
+        recomputeTotals(updated, durationDaysOf(challenge));
+        await updated.save();
+
+        tracked.push({
+          challengeId: challenge._id,
+          title: challenge.title,
+          dayIndex,
+          pointsAwarded,
+        });
+      } catch (oneErr) {
+        console.log('autoTrack failed for challenge:', challenge?._id, oneErr?.message);
+      }
+    }
+  } catch (err) {
+    console.log('autoTrackWasteLogForUser error:', err?.message);
+  }
+  return tracked;
 };
 
 exports.getLeaderboard = async (req, res) => {

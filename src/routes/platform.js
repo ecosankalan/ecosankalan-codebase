@@ -32,20 +32,18 @@ router.get('/stats', async (req, res) => {
           $group: {
             _id: null,
             wasteKg: { $sum: '$quantity' },
-            co2SavedKg: { $sum: '$co2Saved' },
             logs: { $sum: 1 },
           },
         },
       ]),
     ]);
 
-    const waste = wasteAgg[0] || { wasteKg: 0, co2SavedKg: 0, logs: 0 };
+    const waste = wasteAgg[0] || { wasteKg: 0, logs: 0 };
     const data = {
       binsMapped,
       ecoWarriors,
       totalPoints: pointsAgg[0]?.totalPoints || 0,
       wasteKg: Math.round((waste.wasteKg || 0) * 10) / 10,
-      co2SavedKg: Math.round((waste.co2SavedKg || 0) * 10) / 10,
       wasteLogs: waste.logs || 0,
     };
 

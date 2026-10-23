@@ -1,4 +1,5 @@
 const { messaging } = require("../config/firebase.js");
+const User = require("../models/User");
 
 const INVALID_TOKEN_ERRORS = [
   "messaging/registration-token-not-registered",
@@ -66,6 +67,15 @@ const sendToTopic = async ({ topic, title, body, data = {} }) => {
   return response;
 };
 
+const pruneInvalidTokens = async (invalidTokens = []) => {
+  if (!invalidTokens.length) return;
+
+  await User.updateMany(
+    { "fcmTokens.token": { $in: invalidTokens } },
+    { $pull: { fcmTokens: { token: { $in: invalidTokens } } } }
+  );
+};
+
 const subscribeToTopic = async ({ tokens, topic }) => {
   const response = await messaging.subscribeToTopic(tokens, topic);
   return response;
@@ -82,4 +92,5 @@ module.exports = {
   sendToTopic,
   subscribeToTopic,
   unsubscribeFromTopic,
+  pruneInvalidTokens,
 };

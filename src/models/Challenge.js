@@ -35,6 +35,7 @@ const taskTemplateSchema = new mongoose.Schema(
     action: { type: String, trim: true, default: 'daily_task' },
     category: { type: String, trim: true, default: null },
     imageRequired: { type: Boolean, default: true },
+    autoTrackWasteLog: { type: Boolean, default: false },
     targetCount: { type: Number, default: 1, min: 1 },
     pointsConfig: { type: pointsConfigSchema, default: () => ({}) },
   },

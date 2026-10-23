@@ -1,6 +1,9 @@
 const User = require("../models/User");
 const Notification = require("../models/Notification");
-const { sendMulticastNotification } = require("../services/notification");
+const {
+  sendMulticastNotification,
+  pruneInvalidTokens,
+} = require("../services/notification");
 
 exports.saveFCMToken = async (req, res) => {
   try {
@@ -10,6 +13,9 @@ exports.saveFCMToken = async (req, res) => {
     }
 
     const user = await User.findById(req.user.userId).select("+fcmTokens");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     // One token per user: replace the existing token (if any) with the current one.
     user.fcmTokens = [
@@ -64,11 +70,7 @@ exports.sendToUser = async (req, res) => {
   
     const result = await sendMulticastNotification({ tokens, title, body, data });
 
-    if (result.invalidTokens.length) {
-      await User.findByIdAndUpdate(userId, {
-        $pull: { fcmTokens: { token: { $in: result.invalidTokens } } },
-      });
-    }
+    await pruneInvalidTokens(result.invalidTokens);
 
     res.json({ success: true, result });
   } catch (err) {
@@ -93,12 +95,7 @@ exports.broadcast = async (req, res) => {
 
     const result = await sendMulticastNotification({ tokens: allTokens, title, body, data });
 
-    if (result.invalidTokens.length) {
-      await User.updateMany(
-        { "fcmTokens.token": { $in: result.invalidTokens } },
-        { $pull: { fcmTokens: { token: { $in: result.invalidTokens } } } }
-      );
-    }
+    await pruneInvalidTokens(result.invalidTokens);
 
     const saved = await Notification.create({
       title,

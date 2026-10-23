@@ -42,6 +42,7 @@ export default function AdminDashboardPage() {
     action: '',
     category: '',
     imageRequired: true,
+    autoTrackWasteLog: false,
     targetCount: 1,
     pointsConfig: { maxPoints: 100, minPoints: 10 },
   });
@@ -185,6 +186,7 @@ export default function AdminDashboardPage() {
           action: taskTemplate.action || 'daily_task',
           category: taskTemplate.category || null,
           imageRequired: !!taskTemplate.imageRequired,
+          autoTrackWasteLog: !!taskTemplate.autoTrackWasteLog,
           targetCount: Number(taskTemplate.targetCount) || 1,
           pointsConfig: {
             maxPoints: Number(taskTemplate.pointsConfig.maxPoints) || 0,
@@ -199,6 +201,7 @@ export default function AdminDashboardPage() {
         action: '',
         category: '',
         imageRequired: true,
+        autoTrackWasteLog: false,
         targetCount: 1,
         pointsConfig: { maxPoints: 100, minPoints: 10 },
       });
@@ -222,6 +225,7 @@ export default function AdminDashboardPage() {
       action: taskTemplate.action || 'daily_task',
       category: taskTemplate.category || null,
       imageRequired: !!taskTemplate.imageRequired,
+      autoTrackWasteLog: !!taskTemplate.autoTrackWasteLog,
       targetCount: Number(taskTemplate.targetCount) || 1,
       pointsConfig: {
         maxPoints: Number(taskTemplate.pointsConfig.maxPoints) || 0,
@@ -509,10 +513,14 @@ export default function AdminDashboardPage() {
                   <input placeholder={t('admin.actionPh')} value={taskTemplate.action} onChange={(e) => updateTaskTemplate('action', e.target.value)} style={{ ...inputStyle, marginBottom: '1rem' }} />
                   <input placeholder={t('admin.categoryPh')} value={taskTemplate.category} onChange={(e) => updateTaskTemplate('category', e.target.value)} style={{ ...inputStyle, marginBottom: '1rem' }} />
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--on-surface-variant)' }}>
                     <input type="checkbox" checked={taskTemplate.imageRequired} onChange={(e) => updateTaskTemplate('imageRequired', e.target.checked)} />
                     {t('admin.imgProof')}                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--on-surface-variant)' }}>
+                    <input type="checkbox" checked={taskTemplate.autoTrackWasteLog} onChange={(e) => updateTaskTemplate('autoTrackWasteLog', e.target.checked)} />
+                    {t('admin.autoTrackWaste')}
+                  </label>
                   <input
                     type="number"
                     placeholder={t('admin.targetPh')}
@@ -557,7 +565,7 @@ export default function AdminDashboardPage() {
                     {editingChallenge ? t('admin.updateChallenge') : t('admin.createChallenge')}
                   </button>
                   {editingChallenge && (
-                    <button type="button" onClick={() => { setEditingChallenge(null); setTaskTemplate({ description: '', action: '', category: '', imageRequired: true, targetCount: 1, pointsConfig: { maxPoints: 100, minPoints: 10 } }); }} style={{ padding: '0.75rem', background: 'var(--surface-variant)', color: 'var(--on-surface-variant)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+                    <button type="button" onClick={() => { setEditingChallenge(null); setTaskTemplate({ description: '', action: '', category: '', imageRequired: true, autoTrackWasteLog: false, targetCount: 1, pointsConfig: { maxPoints: 100, minPoints: 10 } }); }} style={{ padding: '0.75rem', background: 'var(--surface-variant)', color: 'var(--on-surface-variant)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
                       {t('admin.cancelBtn')}
                     </button>
                   )}
@@ -598,6 +606,7 @@ export default function AdminDashboardPage() {
                             action: ch.taskTemplate.action || '',
                             category: ch.taskTemplate.category || '',
                             imageRequired: ch.taskTemplate.imageRequired !== false,
+                            autoTrackWasteLog: ch.taskTemplate.autoTrackWasteLog === true,
                             targetCount: ch.taskTemplate.targetCount || 1,
                             pointsConfig: {
                               maxPoints: ch.taskTemplate.pointsConfig?.maxPoints ?? 100,
@@ -665,7 +674,7 @@ export default function AdminDashboardPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontWeight: 600, fontSize: '0.85rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.name || t('admin.anonymous')}</p>
                         <p style={{ fontSize: '0.7rem', color: 'var(--outline)', margin: 0 }}>
-                          {t('admin.userMeta', { waste: u.totalWasteLogged?.toFixed(1) || 0, co2: u.totalCo2Saved?.toFixed(1) || 0 })}
+                          {t('admin.userMeta', { waste: u.totalWasteLogged?.toFixed(1) || 0 })}
                         </p>
                       </div>
                       <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--primary)', whiteSpace: 'nowrap' }}>

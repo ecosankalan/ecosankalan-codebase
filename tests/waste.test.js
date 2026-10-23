@@ -76,8 +76,7 @@ describe('Waste Logging Routes', () => {
         _id: 'log123',
         category: 'plastic',
         quantity: 2,
-        pointsEarned: 10,
-        co2Saved: 5.0
+        pointsEarned: 10
       });
 
       User.findByIdAndUpdate.mockResolvedValue({});
@@ -93,6 +92,7 @@ describe('Waste Logging Routes', () => {
       expect(res.statusCode).toBe(201);
       expect(res.body.success).toBe(true);
       expect(res.body.pointsEarned).toBe(10);
+      expect(res.body.co2Saved).toBeUndefined();
       expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
         userId,
         expect.objectContaining({

@@ -19,7 +19,7 @@ const DEFAULT_EVENT = {
   img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAlFAjqzzjPf8Laz0o9HntXHV2ygQelpR8-dqZ0QFuuWRLMEEFX1dnnww_AFuLoBHKeZ_j2tbDUxAWnqQ3OjdiZUrlFebZCeCDTylvbh_6ueH7SSxLl02eXtkNdcpQ7Zh3D4_qzLEVGN-GM94FdHIbp8_bQlrQZMAFc3x6MZCGCfNGt1G0BgcE7MIXIIVvgd_Vi7K43pXlPHgxHRvXtYZcZvWeCqu_VUhO8TPnUg4rJJQwwLdywhsOHjxEYDNzHjMKOBQI9p8EYWNmx',
   about: [
     "Join our hands-on workshop to learn the art of urban composting. Transform your kitchen scraps into nutrient-rich soil right in your apartment or small balcony. We'll cover everything from choosing the right bin to balancing your greens and browns.",
-    "Perfect for beginners and eco-enthusiasts looking to reduce their carbon footprint while nurturing their indoor plants or small garden.",
+    "Perfect for beginners and eco-enthusiasts looking to live more sustainably while nurturing their indoor plants or small garden.",
   ],
   organizer: { name: 'EcoAction', type: 'Community NGO' },
   avatars: [

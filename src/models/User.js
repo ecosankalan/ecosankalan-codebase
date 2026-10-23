@@ -74,7 +74,6 @@ const userSchema = new mongoose.Schema(
 
     // Points / stats (used across months)
     ecoPoints: { type: Number, default: 0, min: 0 },
-    totalCo2Saved: { type: Number, default: 0, min: 0 },
     totalWasteLogged: { type: Number, default: 0, min: 0 },
     totalPointsEarned: { type: Number, default: 0, min: 0 },
 

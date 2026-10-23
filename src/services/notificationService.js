@@ -2,6 +2,7 @@ const User = require("../models/User");
 
 const {
   sendMulticastNotification,
+  pruneInvalidTokens,
 } = require("./notification.js");
 
 class NotificationService {
@@ -9,16 +10,21 @@ class NotificationService {
   static async challengeCreated(challenge) {
 
     const tokens = await this.getAllTokens();
-    
-    return sendMulticastNotification({
+
+    const result = await sendMulticastNotification({
       tokens,
       title: "New Challenge is live🔥",
       body: `${challenge.title} is now live!`,
       data: {
         type: "challenge",
         challengeId: challenge._id.toString(),
+        url: `/challenge/${challenge._id}`,
       },
     });
+
+    await pruneInvalidTokens(result?.invalidTokens);
+
+    return result;
 
   }
 
@@ -33,6 +39,7 @@ class NotificationService {
       data: {
         type: "quiz",
         quizId: quiz._id.toString(),
+        url: `/quiz/${quiz._id}`,
       },
     });
 

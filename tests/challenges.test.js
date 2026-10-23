@@ -51,6 +51,19 @@ const app = require('../src/app');
 const Challenge = require('../src/models/Challenge');
 const ChallengeProgress = require('../src/models/ChallengeProgress');
 const User = require('../src/models/User');
+const WasteLog = require('../src/models/WasteLog');
+const { _helpers } = require('../src/controllers/challengeController');
+
+jest.mock('../src/utils/aiCalculator', () => ({
+  calculateWasteImpact: jest.fn().mockResolvedValue({ pointsEarned: 10 }),
+}));
+jest.mock('../src/models/WasteLog', () => ({
+  create: jest.fn(),
+  exists: jest.fn(),
+  find: jest.fn(),
+  aggregate: jest.fn(),
+  countDocuments: jest.fn(),
+}));
 
 const MAX_DURATION_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -137,6 +150,20 @@ const baseChallenge = (overrides = {}) => {
 const futureStart = () => new Date(Date.now() + 60_000);
 const futureEnd = () => new Date(Date.now() + 3 * DAY_MS + 60_000);
 
+const autoTrackChallenge = (overrides = {}) =>
+  baseChallenge({
+    taskTemplate: {
+      description: 'Log your waste daily',
+      action: 'daily_task',
+      category: 'plastic',
+      imageRequired: true,
+      autoTrackWasteLog: true,
+      targetCount: 1,
+      pointsConfig: { maxPoints: 100, minPoints: 10, decayType: 'linear' },
+    },
+    ...overrides,
+  });
+
 describe('Challenges API — admin & user', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -216,6 +243,32 @@ describe('Challenges API — admin & user', () => {
       expect(res.statusCode).toBe(201);
       expect(Challenge.create).toHaveBeenCalled();
     });
+
+    test('returns 201 even when the challenge notification fails', async () => {
+      const NotificationService = require('../src/services/notificationService');
+      Challenge.create.mockResolvedValue(baseChallenge());
+      NotificationService.challengeCreated.mockRejectedValueOnce(
+        new Error('firebase down')
+      );
+
+      const res = await request(app)
+        .post('/api/v1/challenges')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          title: 'Reusable Bottle Week',
+          description: '3-day eco challenge',
+          taskTemplate: {
+            description: 'Carry a reusable bottle for the day',
+            pointsConfig: { maxPoints: 120, minPoints: 20 },
+          },
+          startDate: START,
+          expiryDate: END,
+        });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(NotificationService.challengeCreated).toHaveBeenCalled();
+    });
   });
 
   describe('POST /:id/submit', () => {
@@ -271,6 +324,8 @@ describe('Challenges API — admin & user', () => {
         });
 
       expect(res.statusCode).toBe(409);
+      // No wallet credit on a duplicate submission
+      expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
     test('rejects missing image when imageRequired is true', async () => {
@@ -317,6 +372,16 @@ describe('Challenges API — admin & user', () => {
       expect(res.body.progress.imageUrl).toMatch(/cloudinary/);
       expect(res.body.progress.pointsAwarded).toBeGreaterThanOrEqual(10);
       expect(res.body.progress.pointsAwarded).toBeLessThanOrEqual(100);
+      // Challenge points must flow into the eco-points wallet
+      expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          $inc: expect.objectContaining({
+            ecoPoints: res.body.progress.pointsAwarded,
+            totalPointsEarned: res.body.progress.pointsAwarded,
+          }),
+        })
+      );
     });
   });
 
@@ -478,6 +543,234 @@ describe('Challenges API — admin & user', () => {
       expect(res.body[0].durationDays).toBe(3);
       expect(res.body[0].joined).toBe(true);
       expect(res.body[0].userProgress.totalPoints).toBe(50);
+    });
+  });
+
+  describe('Challenge auto-track — admin flag', () => {
+    test('create stores taskTemplate.autoTrackWasteLog: true', async () => {
+      Challenge.create.mockResolvedValue(baseChallenge());
+      const res = await request(app)
+        .post('/api/v1/challenges')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          title: 'Scanner Week',
+          description: 'Daily scanner challenge',
+          taskTemplate: { description: 'Log waste daily', autoTrackWasteLog: true },
+          startDate: START,
+          expiryDate: END,
+        });
+
+      expect(res.statusCode).toBe(201);
+      expect(Challenge.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          taskTemplate: expect.objectContaining({ autoTrackWasteLog: true }),
+        })
+      );
+    });
+
+    test('create defaults autoTrackWasteLog to false', async () => {
+      Challenge.create.mockResolvedValue(baseChallenge());
+      const res = await request(app)
+        .post('/api/v1/challenges')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          title: 'Plain Week',
+          description: 'No auto-track',
+          taskTemplate: { description: 'Log waste daily' },
+          startDate: START,
+          expiryDate: END,
+        });
+
+      expect(res.statusCode).toBe(201);
+      expect(Challenge.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          taskTemplate: expect.objectContaining({ autoTrackWasteLog: false }),
+        })
+      );
+    });
+
+    test('update passes the flag through', async () => {
+      Challenge.findById.mockResolvedValue(baseChallenge());
+      Challenge.findByIdAndUpdate.mockResolvedValue(baseChallenge());
+      const res = await request(app)
+        .put(`/api/v1/challenges/${challengeId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ taskTemplate: { description: 'Log waste daily', autoTrackWasteLog: true } });
+
+      expect(res.statusCode).toBe(200);
+      expect(Challenge.findByIdAndUpdate).toHaveBeenCalledWith(
+        challengeId,
+        {
+          $set: expect.objectContaining({
+            taskTemplate: expect.objectContaining({ autoTrackWasteLog: true }),
+          }),
+        },
+        expect.anything()
+      );
+    });
+  });
+
+  describe('Waste log auto-track', () => {
+    const logPayload = { category: 'plastic', quantity: 2 };
+
+    test('first log of the day submits today\'s slot and credits the wallet', async () => {
+      const ch = autoTrackChallenge();
+      WasteLog.create.mockResolvedValue({ _id: 'log1', category: 'plastic', quantity: 2, pointsEarned: 10 });
+      WasteLog.exists.mockResolvedValue({ _id: 'log1' });
+      ChallengeProgress.find.mockResolvedValue([{ userId, challengeId }]);
+      Challenge.find.mockResolvedValue([ch]);
+      ChallengeProgress.findOneAndUpdate.mockResolvedValue({
+        userId, challengeId, dailySubmissions: [],
+        totalPoints: 90, allCompleted: false,
+        save: jest.fn().mockResolvedValue(true),
+      });
+
+      const res = await request(app)
+        .post('/api/v1/waste/log')
+        .set('Authorization', `Bearer ${token}`)
+        .send(logPayload);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.autoTracked).toHaveLength(1);
+      const [entry] = res.body.autoTracked;
+      const expectedDay = _helpers.dayIndexForNow(ch);
+      expect(entry.dayIndex).toBe(expectedDay);
+      expect(entry.title).toBe(ch.title);
+      expect(entry.pointsAwarded).toBeGreaterThanOrEqual(10);
+      expect(entry.pointsAwarded).toBeLessThanOrEqual(100);
+
+      // Atomic guard pushed an imageless auto submission
+      expect(ChallengeProgress.findOneAndUpdate).toHaveBeenCalledWith(
+        { userId, challengeId, 'dailySubmissions.dayIndex': { $ne: expectedDay } },
+        expect.objectContaining({
+          $push: {
+            dailySubmissions: expect.objectContaining({
+              dayIndex: expectedDay,
+              imageUrl: null,
+              remarks: 'Auto-tracked from waste log',
+            }),
+          },
+        }),
+        { new: true }
+      );
+
+      // Two credits: the waste log itself, then the challenge award
+      expect(User.findByIdAndUpdate).toHaveBeenCalledTimes(2);
+      expect(User.findByIdAndUpdate).toHaveBeenLastCalledWith(userId, {
+        $inc: { ecoPoints: entry.pointsAwarded, totalPointsEarned: entry.pointsAwarded },
+      });
+    });
+
+    test('second log the same day does not double-submit', async () => {
+      WasteLog.create.mockResolvedValue({ _id: 'log2', category: 'plastic', quantity: 2, pointsEarned: 10 });
+      WasteLog.exists.mockResolvedValue({ _id: 'log2' });
+      ChallengeProgress.find.mockResolvedValue([{ userId, challengeId }]);
+      Challenge.find.mockResolvedValue([autoTrackChallenge()]);
+      ChallengeProgress.findOneAndUpdate.mockResolvedValue(null); // atomic guard lost
+
+      const res = await request(app)
+        .post('/api/v1/waste/log')
+        .set('Authorization', `Bearer ${token}`)
+        .send(logPayload);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.autoTracked).toEqual([]);
+      expect(ChallengeProgress.findOneAndUpdate).toHaveBeenCalled();
+      // Only the waste-log credit — no challenge wallet credit
+      expect(User.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    test('skips when the user has not joined the challenge', async () => {
+      WasteLog.create.mockResolvedValue({ _id: 'log3', category: 'plastic', quantity: 2, pointsEarned: 10 });
+      WasteLog.exists.mockResolvedValue({ _id: 'log3' });
+      ChallengeProgress.find.mockResolvedValue([]);
+
+      const res = await request(app)
+        .post('/api/v1/waste/log')
+        .set('Authorization', `Bearer ${token}`)
+        .send(logPayload);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.autoTracked).toEqual([]);
+      expect(Challenge.find).not.toHaveBeenCalled();
+      expect(ChallengeProgress.findOneAndUpdate).not.toHaveBeenCalled();
+    });
+
+    test('skips when autoTrackWasteLog is off', async () => {
+      WasteLog.create.mockResolvedValue({ _id: 'log4', category: 'plastic', quantity: 2, pointsEarned: 10 });
+      WasteLog.exists.mockResolvedValue({ _id: 'log4' });
+      ChallengeProgress.find.mockResolvedValue([{ userId, challengeId }]);
+      Challenge.find.mockResolvedValue([baseChallenge()]); // flag absent
+
+      const res = await request(app)
+        .post('/api/v1/waste/log')
+        .set('Authorization', `Bearer ${token}`)
+        .send(logPayload);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.autoTracked).toEqual([]);
+      expect(ChallengeProgress.findOneAndUpdate).not.toHaveBeenCalled();
+      expect(User.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    test('waste log still succeeds when auto-track internals fail', async () => {
+      WasteLog.create.mockResolvedValue({ _id: 'log5', category: 'plastic', quantity: 2, pointsEarned: 10 });
+      WasteLog.exists.mockResolvedValue({ _id: 'log5' });
+      ChallengeProgress.find.mockImplementation(() => {
+        throw new Error('boom');
+      });
+
+      const res = await request(app)
+        .post('/api/v1/waste/log')
+        .set('Authorization', `Bearer ${token}`)
+        .send(logPayload);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.autoTracked).toEqual([]);
+    });
+  });
+
+  describe('Join back-fill (same-day log before join)', () => {
+    test('joining after logging today auto-completes today\'s slot', async () => {
+      const ch = autoTrackChallenge();
+      Challenge.findById.mockResolvedValue(ch);
+      ChallengeProgress.findOne.mockResolvedValue(null);
+      ChallengeProgress.create.mockResolvedValue({ userId, challengeId, dailySubmissions: [] });
+      WasteLog.exists.mockResolvedValue({ _id: 'log1' });
+      ChallengeProgress.find.mockResolvedValue([{ userId, challengeId }]);
+      Challenge.find.mockResolvedValue([ch]);
+      ChallengeProgress.findOneAndUpdate.mockResolvedValue({
+        userId, challengeId, dailySubmissions: [],
+        save: jest.fn().mockResolvedValue(true),
+      });
+
+      const res = await request(app)
+        .post(`/api/v1/challenges/${challengeId}/join`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.autoTracked).toHaveLength(1);
+      expect(res.body.autoTracked[0].dayIndex).toBe(_helpers.dayIndexForNow(ch));
+      expect(ChallengeProgress.findOneAndUpdate).toHaveBeenCalled();
+      // Only the challenge award — there is no waste log in this request
+      expect(User.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    test('joining without a log today back-fills nothing', async () => {
+      Challenge.findById.mockResolvedValue(autoTrackChallenge());
+      ChallengeProgress.findOne.mockResolvedValue(null);
+      ChallengeProgress.create.mockResolvedValue({ userId, challengeId, dailySubmissions: [] });
+      WasteLog.exists.mockResolvedValue(false);
+
+      const res = await request(app)
+        .post(`/api/v1/challenges/${challengeId}/join`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.autoTracked).toEqual([]);
+      expect(ChallengeProgress.find).not.toHaveBeenCalled();
+      expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
     });
   });
 });

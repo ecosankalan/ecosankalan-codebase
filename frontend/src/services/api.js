@@ -104,6 +104,8 @@ export const getWasteHistory = (params = {}) =>
 export const getWasteStats = (range = 'week') =>
   api.get('/api/v1/waste/stats', { params: { range } });
 
+export const getWasteStreak = () => api.get('/api/v1/waste/streak');
+
 export const scanWasteImage = (formData, config = {}) =>
   api.post('/api/v1/waste/scan', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },

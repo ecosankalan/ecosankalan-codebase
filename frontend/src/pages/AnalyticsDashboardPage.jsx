@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
+import StreakLeaf from '../components/common/StreakLeaf';
+import { getWasteStreak } from '../services/api';
 import '../styles/analytics.css';
 
 const TIME_FILTERS = ['Today', 'This Week', 'This Month', 'All Time'];
@@ -50,6 +53,14 @@ const ACHIEVEMENT_TILES = [
 export default function AnalyticsDashboardPage() {
   const navigate      = useNavigate();
   const [timeFilter, setTimeFilter] = useState('This Week');
+
+  const { data: streakData } = useQuery({
+    queryKey: ['wasteStreak'],
+    queryFn: async () => (await getWasteStreak()).data,
+    staleTime: 60 * 1000,
+  });
+  const currentStreak = streakData?.currentStreak ?? 0;
+  const longestStreak = streakData?.longestStreak ?? 0;
 
   return (
     <div className="an-root">
@@ -161,31 +172,32 @@ export default function AnalyticsDashboardPage() {
           </div>
         </section>
 
-        {/* ── CO2 Highlight Card ───────────────────────────────── */}
-        <section className="an-co2-card">
-          <div className="an-co2-top">
-            <div className="an-co2-icon-wrap">
-              <span className="material-symbols-outlined"
-                style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
+        {/* ── Streak Highlight Card ───────────────────────────── */}
+        <section className="an-streak-card">
+          <div className="an-streak-top">
+            <div className="an-streak-icon-wrap">
+              <StreakLeaf days={currentStreak} size={54} label="Daily streak" />
             </div>
-            <div className="an-co2-badge">
-              <span className="material-symbols-outlined">trending_up</span>
-              +12.5% vs last month
-            </div>
-          </div>
-          <h3 className="an-co2-num">188 kg CO₂</h3>
-          <p className="an-co2-sub">Saved this month through conscious disposal</p>
-          <div className="an-co2-meta">
-            <div>
-              <span className="an-co2-meta-label">Trees Equivalent</span>
-              <span className="an-co2-meta-val">14 Mature Trees</span>
-            </div>
-            <div>
-              <span className="an-co2-meta-label">Impact Period</span>
-              <span className="an-co2-meta-val">30 Days Activity</span>
+            <div className={`an-streak-badge${currentStreak > 0 ? '' : ' idle'}`}>
+              <span className="material-symbols-outlined">
+                {currentStreak > 0 ? 'trending_up' : 'remove'}
+              </span>
+              {currentStreak > 0 ? 'Streak alive' : 'No streak yet'}
             </div>
           </div>
-          <div className="an-co2-blob" />
+          <h3 className="an-streak-num">{currentStreak} days</h3>
+          <p className="an-streak-sub">Consecutive days of logging waste</p>
+          <div className="an-streak-meta">
+            <div>
+              <span className="an-streak-meta-label">Longest Streak</span>
+              <span className="an-streak-meta-val">{longestStreak} days</span>
+            </div>
+            <div>
+              <span className="an-streak-meta-label">Impact Period</span>
+              <span className="an-streak-meta-val">30 Days Activity</span>
+            </div>
+          </div>
+          <div className="an-streak-blob" />
         </section>
 
         {/* ── Waste Breakdown + Stats ──────────────────────────── */}
@@ -227,7 +239,7 @@ export default function AnalyticsDashboardPage() {
               { icon: 'delete_sweep', label: 'Total Logged',   value: '42.5 kg',  color: 'var(--secondary)' },
               { icon: 'recycling',    label: 'Recycled',       value: '31.2 kg',  color: 'var(--primary)' },
               { icon: 'savings',      label: 'Eco Points',     value: '2,450',    color: 'var(--primary-container)' },
-              { icon: 'emoji_events', label: 'Streak',         value: '14 days',  color: 'var(--tertiary)' },
+              { icon: 'emoji_events', label: 'Streak',         value: `${currentStreak} days`,  color: 'var(--tertiary)' },
             ].map(s => (
               <div className="an-stat-tile" key={s.label}>
                 <span className="material-symbols-outlined an-stat-icon"
@@ -245,7 +257,7 @@ export default function AnalyticsDashboardPage() {
         <section className="an-card">
           <div className="an-card-header">
             <span className="material-symbols-outlined">flag</span>
-            <h3 className="an-card-title">Monthly Goal — 80 kg CO₂</h3>
+            <h3 className="an-card-title">Monthly Goal — 80 kg Waste</h3>
           </div>
           <div className="an-goal-bar-wrap">
             <div className="an-goal-bar">

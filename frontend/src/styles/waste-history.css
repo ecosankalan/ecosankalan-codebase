@@ -231,12 +231,6 @@
   padding: 0.15rem 0.4rem;
   border-radius: 0.25rem;
 }
-.wh-co2-badge {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  color: var(--on-surface-variant);
-  font-weight: 500;
-}
 
 /* ── Empty State ──────────────────────────────────────────────────── */
 .wh-empty {

@@ -258,8 +258,8 @@
   border-radius: 50%;
 }
 
-/* ── CO2 Highlight Card ───────────────────────────────────────────── */
-.an-co2-card {
+/* ── Streak Highlight Card ─────────────────────────────────────── */
+.an-streak-card {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
   border-radius: 1.25rem;
   padding: 1.5rem;
@@ -271,12 +271,12 @@
   gap: 0.75rem;
   box-shadow: 0 8px 24px rgba(42,124,19,0.2);
 }
-.an-co2-top {
+.an-streak-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
-.an-co2-icon-wrap {
+.an-streak-icon-wrap {
   background: rgba(255,255,255,0.2);
   border-radius: 0.5rem;
   padding: 0.5rem;
@@ -285,7 +285,7 @@
   justify-content: center;
   backdrop-filter: blur(8px);
 }
-.an-co2-badge {
+.an-streak-badge {
   display: flex;
   align-items: center;
   gap: 0.3rem;
@@ -296,24 +296,25 @@
   font-size: 0.65rem;
   font-weight: 700;
 }
-.an-co2-num {
+.an-streak-badge.idle { opacity: 0.72; }
+.an-streak-num {
   font-family: var(--font-headline);
   font-size: 2rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   line-height: 1;
 }
-.an-co2-sub {
+.an-streak-sub {
   font-family: var(--font-body);
   font-size: 0.82rem;
   color: rgba(255,255,255,0.8);
 }
-.an-co2-meta {
+.an-streak-meta {
   display: flex;
   gap: 2rem;
   padding-top: 0.5rem;
 }
-.an-co2-meta-label {
+.an-streak-meta-label {
   display: block;
   font-family: var(--font-body);
   font-size: 0.6rem;
@@ -323,12 +324,12 @@
   color: rgba(255,255,255,0.6);
   margin-bottom: 0.15rem;
 }
-.an-co2-meta-val {
+.an-streak-meta-val {
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 700;
 }
-.an-co2-blob {
+.an-streak-blob {
   position: absolute;
   bottom: -2.5rem;
   right: -2.5rem;
@@ -536,5 +537,5 @@
   .an-title           { font-size: 1.9rem; }
   .an-score-num       { font-size: 2.4rem; }
   .an-breakdown-grid  { grid-template-columns: 1fr; }
-  .an-co2-num         { font-size: 1.6rem; }
+  .an-streak-num         { font-size: 1.6rem; }
 }

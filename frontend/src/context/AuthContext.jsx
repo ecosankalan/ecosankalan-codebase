@@ -14,6 +14,7 @@ import { Account } from 'appwrite';
 import appwriteClient from '../lib/appwrite';
 import { syncUser } from '../services/api';
 import { removeFCMToken } from '../services/notificationService';
+import useFCM from '../hooks/useFCM';
 
 const AuthContext = createContext();
 
@@ -93,18 +94,22 @@ export const AuthProvider = ({ children }) => {
     syncWithBackend();
   }, [syncWithBackend]);
 
+  useFCM(appwriteUser ? mongoUser : null);
+
   /**
    * Logout: destroys Appwrite session and clears local state.
    */
   const logout = useCallback(async () => {
+    // Deregister FCM token before the session dies — the API interceptor
+    // mints a fresh JWT per request, so a deleted session would make this
+    // fail and orphan the token in the DB.
     try {
-      // Deregister FCM token before logout
       const fcmToken = localStorage.getItem('fcm_token');
       if (fcmToken) {
-        removeFCMToken(fcmToken).catch(() => {});
+        await removeFCMToken(fcmToken).catch(() => {});
       }
     } catch {
-      // Ignore FCM errors
+      // Ignore FCM errors — logout must always proceed
     }
 
     try {
@@ -115,7 +120,6 @@ export const AuthProvider = ({ children }) => {
 
     // Clear local state
     localStorage.removeItem('fcm_token');
-    localStorage.removeItem('fcm_device_id');
     localStorage.removeItem('user');
     setMongoUser(null);
     await refreshAppwriteUser();

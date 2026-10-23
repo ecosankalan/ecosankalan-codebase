@@ -62,8 +62,8 @@ export default function HeroSection() {
               <dd>{formatCompact(stats?.wasteKg)}<span>kg</span></dd>
             </div>
             <div className="lp-hero-stat">
-              <dt>{t('landing.statCo2')}</dt>
-              <dd>{formatCompact(stats?.co2SavedKg)}<span>kg</span></dd>
+              <dt>{t('landing.statPoints')}</dt>
+              <dd>{formatCompact(stats?.totalPoints)}</dd>
             </div>
           </dl>
         </div>
@@ -97,9 +97,9 @@ export default function HeroSection() {
                 <span>{t('landing.previewPoints')}</span>
               </div>
               <div className="lp-preview-tile">
-                <span className="material-symbols-outlined" aria-hidden="true">cloud_done</span>
-                <strong>{formatCompact(stats?.co2SavedKg)} kg</strong>
-                <span>{t('landing.statCo2')}</span>
+                <span className="material-symbols-outlined" aria-hidden="true">location_on</span>
+                <strong>{formatCompact(stats?.binsMapped)}</strong>
+                <span>{t('landing.statBins')}</span>
               </div>
               <div className="lp-preview-tile">
                 <span className="material-symbols-outlined" aria-hidden="true">delete_sweep</span>

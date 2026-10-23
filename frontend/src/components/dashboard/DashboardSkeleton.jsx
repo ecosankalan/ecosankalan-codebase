@@ -3,7 +3,7 @@ import '../../styles/skeleton.css';
 
 const TIPS = [
   'Fetching your eco score…',
-  'Tallying CO₂ you saved…',
+  'Counting your streak days…',
   'Polishing your streaks…',
 ];
 

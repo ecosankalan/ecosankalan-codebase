@@ -15,13 +15,6 @@
  *   paper    = 4  pts/kg
  *   organic  = 3  pts/kg
  *   other    = 2  pts/kg
- *
- * CO₂ savings constants (Month 3 implementation):
- *   plastic  = 1.5 kg CO₂ per kg recycled
- *   paper    = 0.9 kg CO₂ per kg recycled
- *   metal    = 1.8 kg CO₂ per kg recycled
- *   e-waste  = 2.0 kg CO₂ per kg recycled
- *   organic  = 0.5 kg CO₂ per kg recycled
  */
 
 const mongoose = require('mongoose');
@@ -112,12 +105,6 @@ const wasteLogSchema = new mongoose.Schema(
       required: true,
       // Calculated as: quantity(kg) × pointsPerKg[category]
       // Stored so the history screen shows exact points per entry
-    },
-
-    co2Saved: {
-      type: Number,
-      default: 0,
-      // kg of CO₂ saved — calculated using constants above
     },
 
     // ── Where ────────────────────────────────────────────────────────────────

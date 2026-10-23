@@ -8,7 +8,7 @@ const COMMAND_DEFS = [
   { key: 'dashboard',   icon: 'home',            route: '/dashboard',         keys: 'home dashboard main' },
   { key: 'scan',        icon: 'photo_camera',   route: '/waste',             keys: 'scan camera log ai waste' },
   { key: 'map',         icon: 'map',             route: '/community',        keys: 'map bins nearby community' },
-  { key: 'impact',      icon: 'analytics',       route: '/impact',           keys: 'impact co2 analytics stats' },
+  { key: 'impact',      icon: 'analytics',       route: '/impact',           keys: 'impact analytics stats' },
   { key: 'challenges',  icon: 'emoji_events',   route: '/weekly-challenges', keys: 'challenges missions leaderboard' },
   { key: 'learn',       icon: 'school',          route: '/learn',            keys: 'learn courses quiz school' },
   { key: 'shop',        icon: 'shopping_cart',   route: '/shop',             keys: 'shop products rewards buy' },

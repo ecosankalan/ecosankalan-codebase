@@ -7,7 +7,7 @@ import { getProducts, getProductRedirectUrl } from '../services/api';
 import '../styles/product-detail.css';
 
 const DEFAULT = {
-  name: 'Nordic Bamboo Desktop Organizer', partner: 'IKEA', price: '$34.99', points: 850, co2: '2.5kg CO2',
+  name: 'Nordic Bamboo Desktop Organizer', partner: 'IKEA', price: '$34.99', points: 850,
   about: 'Hand-crafted from 100% FSC-certified bamboo, this desktop organizer combines Scandinavian functionalism with sustainable materials. Designed for the modern professional, it features three tiered compartments for mail, notebooks, and digital accessories.',
   specs: ['Dimensions: 25cm x 15cm x 12cm', 'Water-resistant wax coating'],
   imgs: [
@@ -30,7 +30,6 @@ export default function ProductDetailPage() {
     price: raw.priceINR ? `₹${raw.priceINR}` : DEFAULT.price,
     points: raw.ecoPointsCost || DEFAULT.points,
     category: raw.category,
-    co2: '1.2kg CO2 Saved',
     about: raw.description || DEFAULT.about,
     specs: DEFAULT.specs,
     imgs: (raw.imageUrls && raw.imageUrls.length > 0) ? [raw.imageUrls[0]] : (raw.img ? [raw.img] : DEFAULT.imgs),
@@ -88,10 +87,10 @@ export default function ProductDetailPage() {
         {/* Metrics */}
         <section className="pd-metrics">
           <div className="pd-metric-wide">
-            <div className="pd-metric-avatar"><span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>person_2</span></div>
+            <div className="pd-metric-avatar"><span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>storefront</span></div>
             <div>
-              <p className="pd-metric-label">{t('shop.carbonSaving')}</p>
-              <p className="pd-metric-val">{product.co2}</p>
+              <p className="pd-metric-label">{t('shop.soldBy')}</p>
+              <p className="pd-metric-val">{product.partner}</p>
             </div>
           </div>
           <div className="pd-metric-tile tertiary">

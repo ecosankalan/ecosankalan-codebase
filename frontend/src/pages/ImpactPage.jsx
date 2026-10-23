@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/common/Navbar';
 import BottomNav from '../components/common/BottomNav';
-import { getWasteStats } from '../services/api';
+import StreakLeaf from '../components/common/StreakLeaf';
+import { getWasteStreak } from '../services/api';
 import '../styles/impact.css';
 
 import { useStats } from '../context/StatsContext';
@@ -36,6 +38,13 @@ export default function ImpactPage() {
   
   const { fetchStatsForRange } = useStats();
   const [loading, setLoading] = useState(true);
+
+  // Lifetime streak — independent of the time-filter above.
+  const { data: streakData } = useQuery({
+    queryKey: ['wasteStreak'],
+    queryFn: async () => (await getWasteStreak()).data,
+    staleTime: 60 * 1000,
+  });
 
   useEffect(() => {
     let active = true;
@@ -73,12 +82,14 @@ export default function ImpactPage() {
 
   // Derived metrics
   const totalKg = stats?.totalKg || 0;
-  const totalCo2 = stats?.totalCo2Saved || 0;
   const totalPoints = stats?.totalPointsEarned || 0;
   const bk = stats?.categoryBreakdown || {};
+  const currentStreak = streakData?.currentStreak ?? 0;
+  const longestStreak = streakData?.longestStreak ?? 0;
+  const loggedToday = streakData?.loggedToday ?? false;
 
   // Score
-  const ecoScore = Math.max(10, Math.min(100, Math.round((totalKg * 2) + (totalCo2 * 1.5) + (totalPoints * 0.1))));
+  const ecoScore = Math.max(10, Math.min(100, Math.round((totalKg * 2) + (totalPoints * 0.1))));
 
   // Breakdown array
   const safeTotal = totalKg || 1;
@@ -146,13 +157,18 @@ export default function ImpactPage() {
         <div className="impact-stats-row">
           {[
             { icon: 'delete_sweep', labelKey: 'statLogged',  value: `${totalKg.toLocaleString()} kg`, color: 'var(--secondary)' },
-            { icon: 'cloud_done',   labelKey: 'statCo2',     value: `${totalCo2.toFixed(1)} kg`, color: 'var(--primary)' },
+            { streak: true, labelKey: 'statStreak', value: `${currentStreak} ${t('impact.streakDayUnit')}`, color: 'var(--primary)' },
             { icon: 'savings',      labelKey: 'statPoints',    value: totalPoints.toLocaleString(), color: 'var(--primary-container)' },
             { icon: 'recycling',    labelKey: 'statRecyc',   value: `${((bk.plastic || 0) + (bk.paper || 0) + (bk.metal || 0) + (bk.eWaste || 0)).toFixed(1)} kg`, color: 'var(--tertiary)' },
           ].map(s => (
             <div className="impact-stat-tile" key={s.labelKey}>
-              <span className="material-symbols-outlined impact-stat-icon"
-                style={{ color: s.color, fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
+              {s.streak ? (
+                <StreakLeaf days={currentStreak} size={30} className="impact-stat-leaf"
+                  label={t(`impact.${s.labelKey}`)} />
+              ) : (
+                <span className="material-symbols-outlined impact-stat-icon"
+                  style={{ color: s.color, fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
+              )}
               <span className="impact-stat-val">{s.value}</span>
               <span className="impact-stat-lbl">{t(`impact.${s.labelKey}`)}</span>
             </div>
@@ -224,30 +240,37 @@ export default function ImpactPage() {
           </div>
         </section>
 
-        <section className="impact-co2-card">
-          <div className="impact-co2-top">
-            <div className="impact-co2-icon-wrap">
-              <span className="material-symbols-outlined"
-                style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
+        <section className="impact-streak-card">
+          <div className="impact-streak-top">
+            <div className="impact-streak-icon-wrap">
+              <StreakLeaf days={currentStreak} size={54} label={t('impact.streakTitle')} />
             </div>
-            <div className="impact-co2-badge">
-              <span className="material-symbols-outlined">trending_up</span>
-              {t('impact.keepUp')}
-            </div>
-          </div>
-          <h3 className="impact-co2-num">{totalCo2.toLocaleString()} kg CO₂</h3>
-          <p className="impact-co2-sub">{t('impact.savedThru')}</p>
-          <div className="impact-co2-meta">
-            <div>
-              <span className="impact-co2-meta-label">{t('impact.treesEq')}</span>
-              <span className="impact-co2-meta-val">{Math.round(totalCo2 / 21)} {t('impact.matureTrees')}</span>
-            </div>
-            <div>
-              <span className="impact-co2-meta-label">{t('impact.period')}</span>
-              <span className="impact-co2-meta-val">{t(`impact.${TIME_FILTER_KEYS.find((f) => f.key === timeFilter)?.labelKey || 'fWeek'}`)}</span>
+            <div className={`impact-streak-badge${currentStreak > 0 ? '' : ' idle'}`}>
+              <span className="material-symbols-outlined">
+                {currentStreak > 0 ? (loggedToday ? 'check_circle' : 'schedule') : 'remove'}
+              </span>
+              {currentStreak > 0
+                ? (loggedToday ? t('impact.keepUp') : t('impact.streakAtRisk'))
+                : t('impact.streakNone')}
             </div>
           </div>
-          <div className="impact-co2-blob" />
+          <h3 className="impact-streak-num">
+            {currentStreak} {t('impact.streakDayUnit')}
+          </h3>
+          <p className="impact-streak-sub">
+            {currentStreak > 0 ? t('impact.streakSub') : t('impact.streakSubNone')}
+          </p>
+          <div className="impact-streak-meta">
+            <div>
+              <span className="impact-streak-meta-label">{t('impact.streakLongest')}</span>
+              <span className="impact-streak-meta-val">{longestStreak} {t('impact.streakDayUnit')}</span>
+            </div>
+            <div>
+              <span className="impact-streak-meta-label">{t('impact.period')}</span>
+              <span className="impact-streak-meta-val">{t(`impact.${TIME_FILTER_KEYS.find((f) => f.key === timeFilter)?.labelKey || 'fWeek'}`)}</span>
+            </div>
+          </div>
+          <div className="impact-streak-blob" />
         </section>
 
         <div className="impact-breakdown-grid">
@@ -282,38 +305,25 @@ export default function ImpactPage() {
 
           <section className="impact-mini-stats">
             {[
-              { icon: 'eco',        labelKey: 'miniCo2',     value: `${totalCo2} kg`,  color: 'var(--primary)'   },
+              { streak: true,      labelKey: 'miniStreak',   value: `${currentStreak} ${t('impact.streakDayUnit')}`, color: 'var(--primary)' },
               { icon: 'water_drop', labelKey: 'miniWater',   value: `${Math.round(totalKg * 40)} L`,  color: 'var(--secondary)' },
               { icon: 'bolt',       labelKey: 'miniEnergy',  value: `${Math.round(totalKg * 1.5)} kWh`, color: 'var(--tertiary)'  },
               { icon: 'recycling',  labelKey: 'miniDiverted',      value: `${totalKg} kg`,  color: 'var(--primary)'   },
             ].map(s => (
               <div className="impact-mini-tile" key={s.labelKey}>
-                <span className="material-symbols-outlined impact-mini-icon"
-                  style={{ color: s.color, fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
+                {s.streak ? (
+                  <StreakLeaf days={currentStreak} size={26} className="impact-mini-leaf"
+                    label={t(`impact.${s.labelKey}`)} />
+                ) : (
+                  <span className="material-symbols-outlined impact-mini-icon"
+                    style={{ color: s.color, fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
+                )}
                 <span className="impact-mini-val">{s.value}</span>
                 <span className="impact-mini-lbl">{t(`impact.${s.labelKey}`)}</span>
               </div>
             ))}
           </section>
         </div>
-
-        <section className="impact-card">
-          <div className="impact-card-header-row">
-            <span className="material-symbols-outlined impact-card-icon-left">flag</span>
-            <h2 className="impact-card-title">{t('impact.goalTitle')}</h2>
-          </div>
-          <div className="impact-goal-bar-wrap">
-            <div className="impact-goal-bar">
-              <div className="impact-goal-fill" style={{ width: `${Math.min(100, (totalCo2 / 80) * 100)}%` }} />
-            </div>
-            <span className="impact-goal-pct">{totalCo2} / 80 kg <strong>({Math.round((totalCo2 / 80) * 100)}%)</strong></span>
-          </div>
-          {totalCo2 < 80 ? (
-             <p className="impact-goal-note">{t('impact.goalNeed', { kg: Math.max(0, 80 - totalCo2).toFixed(1) })}</p>
-          ) : (
-             <p className="impact-goal-note">{t('impact.goalSmashed')}</p>
-          )}
-        </section>
 
         <section className="impact-card">
           <div className="impact-card-header-row">

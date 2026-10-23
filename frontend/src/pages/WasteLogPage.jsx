@@ -30,7 +30,6 @@ const HAZARDS = [
 
 // Points per kg for preview (matches backend)
 const PTS_MAP = { plastic: 5, organic: 3, 'e-waste': 10, metal: 6, paper: 4, other: 2 };
-const CO2_MAP = { plastic: 1.5, organic: 0.5, 'e-waste': 2.0, metal: 1.8, paper: 0.9, other: 0.3 };
 
 const CAT_KEY_MAP = { plastic: 'catPlastic', organic: 'catOrganic', 'e-waste': 'catEwaste', metal: 'catMetal', paper: 'catPaper' };
 const HAZARD_KEY_MAP = { sanitary: 'hazardSanitary', biomedical: 'hazardBiomedical', 'e-waste-unsafe': 'hazardEwasteUnsafe', chemical: 'hazardChemical', sharp: 'hazardSharp', 'other-hazard': 'hazardOther' };
@@ -50,7 +49,7 @@ export default function WasteLogPage() {
   const [submitting, setSubmitting] = useState(false);
   const [scanning,   setScanning]   = useState(null);
   const [error,      setError]      = useState('');
-  const [logResult,  setLogResult]  = useState(null); // holds { pointsEarned, co2Saved }
+  const [logResult,  setLogResult]  = useState(null); // holds { pointsEarned }
   const [isHazardous, setIsHazardous] = useState(false);
   const [hazardType,  setHazardType]  = useState('');
   const [safetyAck,   setSafetyAck]   = useState(false);
@@ -73,7 +72,6 @@ export default function WasteLogPage() {
   }, [showModal]);
 
   const pts = Math.round((PTS_MAP[selected] || 2) * qty);
-  const co2 = ((CO2_MAP[selected] || 0.3) * qty).toFixed(2);
 
   const catLabel = (id) => t(`waste.${CAT_KEY_MAP[id] || 'catOther'}`);
   const hazardLabel = (id) => t(`waste.${HAZARD_KEY_MAP[id] || 'hazardOther'}`);
@@ -99,7 +97,7 @@ export default function WasteLogPage() {
         logMethod: 'manual',
         ...(isHazardous ? { isHazardous: true, hazardType, safetyAck: true } : {}),
       });
-      setLogResult({ pointsEarned: data.pointsEarned, co2Saved: data.co2Saved });
+      setLogResult({ pointsEarned: data.pointsEarned, autoTracked: data.autoTracked || [] });
       await refreshAllStats(); // Refresh global stats immediately after logging
       setShowModal(true);
     } catch (err) {
@@ -158,7 +156,7 @@ export default function WasteLogPage() {
       const parsed = data.parsed || {};
       const report = parsed.reports?.[0] || {};
       
-      // Calculate preview points/co2 using 0.5kg as a default AI weight
+      // Calculate preview points using 0.5kg as a default AI weight
       const textToSearch = ((report.wasteCategory || '') + ' ' + (report.identifiedObject || '') + ' ' + (report.material || '')).toLowerCase();
       let catKey = 'other';
       if (textToSearch.includes('plastic') || textToSearch.includes('pet') || textToSearch.includes('polyester')) catKey = 'plastic';
@@ -169,7 +167,6 @@ export default function WasteLogPage() {
       
       const previewQty = 0.5;
       const previewPts = Math.round((PTS_MAP[catKey] || 2) * previewQty);
-      const previewCo2 = Number(((CO2_MAP[catKey] || 0.3) * previewQty).toFixed(2));
 
       // Navigate to scan result page with actual AI result
       navigate('/scan-result', {
@@ -180,7 +177,6 @@ export default function WasteLogPage() {
             material:   report.material         || t('waste.unknownMaterial'),
             binColor:   report.binColor         || 'None',
             confidence: typeof report.confidence === 'number' ? (report.confidence <= 1 ? Math.round(report.confidence * 100) : Math.round(report.confidence)) : 0,
-            co2:        previewCo2,
             points:     previewPts,
             steps:      report.beforeThrowing   || [],
             reuseIdeas: report.reuseIdeas       || [],
@@ -343,25 +339,17 @@ export default function WasteLogPage() {
           </div>
         </section>
 
-        {/* Live CO2 preview */}
-        <div className="log-co2-preview">
-          <div className="log-co2-preview-item">
-            <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontVariationSettings: "'FILL' 1" }}>cloud_done</span>
-            <div>
-              <span className="log-co2-val">{co2} kg</span>
-              <span className="log-co2-label">{t('waste.co2Saved')}</span>
-            </div>
-          </div>
-          <div className="log-co2-preview-divider" />
-          <div className="log-co2-preview-item">
+        {/* Live points preview */}
+        <div className="log-preview">
+          <div className="log-preview-item">
             <span className="material-symbols-outlined" style={{ color: 'var(--secondary)', fontVariationSettings: "'FILL' 1" }}>eco</span>
             <div>
-              <span className="log-co2-val">+{pts} {t('waste.pts')}</span>
-              <span className="log-co2-label">{t('waste.ecoPoints')}</span>
+              <span className="log-preview-val">+{pts} {t('waste.pts')}</span>
+              <span className="log-preview-label">{t('waste.ecoPoints')}</span>
             </div>
           </div>
-          <div className="log-co2-preview-hint">
-            {t('waste.factor', { factor: CO2_MAP[selected], cat: catLabel(selected) })}
+          <div className="log-preview-hint">
+            {t('waste.previewHint', { cat: catLabel(selected), ptsPerKg: PTS_MAP[selected] })}
           </div>
         </div>
 
@@ -454,14 +442,16 @@ export default function WasteLogPage() {
                 <span className="log-modal-stat-val primary">+{logResult?.pointsEarned ?? pts}</span>
                 <span className="log-modal-stat-label">{t('waste.points')}</span>
               </div>
-              <div className="log-modal-stat">
-                <span className="log-modal-stat-val tertiary">{logResult?.co2Saved ?? co2} kg</span>
-                <span className="log-modal-stat-label">{t('waste.co2Saved')}</span>
-              </div>
             </div>
-            <p className="log-modal-co2-note">
-              {t('waste.modalNote', { cat: catLabel(selected), factor: CO2_MAP[selected] })}
-            </p>
+            {(logResult?.autoTracked?.length ?? 0) > 0 && (
+              <div style={{ margin: '0.6rem 0 0', textAlign: 'center' }}>
+                {logResult.autoTracked.map((c) => (
+                  <p key={c.challengeId} style={{ fontSize: '0.8rem', color: 'var(--primary)', margin: '0.2rem 0', fontWeight: 600 }}>
+                    {t('waste.autoTrackedDay', { title: c.title, day: c.dayIndex + 1 })}
+                  </p>
+                ))}
+              </div>
+            )}
             <button className="log-modal-close-btn" onClick={handleClose}>{t('waste.modalClose')}</button>
           </div>
         </div>

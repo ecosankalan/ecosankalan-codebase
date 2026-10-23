@@ -40,22 +40,26 @@ export default function ScanResultPage() {
     material: t('scan.defaultMaterial'),
     confidence: 92,
     icon: 'nest_eco_leaf',
-    co2: 1.25,
     points: 12,
     steps: t('scan.defaultSteps', { returnObjects: true }),
   };
   const result    = location.state?.result ?? DEFAULT_RESULT;
 
+  // Quantity logged for an AI scan (kg) — scans estimate weight loosely, so a
+  // fixed sensible default applies; users adjust it via the Edit action.
+  const LOG_QTY = 0.5;
+
   const [submitting, setSubmitting] = useState(false);
   const [confirmed,  setConfirmed]  = useState(false);
   const [error,      setError]      = useState('');
 
-  const { label, material, confidence, co2, points, steps, reuseIdeas, ecoLesson, binColor, category: resultCategory } = result;
+  const { label, material, confidence, points, steps, reuseIdeas, ecoLesson, binColor, category: resultCategory } = result;
 
   const isInvalid = resultCategory === 'Not Waste' || binColor === 'None';
   const category = inferCategory(result);
   const disposalTip = t(`scan.${DISPOSAL_TIP_KEYS[category] || 'tipOther'}`);
   const [showModal, setShowModal] = useState(false);
+  const [autoTracked, setAutoTracked] = useState([]);
 
   const R          = 20;
   const CIRCUM     = 2 * Math.PI * R;
@@ -66,9 +70,9 @@ export default function ScanResultPage() {
     setSubmitting(true);
     setError('');
     try {
-      await logWaste({
+      const { data } = await logWaste({
         category: category,
-        quantity: typeof co2 === 'number' ? Math.max(0.1, co2 / 1.5) : 0.5,
+        quantity: LOG_QTY,
         unit: 'kg',
         description: `AI scan: ${label} (${material})`,
         logMethod: 'ai_scan',
@@ -78,6 +82,7 @@ export default function ScanResultPage() {
           detectedCategory: result.category || result.detectedCategory || null,
         },
       });
+      setAutoTracked(data?.autoTracked || []);
       await refreshAllStats(); // Update global stats
       setConfirmed(true);
       setShowModal(true); // Show success modal
@@ -297,8 +302,8 @@ export default function ScanResultPage() {
         {!isInvalid && (
           <section className="scan-impact-grid">
             <div className="scan-impact-card">
-              <span className="scan-impact-num primary">{typeof co2 === 'number' ? co2.toFixed(2) : co2}</span>
-              <span className="scan-impact-label">{t('scan.co2Saved')}</span>
+              <span className="scan-impact-num primary">{LOG_QTY} kg</span>
+              <span className="scan-impact-label">{t('scan.estQty')}</span>
             </div>
             <div className="scan-impact-card">
               <span className="scan-impact-num secondary">+{points}</span>
@@ -349,11 +354,16 @@ export default function ScanResultPage() {
                 <span className="log-modal-stat-val primary">+{points}</span>
                 <span className="log-modal-stat-label">{t('scan.points')}</span>
               </div>
-              <div className="log-modal-stat">
-                <span className="log-modal-stat-val tertiary">{typeof co2 === 'number' ? co2.toFixed(2) : co2} kg</span>
-                <span className="log-modal-stat-label">{t('scan.co2Saved')}</span>
-              </div>
             </div>
+            {autoTracked.length > 0 && (
+              <div style={{ margin: '0.6rem 0 0', textAlign: 'center' }}>
+                {autoTracked.map((c) => (
+                  <p key={c.challengeId} style={{ fontSize: '0.8rem', color: 'var(--primary)', margin: '0.2rem 0', fontWeight: 600 }}>
+                    {t('waste.autoTrackedDay', { title: c.title, day: c.dayIndex + 1 })}
+                  </p>
+                ))}
+              </div>
+            )}
             <button className="log-modal-close-btn" onClick={() => navigate('/dashboard')}>{t('scan.backToDashboard')}</button>
           </div>
         </div>

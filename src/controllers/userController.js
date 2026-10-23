@@ -52,11 +52,10 @@ exports.updateProfile = async (req, res) => {
 // GET /user/points (Month 3 placeholder)
 exports.getPoints = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('ecoPoints totalCo2Saved');
+    const user = await User.findById(req.user.userId).select('ecoPoints');
     if (!user) return res.status(404).json({ message: 'User not found' });
     return res.status(200).json({
       ecoPoints: user.ecoPoints,
-      totalCo2Saved: user.totalCo2Saved,
     });
   } catch (err) {
     return res.status(500).json({ message: 'Server error' });

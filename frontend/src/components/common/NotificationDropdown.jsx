@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useNotifications } from "../../context/NotificationContext";
+import notificationPath from "../../lib/notificationPath";
 import "../../styles/NotificationDropdown.css";
 
 export default function NotificationDropdown({ onClose }) {
@@ -36,27 +37,8 @@ export default function NotificationDropdown({ onClose }) {
 
     markAsRead(notification.id);
 
-    switch (notification.data?.type) {
-
-      case "challenge":
-        navigate(`/challenge/${notification.data.challengeId}`);
-        break;
-
-      case "quiz":
-        navigate(`/quiz/${notification.data.quizId}`);
-        break;
-
-      case "reward":
-        navigate("/rewards");
-        break;
-
-      case "level":
-        navigate("/profile");
-        break;
-
-      default:
-        break;
-    }
+    const path = notificationPath(notification.data);
+    if (path) navigate(path);
 
     onClose();
   };
